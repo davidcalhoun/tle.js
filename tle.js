@@ -13,7 +13,7 @@
   }
 }(this, function (satellitejs) {
 
-const satellite = satellitejs.satellite;
+const MS_IN_A_DAY = 1000 * 60 * 60 * 24;
 
 // See https://en.wikipedia.org/wiki/Two-line_element_set.
 const tleLines = {
@@ -177,7 +177,7 @@ var tle = {
     // Check if already parsed.
     if (typeof tle === 'object' && tle.arr) return tle;
 
-    let outputObj = {};
+    const outputObj = {};
     let tleArr = [];
     const tleType = (Array.isArray(tle)) ? 'array' : typeof tle;
 
@@ -345,11 +345,10 @@ var tle = {
 
     const timestampCopy = timestamp || Date.now();
 
-    const isParsedTLE = typeof tle === 'object' && tle.arr;
-    const tleArr = this.parseTLE(tle).arr;
+    const tleArr = (this.parseTLE(tle)).arr;
 
     // Memoization
-    const cacheKey = `${fnName}-${tleArr[0]}-${tleArr[1]}-${timestamp}-${observerLat}-${observerLng}-${observerHeight}`;
+    const cacheKey = `${fnName}-${tleArr[0]}-${tleArr[1]}-${timestampCopy}-${observerLat}-${observerLng}-${observerHeight}`;
     if (this.cache[cacheKey]) return this.cache[cacheKey];
 
     const defaultObserverPosition = {
@@ -363,14 +362,14 @@ var tle = {
     const obsHeight = observerHeight || defaultObserverPosition.height;
 
     // Initialize a satellite record
-    const satrec = satellite.twoline2satrec(tleArr[0], tleArr[1]);
+    const satrec = satellitejs.twoline2satrec(tleArr[0], tleArr[1]);
 
     const time = new Date(timestampCopy);
 
     // Propagate SGP4.
-    const positionAndVelocity = satellite.propagate(satrec, time);
+    const positionAndVelocity = satellitejs.propagate(satrec, time);
 
-    if (satellite.error) {
+    if (satellitejs.error) {
       throw new Error('Error: problematic TLE with unexpected eccentricity');
     }
 
@@ -388,14 +387,14 @@ var tle = {
 
     // Get GMST for some coordinate transforms.
     // http://en.wikipedia.org/wiki/Sidereal_time#Definition
-    const gmst = satellite.gstimeFromDate(time);
+    const gmst = satellitejs.gstimeFromDate(time);
 
     // Get ECF, Geodetic, Look Angles, and Doppler Factor.
-    const positionEcf = satellite.eciToEcf(positionEci, gmst);
-    const observerEcf = satellite.geodeticToEcf(observerGd);
-    const positionGd = satellite.eciToGeodetic(positionEci, gmst);
-    const lookAngles = satellite.ecfToLookAngles(observerGd, positionEcf);
-    const dopplerFactor = satellite.dopplerFactor(observerEcf, positionEci, velocityEci);
+    const positionEcf = satellitejs.eciToEcf(positionEci, gmst);
+    const observerEcf = satellitejs.geodeticToEcf(observerGd);
+    const positionGd = satellitejs.eciToGeodetic(positionEci, gmst);
+    const lookAngles = satellitejs.ecfToLookAngles(observerGd, positionEcf);
+    const dopplerFactor = satellitejs.dopplerFactor(observerEcf, positionEci, velocityEci);
 
     const velocityKmS = Math.sqrt(Math.pow(velocityEci.x, 2) + Math.pow(velocityEci.y, 2) + Math.pow(velocityEci.z, 2));
 
@@ -414,8 +413,8 @@ var tle = {
     const height    = positionGd.height;
 
     const output = {
-      lng: satellite.degreesLong(longitude),    // degrees
-      lat: satellite.degreesLat(latitude),      // degrees
+      lng: satellitejs.degreesLong(longitude),    // degrees
+      lat: satellitejs.degreesLat(latitude),      // degrees
       elevation: this.radiansToDegrees(lookAngles.elevation), // degrees (90 deg is directly overhead)
       azimuth: this.radiansToDegrees(azimuth),  // degrees (compass heading)
       range: lookAngles.rangeSat,   // km distance from ground to spacecraft
@@ -516,26 +515,151 @@ var tle = {
     return timestamp;
   },
 
-  getGroundTrack: function (tle, stepMS) {
+  getLastAntemeridiamCrossingTimeMS(tle, timeMS) {
+    const parsedTLE = this.parseTLE(tle);
+
+    const time = timeMS || Date.now();
+
+    let step = 1000 * 60 * 10;
+    let curLatLon = [];
+    let lastLatLon = [];
+    let curTimeMS = time;
+    let didCrossAntemeridian = false;
+    while (step > 500) {
+      curLatLon = this.getLatLonArr(parsedTLE.arr, curTimeMS);
+
+      didCrossAntemeridian = this.crossesAntemeridian(lastLatLon[1], curLatLon[1]);
+      if (didCrossAntemeridian) {
+        // back up
+        curTimeMS = curTimeMS + step;
+
+        if (step > 20000) {
+          step = 20000;
+        } else {
+          step /= 2;
+        }
+      } else {
+        curTimeMS -= step;
+        lastLatLon = curLatLon;
+      }
+
+    }
+    return parseInt(curTimeMS);
+  },
+
+  getOrbitTimeMS: function(tle) {
+    return parseInt(MS_IN_A_DAY / this.getMeanMotion(tle));
+  },
+
+  getGroundTrackLatLng: function (tle, stepMS) {
+    const parsedTLE = this.parseTLE(tle);
+
+    const orbitTimeMS = this.getOrbitTimeMS(tle);
+    const curOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle);
+    const lastOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle, curOrbitStartMS - 10000);
+    const nextOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle, curOrbitStartMS + orbitTimeMS + 1000 * 60 * 30);
+
+    const orbitStartTimes = [
+      lastOrbitStartMS,
+      curOrbitStartMS,
+      nextOrbitStartMS
+    ];
+
+    const orbitLatLons = orbitStartTimes.map(orbitStartMS => this.getOrbitTrack(parsedTLE.arr, orbitStartMS, stepMS));
+
+    return orbitLatLons;
+  },
+
+  getSatBearing(tle, customTimeMS) {
+    const parsedTLE = this.parseTLE(tle);
+
+    const timeMS = customTimeMS || Date.now();
+
+    const latLon1 = this.getLatLonArr(parsedTLE.arr, timeMS);
+    const latLon2 = this.getLatLonArr(parsedTLE.arr, timeMS + 10000);
+
+    const crossesAntemeridian = this.crossesAntemeridian(latLon1[1], latLon2[1]);
+
+    if (crossesAntemeridian) return this.getSatBearing(tle, customTimeMS + 10000);
+
+    const lat1 = this.degreesToRadians(latLon1[0]);
+    const lat2 = this.degreesToRadians(latLon2[0]);
+    const lon1 = this.degreesToRadians(latLon1[1]);
+    const lon2 = this.degreesToRadians(latLon2[1]);
+
+    const NS = (lat1 >= lat2) ? 'S' : 'N';
+    const EW = (lon1 >= lon2) ? 'W' : 'E';
+
+    const y = Math.sin(lon2 - lon1) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) -
+              Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
+    const degrees = this.radiansToDegrees(Math.atan2(y, x));
+
+    return {
+      degrees,
+      compass: `${NS}${EW}`
+    };
+  },
+
+  getOrbitTrack(TLEArr, startTimeMS, stepMS) {
+    if (!startTimeMS) return [];
+
     //  default to 1 minute intervals
-    const defaultStepMS = 1000 * 60 * 1
-    const stepMSCopy = stepMS || defaultStepMS;
+    const defaultStepMS = 1000 * 60 * 1;
+    let stepMSCopy = stepMS || defaultStepMS;
 
-    //  offset: plot orbit 3 hrs into past and future
-    var timeOffset = 1000 * 60 * 60 * 3,
-    const now = Date.now();
-    const startTime = now - timeOffset,
-    const curMarkerTime = startTime,
-    const endTime = now + timeOffset;
+    const latLons = [];
+    let curTimeMS = startTimeMS;
+    let lastLatLon = [];
+    let curLatLon = [];
+    let isDone = false;
+    let crossesAntemeridian = false;
+    while (!isDone) {
+      curLatLon = this.getLatLonArr(TLEArr, curTimeMS);
 
-    //  generate lat/lons
-    var latLngs = [];
-    while(curMarkerTime < endTime) {
-      latLngs.push(getLatLonArr(tle, curMarkerTime));
-      curMarkerTime += stepMSCopy;
+      crossesAntemeridian = this.crossesAntemeridian(lastLatLon[1], curLatLon[1]);
+
+      if (crossesAntemeridian && stepMSCopy === 500) isDone = true;
+
+      if (crossesAntemeridian) {
+        // Go back a bit.
+        curTimeMS -= stepMSCopy;
+        stepMSCopy = 500;
+      } else {
+        latLons.push(curLatLon);
+        curTimeMS += stepMSCopy;
+        lastLatLon = curLatLon;
+      }
     }
 
-    return latLngs;
+    return latLons;
+  },
+
+  isPositive: function(num) {
+    return num >= 0;
+  },
+
+  crossesAntemeridian: function(longitude1, longitude2) {
+    if (!longitude1 || !longitude2) return false;
+
+    const isLong1Positive = this.isPositive(longitude1);
+    const isLong2Positive = this.isPositive(longitude2);
+    const haveSameSigns = isLong1Positive === isLong2Positive;
+
+    if (haveSameSigns) return false;
+
+    // Signs don't match, so check if we're reasonably near the antemeridian (just to be sure it's not the prime meridian).
+    const isNearAntemeridian = Math.abs(longitude1) > 100;
+
+    return isNearAntemeridian;
+  },
+
+  getGroundTrackLngLat: function (tle, stepMS) {
+    const latLngArr = this.getGroundTrackLatLng(tle, stepMS);
+
+    const lngLatArr = latLngArr.map(line => line.map(latLng => [latLng[1], latLng[0]]));
+
+    return lngLatArr;
   }
 };
 
