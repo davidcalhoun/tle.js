@@ -1,6 +1,6 @@
 {
   "name": "tle.js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Satellite TLE tools in JavaScript.",
   "main": "dist/tle-min.js",
   "scripts": {
