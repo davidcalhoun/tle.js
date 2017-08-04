@@ -4,7 +4,7 @@
   "description": "Satellite TLE tools in JavaScript.",
   "main": "dist/tle-min.js",
   "scripts": {
-    "minify": "./node_modules/uglify-js/bin/uglifyjs -nmf --mangle-props --mangle-regex=\"/^_/\" -o dist/tle-min.js tle.js",
+    "install": "./node_modules/uglify-es/bin/uglifyjs -nmf --mangle-props --mangle-regex=\"/^_/\" -o dist/tle-min.js tle.js",
     "test": "./node_modules/mocha/bin/mocha"
   },
   "repository": {
@@ -32,6 +32,6 @@
     "expect": "^1.20.2",
     "mocha": "^2.3.3",
     "satellite.js": "^1.2.0",
-    "uglify-js": "^3.0.27"
+    "uglify-es": "^3.0.27"
   }
 }
