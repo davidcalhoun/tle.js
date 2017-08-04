@@ -9,7 +9,9 @@
   },
   "globals": {
     "CONFIG": true,
-    "NODE_ENV": true
+    "NODE_ENV": true,
+    "define": true,
+    "require": true
   },
   "settings": {
     "import/resolver": {
@@ -19,6 +21,7 @@
     }
   },
   "rules": {
+    "indent": ["error", 2],
     "comma-dangle": ["error", "never"],
     "no-underscore-dangle": 0,
     "max-len": ["error", {

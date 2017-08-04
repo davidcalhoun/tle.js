@@ -1,4 +1,4 @@
-(function (root, factory) {
+(function tle(root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
   define(['satellite.js'], factory);
@@ -173,23 +173,23 @@ var tle = {
     this.createTLEGetters();
   },
 
-  parseTLE: function(tle) {
+  parseTLE: function(inputTLE) {
     // Check if already parsed.
-    if (typeof tle === 'object' && tle.arr) return tle;
+    if (typeof inputTLE === 'object' && inputTLE.arr) return inputTLE;
 
     const outputObj = {};
+    const tleType = (Array.isArray(inputTLE)) ? 'array' : typeof inputTLE;
     let tleArr = [];
-    const tleType = (Array.isArray(tle)) ? 'array' : typeof tle;
 
     switch (tleType) {
       case 'array':
         // Make a copy.
-        tleArr = tle.concat();
+        tleArr = inputTLE.concat();
       break;
 
       case 'string':
         // Convert string to array.
-        tleArr = tle.split('\n');
+        tleArr = inputTLE.split('\n');
       break;
 
       default:
@@ -580,7 +580,11 @@ var tle = {
 
     const crossesAntemeridian = this.crossesAntemeridian(latLon1[1], latLon2[1]);
 
-    if (crossesAntemeridian) return this.getSatBearing(tle, customTimeMS + 10000);
+    if (crossesAntemeridian) {
+      // TODO: fix
+      return {};
+      // return this.getSatBearing(tle, customTimeMS + 10000);
+    }
 
     const lat1 = this.degreesToRadians(latLon1[0]);
     const lat2 = this.degreesToRadians(latLon2[0]);
