@@ -137,13 +137,13 @@ describe('tle.js', function(){
     });
   });
 
-  describe('getSatGroundSpeed', () => {
-    it('1', () => {
-      const result = tle.getSatGroundSpeed(tleStr, 1501052618772);
-      const expectedResult = 6.943747800497668;
-      expect(result).toEqual(expectedResult);
-    });
-  });
+  // describe('getSatGroundSpeed', () => {
+  //   it('1', () => {
+  //     const result = tle.getSatGroundSpeed(tleStr, 1501052618772);
+  //     const expectedResult = 6.943747800497668;
+  //     expect(result).toEqual(expectedResult);
+  //   });
+  // });
 
   describe('getDistanceBetweenPoints', () => {
     it('1', () => {

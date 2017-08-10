@@ -11,9 +11,19 @@
     // Browser globals (root is window)
     root.returnExports = factory(root.satellite);
   }
-}(this, function (satellitejs) {
+}(this, function (SatelliteJS) {
+
+const satellitejs = SatelliteJS.satellite;
 
 const MS_IN_A_DAY = 1000 * 60 * 60 * 24;
+
+const DATA_TYPES = {
+  INT: 'INT',
+  FLOAT: 'FLOAT',
+  CHAR: 'CHAR',
+  DECIMAL_ASSUMED: 'DECIMAL_ASSUMED',
+  DECIMAL_ASSUMED_E: 'DECIMAL_ASSUMED_E'
+};
 
 // See https://en.wikipedia.org/wiki/Two-line_element_set.
 const tleLines = {
@@ -21,85 +31,99 @@ const tleLines = {
     // TLE line number.
     lineNumber1: {
       start: 0,
-      length: 1
+      length: 1,
+      type: DATA_TYPES.INT
     },
 
     // Satellite catalog number.
     satelliteNumber: {
       start: 2,
-      length: 5
+      length: 5,
+      type: DATA_TYPES.INT
     },
 
     // Satellite classification (U is unclassified).
     classification: {
       start: 7,
-      length: 1
+      length: 1,
+      type: DATA_TYPES.CHAR
     },
 
     // International Designator: Last 2 digits of launch year.
     intDesignatorYear: {
       start: 9,
-      length: 2
+      length: 2,
+      type: DATA_TYPES.INT
     },
 
     // International Designator: Launch number of the year.
     intDesignatorLaunchNumber: {
       start: 11,
-      length: 3
+      length: 3,
+      type: DATA_TYPES.INT
     },
 
     // International Designator: Piece of the launch.
     intDesignatorPieceOfLaunch: {
       start: 14,
-      length: 3
+      length: 3,
+      type: DATA_TYPES.CHAR
     },
 
     // Last 2 digits of epoch year (when this TLE was generated).
     epochYear: {
       start: 18,
-      length: 2
+      length: 2,
+      type: DATA_TYPES.INT
     },
 
-    // Fractional day of the year of epoch(when this TLE was generated).
+    // Fractional day of the year of epoch (when this TLE was generated).
     epochDay: {
       start: 20,
-      length: 12
+      length: 12,
+      type: DATA_TYPES.FLOAT
     },
 
     // First Time Derivative of the Mean Motion divided by two.
     firstTimeDerivative: {
       start: 33,
-      length: 11
+      length: 11,
+      type: DATA_TYPES.FLOAT
     },
 
     // Second Time Derivative of Mean Motion divided by six (decimal point assumed).
     secondTimeDerivative: {
       start: 44,
-      length: 8
+      length: 8,
+      type: DATA_TYPES.DECIMAL_ASSUMED_E
     },
 
     // BSTAR drag term (decimal point assumed).
     bstarDrag: {
       start: 53,
-      length: 8
+      length: 8,
+      type: DATA_TYPES.DECIMAL_ASSUMED_E
     },
 
     // The number 0 (originally this should have been "Ephemeris type").
     numZero: {
       start: 62,
-      length: 1
+      length: 1,
+      type: DATA_TYPES.INT
     },
 
     // TLE element set number.  Incremented for each new TLE generated.
     tleSetNumber: {
       start: 64,
-      length: 4
+      length: 4,
+      type: DATA_TYPES.INT
     },
 
     // TLE Checksum (modulo 10).
     checksum1: {
       start: 68,
-      length: 1
+      length: 1,
+      type: DATA_TYPES.INT
     },
   },
 
@@ -107,61 +131,71 @@ const tleLines = {
     // TLE line number.
     lineNumber2: {
       start: 0,
-      length: 1
+      length: 1,
+      type: DATA_TYPES.INT
     },
 
     // Satellite catalog number.
     satelliteNumber2: {
       start: 2,
-      length: 5
+      length: 5,
+      type: DATA_TYPES.INT
     },
 
     // Inclination in degrees.
     inclination: {
       start: 8,
-      length: 8
+      length: 8,
+      type: DATA_TYPES.FLOAT
     },
 
     // Right ascension of the ascending node in degrees.
     rightAscension: {
       start: 17,
-      length: 8
+      length: 8,
+      type: DATA_TYPES.FLOAT
     },
 
     // Orbit eccentricity, decimal point assumed.
     eccentricity: {
       start: 26,
-      length: 7
+      length: 7,
+      type: DATA_TYPES.DECIMAL_ASSUMED
     },
 
     // Argument of perigee in degrees.
     perigee: {
       start: 34,
-      length: 8
+      length: 8,
+      type: DATA_TYPES.FLOAT
     },
 
     // Mean Anomaly in degrees.
     meanAnomaly: {
       start: 43,
-      length: 8
+      length: 8,
+      type: DATA_TYPES.FLOAT
     },
 
     // Revolutions per day (mean motion).
     meanMotion: {
       start: 52,
-      length: 11
+      length: 11,
+      type: DATA_TYPES.FLOAT
     },
 
     // Total satellite revolutions when this TLE was generated.
     revNumberAtEpoch: {
       start: 63,
-      length: 5
+      length: 5,
+      type: DATA_TYPES.INT
     },
 
     // TLE Checksum (modulo 10).
     checksum2: {
       start: 68,
-      length: 1
+      length: 1,
+      type: DATA_TYPES.INT
     }
   }
 }
@@ -307,8 +341,32 @@ var tle = {
 
           const substr = line.substr(start, length);
 
-          const intSubstr = parseFloat(substr);
-          const output = (Number.isFinite(intSubstr)) ? intSubstr : substr;
+          let output;
+          switch (tleLines[tleLine][prop].type) {
+            case DATA_TYPES.INT:
+              output = parseInt(substr);
+            break;
+
+            case DATA_TYPES.FLOAT:
+              output = parseFloat(substr);
+            break;
+
+            case DATA_TYPES.DECIMAL_ASSUMED:
+              output = parseFloat(`0.${substr}`);
+            break;
+
+            case DATA_TYPES.DECIMAL_ASSUMED_E:
+              const num = substr.substr(0, substr.length - 2);
+              const leadingDecimalPoints = substr.substr(substr.length - 2, 2);
+              const float = num * Math.pow(10, parseInt(leadingDecimalPoints));
+              output = float.toFixed(5);
+            break;
+
+            case DATA_TYPES.CHAR:
+            default:
+              output = substr.trim();
+            break;
+          }
 
           return output;
         }
@@ -337,6 +395,11 @@ var tle = {
     var epochYear = this.getEpochYear(tle);
 
     return this.dayOfYearToTimeStamp(epochDay, epochYear);
+  },
+
+  getSatelliteName: function(tle) {
+    const parsedTLE = this.parseTLE(tle);
+    return parsedTLE.name;
   },
 
   // Use satellite.js.
@@ -551,11 +614,13 @@ var tle = {
     return parseInt(MS_IN_A_DAY / this.getMeanMotion(tle));
   },
 
-  getGroundTrackLatLng: function (tle, stepMS) {
+  getGroundTrackLatLng: function (tle, stepMS, optionalTimeMS) {
+    const timeMS = optionalTimeMS || Date.now();
+
     const parsedTLE = this.parseTLE(tle);
 
     const orbitTimeMS = this.getOrbitTimeMS(tle);
-    const curOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle);
+    const curOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle, timeMS);
     const lastOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle, curOrbitStartMS - 10000);
     const nextOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle, curOrbitStartMS + orbitTimeMS + 1000 * 60 * 30);
 
@@ -568,6 +633,40 @@ var tle = {
     const orbitLatLons = orbitStartTimes.map(orbitStartMS => this.getOrbitTrack(parsedTLE.arr, orbitStartMS, stepMS));
 
     return orbitLatLons;
+  },
+
+  getOrbitTrack(TLEArr, startTimeMS, stepMS) {
+    if (!startTimeMS) return [];
+
+    //  default to 1 minute intervals
+    const defaultStepMS = 1000 * 60 * 1;
+    let stepMSCopy = stepMS || defaultStepMS;
+
+    const latLons = [];
+    let curTimeMS = startTimeMS;
+    let lastLatLon = [];
+    let curLatLon = [];
+    let isDone = false;
+    let crossesAntemeridian = false;
+    while (!isDone) {
+      curLatLon = this.getLatLonArr(TLEArr, curTimeMS);
+
+      crossesAntemeridian = this.crossesAntemeridian(lastLatLon[1], curLatLon[1]);
+
+      if (crossesAntemeridian && stepMSCopy === 500) isDone = true;
+
+      if (crossesAntemeridian) {
+        // Go back a bit.
+        curTimeMS -= stepMSCopy;
+        stepMSCopy = 500;
+      } else {
+        latLons.push(curLatLon);
+        curTimeMS += stepMSCopy;
+        lastLatLon = curLatLon;
+      }
+    }
+
+    return latLons;
   },
 
   getSatBearing(tle, customTimeMS) {
@@ -603,40 +702,6 @@ var tle = {
       degrees,
       compass: `${NS}${EW}`
     };
-  },
-
-  getOrbitTrack(TLEArr, startTimeMS, stepMS) {
-    if (!startTimeMS) return [];
-
-    //  default to 1 minute intervals
-    const defaultStepMS = 1000 * 60 * 1;
-    let stepMSCopy = stepMS || defaultStepMS;
-
-    const latLons = [];
-    let curTimeMS = startTimeMS;
-    let lastLatLon = [];
-    let curLatLon = [];
-    let isDone = false;
-    let crossesAntemeridian = false;
-    while (!isDone) {
-      curLatLon = this.getLatLonArr(TLEArr, curTimeMS);
-
-      crossesAntemeridian = this.crossesAntemeridian(lastLatLon[1], curLatLon[1]);
-
-      if (crossesAntemeridian && stepMSCopy === 500) isDone = true;
-
-      if (crossesAntemeridian) {
-        // Go back a bit.
-        curTimeMS -= stepMSCopy;
-        stepMSCopy = 500;
-      } else {
-        latLons.push(curLatLon);
-        curTimeMS += stepMSCopy;
-        lastLatLon = curLatLon;
-      }
-    }
-
-    return latLons;
   },
 
   isPositive: function(num) {
