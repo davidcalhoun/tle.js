@@ -239,12 +239,9 @@ describe('tle.js', function(){
         lng: -116.911389
       }
       const result = tle.getLookAngles(tleStr, timestamp, bigBearLatLng.lat, bigBearLatLng.lng);
-      const expectedResult = {
-        azimuth: 122.82844783685059,
-        elevation: 35.825753735867735,
-        range: 652.5738693731333
-      };
-      expect(result).toEqual(expectedResult);
+      expect(result.azimuth.toFixed(7)).toEqual(122.8284478);
+      expect(result.elevation.toFixed(7)).toEqual(35.8257537);
+      expect(result.range.toFixed(9)).toEqual(652.573869373);
     });
   });
 });
