@@ -18,7 +18,6 @@ describe('getters', function(){
 
   describe('name', () => {
     it('getSatelliteName', () => {
-      console.log(222, tle.getLatLon(tleStr));
       expect(tle.getSatelliteName(tleStr)).toEqual('ISS (ZARYA)');
     });
 
