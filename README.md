@@ -1,4 +1,7 @@
 # tle.js
+[![Build Status](https://travis-ci.org/davidcalhoun/tle.js.svg?branch=master)](https://travis-ci.org/davidcalhoun/tle.js)
+[![Downloads][downloads-image]][npm-url]
+
 Satellite TLE tools in JavaScript
 
 ## Introduction
@@ -10,9 +13,9 @@ simplify TLE processing with a friendly interface.
 Most users will probably want to simply get the latitude/longitude of a satellite (see
 [getLatLon](#getlatlon)) or get the look angles from a ground position, which can be used to track
 where in the sky a satellite is visible (see [getSatelliteInfo](#getsatelliteinfo)).  Users may
-also want to plot orbit lines (see [getGroundTrackLatLng](#getgroundtracklatlng)).
+also want to plot orbit lines (see [getGroundTrackLatLng](#getgroundtracklatlng-current-time)).
 
-Users may also be interested in parsing out specific information in a TLE.  In this case, you
+Users may also be interested in grabbing specific values from a TLE.  In this case, you
 can use one of the [TLE getters](#basic-tle-getters).
 
 Note that TLEs should be update daily to avoid drift in calculations.  You can get them online at
@@ -71,7 +74,8 @@ const latLonObj = tle.getLatLon(tleStr, timestampMS);
 ## Orbit lines (ground track)
 ### getGroundTrackLatLng (current time)
 Returns an array of latitude, longitude pairs for drawing the ground track (satellite path) for
-three orbits: one past orbit, one current orbit, and one future orbit.  Orbits start and stop at the international date line (antemeridian) because that's a common problematic area for mapping.
+three orbits: one past orbit, one current orbit, and one future orbit.  Orbits start and stop at the international date line (antemeridian) because values passing over that line is commonly
+problematic in mapping.
 
 ```js
 const threeOrbitsArr = tle.getGroundTrackLatLng(tleStr);
@@ -99,16 +103,18 @@ const threeOrbitsArr = tle.getGroundTrackLatLng(tleStr);
 ```
 
 ### getGroundTrackLatLng (specific time and controlling resolution)
-You can also pass in parameters for controlling ground track resolution and time:
-
 ```js
-// Plot a new point in the ground track polygon every 1000 milliseconds.
+// Resolution: plot a new point in the ground track polygon every 1000 milliseconds.
 const stepMS = 1000;
 
 // Relative time to draw orbits from.  This will be used as the "middle"/current orbit.
 const timestampMS = 1502342329860;
 
-const threeOrbitsArr = tle.getGroundTrackLatLng(tleStr, stepMS, timestampMS);
+const threeOrbitsArr = tle.getGroundTrackLatLng(
+  tleStr,
+  stepMS,
+  timestampMS
+);
 /*
 [
   // previous orbit
@@ -137,31 +143,39 @@ const threeOrbitsArr = tle.getGroundTrackLatLng(tleStr, stepMS, timestampMS);
 Get both look angles (for a ground observer) as well as a few more tidbits of satellite info.
 
 ```js
-// Timestamp can be in past, present, or future.
 const timestampMS = 1501039265000;
 
-// GPS coordinates, in degrees, of an observer on the ground ([latitude, longitude] array).
-const observerLatLonArr = [34.243889, -116.911389];
-const observerHeight = 0;
+// Observer details.
+const observer = {
+  lat: 34.243889,
+  lon: -116.911389,
+  height: 0
+};
 
 const satInfo = tle.getSatelliteInfo(
   tleStr, 
-  timestampMS,           // Timestamp (ms)
-  observerLatLonArr[0],  // Observer latitude (degrees)
-  observerLatLonArr[1],  // Observer longitude (degrees)
-  observerHeight         // Observer elevation (km)
+  timestampMS,     // Timestamp (ms)
+  observer.lat,    // Observer latitude (degrees)
+  observer.lon,    // Observer longitude (degrees)
+  observer.height  // Observer elevation (km)
 );
+
 // {
-//   // observer-to-spacecraft info
-//   azimuth: 294.5780478624994,    // degrees (compass heading)
-//   elevation: 81.63903620330046,  // degrees (90 deg is directly overhead)
-//   range: 406.60211015810074,     // km (distance from observer to spacecraft)
+//   // satellite compass heading from observer in degrees
+//   azimuth:   294.5780478624994,
+//   // satellite elevation from observer in degrees (90 is directly overhead)
+//   elevation: 81.63903620330046,
+//   // km distance from observer to spacecraft
+//   range:     406.60211015810074,
 //
-//   // spacecraft info
-//   height: 402.9082788620108,     // km (altitude of spacecraft)
-//   lat: 34.45112876592785,        // degrees (latitude of spacecraft)
-//   lng: -117.46176597710809,      // degrees (longitude of spacecraft)
-//   velocity: 7.675627442183371    // km/s (satellite velocity)
+//   // spacecraft altitude in km
+//   height:   402.9082788620108,
+//   // spacecraft latitude in degrees
+//   lat:      34.45112876592785,
+//   // spacecraft longitude in degrees
+//   lng:      -117.46176597710809,
+//   // spacecraft velocity in km/s
+//   velocity: 7.675627442183371
 // }
 
 ```
@@ -368,3 +382,7 @@ TLE line 2 checksum (modulo 10).
 tlejs.getChecksum2(tleStr);
 // 0
 ```
+
+
+[downloads-image]: https://img.shields.io/npm/dm/tle.js.svg?style=flat-square
+[npm-url]: https://www.npmjs.com/package/tle.js
