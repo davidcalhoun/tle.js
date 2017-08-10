@@ -119,7 +119,7 @@ const tleLines = {
       type: DATA_TYPES.INT
     },
 
-    // TLE Checksum (modulo 10).
+    // TLE line 1 checksum (modulo 10).
     checksum1: {
       start: 68,
       length: 1,
@@ -191,7 +191,7 @@ const tleLines = {
       type: DATA_TYPES.INT
     },
 
-    // TLE Checksum (modulo 10).
+    // TLE line 2 checksum (modulo 10).
     checksum2: {
       start: 68,
       length: 1,

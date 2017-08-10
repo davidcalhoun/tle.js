@@ -2,13 +2,25 @@
 Satellite TLE tools in JavaScript
 
 ## Introduction
-`tle.js` is designed to simplify TLE processing with a friendly interface.  It can be used simply,
-to get information about a TLE, or in a more complex way, to get a satellite's GPS coordinates at
-a given time.  It can also be used to compute look angles at a given time (used to find the angle
-and compass direction of a satellite from an observer's position on the ground).
+A [TLE, or two-line element set](https://en.wikipedia.org/wiki/Two-line_element_set), is used by
+[SGP4 propagators](https://en.wikipedia.org/wiki/Simplified_perturbations_models) to determine
+spacecraft information.  Their origin goes back to the punchcard days!  `tle.js` is designed to
+simplify TLE processing with a friendly interface.
 
+Most users will probably want to simply get the latitude/longitude of a satellite (see
+[getLatLon](#getlatlon)) or get the look angles from a ground position, which can be used to track
+where in the sky a satellite is visible (see [getSatelliteInfo](#getsatelliteinfo)).  Users may
+also want to plot orbit lines (see [getGroundTrackLatLng](#getgroundtracklatlng)).
 
-## Satellite location and look angles
+Users may also be interested in parsing out specific information in a TLE.  In this case, you
+can use one of the [TLE getters](#basic-tle-getters).
+
+Note that TLEs should be update daily to avoid drift in calculations.  You can get them online at
+[Celestrak](http://celestrak.com/NORAD/elements/).
+
+## Shared code
+Let's start out with some code to define some variables which we'll use in many examples below.
+
 ```js
 const tlejs = require('tle.js');
 
@@ -17,38 +29,24 @@ const tleStr = `ISS (ZARYA)
 2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
 ```
 
+In addition to this three-line TLE string, you may also pass in a two-line TLE string, as well
+as an array of two or three line TLEs.
+
+```js
+// Two-line array example.
+const tleArr = [
+  '1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993',
+  '2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660'
+];
+```
+
+## Satellite latitude and longitude
+
 ### getLatLon
-Simple usage: get the current latitude/longitude of a spacecraft.
+Get the current latitude/longitude of a spacecraft.
 
 ```js
 const latLonObj = tle.getLatLon(tleStr);
-// {
-//   lat: -35.120571636901786,
-//   lng: -54.5473164683468
-// }
-```
-
-Note that you can also pass in the 2-line TLE variant:
-
-```js
-const tleStrTwoLine = `1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
-2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
-```
-const latLonObj = tle.getLatLon(tleStr);
-// {
-//   lat: -35.120571636901786,
-//   lng: -54.5473164683468
-// }
-```
-
-You can also pass in the TLE as an array (both 2 and 3 line TLE variants are acceptable).
-
-```js
-const tleArr = ['ISS (ZARYA)',
-'1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993',
-'2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660']
-
-const latLonObj = tle.getLatLon(tleArr);
 // {
 //   lat: -35.120571636901786,
 //   lng: -54.5473164683468
@@ -56,9 +54,10 @@ const latLonObj = tle.getLatLon(tleArr);
 ```
 
 ### getLatLon specific time
-Get the latitude/longitude of a spacecraft at a specific time.  Note that due to drift, the results
-become less accurate the farther away the time is from the time the TLE was generated (the TLE's
-epoch).
+Get the latitude/longitude of a spacecraft at a specific time.
+
+Due to drift, the results become less accurate the farther away the time is from the time the TLE
+was generated (the TLE's epoch).
 
 ```js
 const timestampMS = 1502342329860;
@@ -69,7 +68,8 @@ const latLonObj = tle.getLatLon(tleStr, timestampMS);
 // }
 ```
 
-### getGroundTrackLatLng
+## Orbit lines (ground track)
+### getGroundTrackLatLng (current time)
 Returns an array of latitude, longitude pairs for drawing the ground track (satellite path) for
 three orbits: one past orbit, one current orbit, and one future orbit.  Orbits start and stop at the international date line (antemeridian) because that's a common problematic area for mapping.
 
@@ -98,6 +98,7 @@ const threeOrbitsArr = tle.getGroundTrackLatLng(tleStr);
 */
 ```
 
+### getGroundTrackLatLng (specific time and controlling resolution)
 You can also pass in parameters for controlling ground track resolution and time:
 
 ```js
@@ -108,12 +109,32 @@ const stepMS = 1000;
 const timestampMS = 1502342329860;
 
 const threeOrbitsArr = tle.getGroundTrackLatLng(tleStr, stepMS, timestampMS);
+/*
+[
+  // previous orbit
+  [
+    [ 45.85524291891481, -179.93297540317567 ],
+    ...
+  ],
+
+  // current orbit
+  [
+    [ 51.26165992503701, -179.9398612198045 ],
+    ...
+  ],
+
+  // next orbit
+  [
+    [ 51.0273714070371, -179.9190165549038 ],
+    ...
+  ]
+]
+*/
 ```
 
-
+## Observer look angles
 ### getSatelliteInfo
-A very powerful function to get both look angles (for a ground observer) as well as a few more
-tidbits of satellite info.
+Get both look angles (for a ground observer) as well as a few more tidbits of satellite info.
 
 ```js
 // Timestamp can be in past, present, or future.
@@ -123,7 +144,13 @@ const timestampMS = 1501039265000;
 const observerLatLonArr = [34.243889, -116.911389];
 const observerHeight = 0;
 
-const satInfo = tle.getSatelliteInfo(tle1, timestampMS, observerLatLonArr[0], observerLatLonArr[1], observerHeight);
+const satInfo = tle.getSatelliteInfo(
+  tleStr, 
+  timestampMS,           // Timestamp (ms)
+  observerLatLonArr[0],  // Observer latitude (degrees)
+  observerLatLonArr[1],  // Observer longitude (degrees)
+  observerHeight         // Observer elevation (km)
+);
 // {
 //   // observer-to-spacecraft info
 //   azimuth: 294.5780478624994,    // degrees (compass heading)
@@ -144,6 +171,7 @@ const satInfo = tle.getSatelliteInfo(tle1, timestampMS, observerLatLonArr[0], ob
 In addition to the powerful functions above, there are also helpful functions for getting
 specific information from a TLE itself.
 
+### Shared variables for below examples.
 ```js
 const tlejs = require('tle.js');
 
@@ -219,7 +247,7 @@ tlejs.getEpochDay(tleStr);
 // 206.18396726
 ```
 
-You can convert this to a millisecond timestamp by using dayOfYearToTimeStamp():
+You can convert this to a millisecond timestamp by using `dayOfYearToTimeStamp()`:
 ```js
 const tleEpochYear = tlejs.getEpochYear(tleStr);
 // 17
@@ -250,7 +278,7 @@ tlejs.getSecondTimeDerivative(tleStr);
 
 ### getBstarDrag
 [BSTAR](https://en.wikipedia.org/wiki/BSTAR) drag term (decimal point assumed).  Note that this
-value in the original TLE is `36771-4`, which means `0.36771 * 10 ^ -4`, or `3.67710`, which is
+value in the original TLE is `36771-4`, which means 0.36771 * 10<sup>-4</sup>, or `3.67710`, which is
 the value returned.
 
 ```js
@@ -259,7 +287,8 @@ tlejs.getBstarDrag(tleStr);
 ```
 
 ### getTleSetNumber
-TLE element set number.  Incremented for each new TLE generated.
+TLE element set number.  Incremented for each new TLE generated.  (Note: 999 seems to mean the TLE
+has maxxed out).
 
 ```js
 tlejs.getTleSetNumber(tleStr);
@@ -333,7 +362,7 @@ tlejs.getRevNumberAtEpoch(tleStr);
 ```
 
 ### getChecksum2
-TLE Checksum (modulo 10).
+TLE line 2 checksum (modulo 10).
 
 ```js
 tlejs.getChecksum2(tleStr);
