@@ -174,7 +174,13 @@ describe('tle.js', function(){
         height: 403.01331234690133,
         velocity: 7.675512139515791
       };
-      expect(result).toEqual(expectedResult);
+      expect(result.lat).toEqual(34.439283990227125);
+      expect(result.lng).toEqual(-117.47561122364522);
+      expect(result.azimuth.toFixed(7)).toEqual(292.8250329);
+      expect(result.elevation.toFixed(7)).toEqual(81.5452074);
+      expect(result.range).toEqual(406.80066121261547);
+      expect(result.height).toEqual(403.01331234690133);
+      expect(result.velocity).toEqual(7.675512139515791);
     });
 
     describe('memoization', () => {
