@@ -28,7 +28,6 @@
   },
   "homepage": "https://github.com/davidcalhoun/tle.js",
   "dependencies": {
-    "babel": "^6.23.0",
     "babel-cli": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
     "chai": "^3.4.1",
