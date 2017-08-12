@@ -216,21 +216,4 @@ describe('tle.js', function(){
     });
   });
 
-  describe('getLookAngles', () => {
-    const tleStr = `ISS (ZARYA)
-1 25544U 98067A   17206.51418347  .00001345  00000-0  27503-4 0  9993
-2 25544  51.6396 207.2711 0006223  72.3525  71.7719 15.54224686 67715`;
-
-    it('Big Bear flyover', () => {
-      const timestamp = 1501039265000;
-      const bigBearLatLng = {
-        lat: 34.243889,
-        lng: -116.911389
-      }
-      const result = tle.getLookAngles(tleStr, timestamp, bigBearLatLng.lat, bigBearLatLng.lng);
-      expect(result.azimuth.toFixed(7)).toEqual(122.8284478);
-      expect(result.elevation.toFixed(7)).toEqual(35.8257537);
-      expect(result.range.toFixed(9)).toEqual(652.573869373);
-    });
-  });
 });
