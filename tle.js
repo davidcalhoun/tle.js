@@ -406,13 +406,13 @@ class TLEJS {
   toCamelCase(str, divider) {
     divider = divider || '-';
 
-    var bits = str.split(divider);
+    const bits = str.split(divider);
 
-    var output = [];
+    const output = [];
 
     output.push(bits[0]);
 
-    for(var i=1, len=bits.length; i<len; i++) {
+    for(let i=1, len=bits.length; i<len; i++) {
       output.push(bits[i].substr(0, 1).toUpperCase() + bits[i].substr(1, bits[i].length - 1));
     }
 
@@ -420,9 +420,8 @@ class TLEJS {
   }
 
   getEpochTimestamp(tle) {
-    var epochDay = this.getEpochDay(tle);
-    var epochYear = this.getEpochYear(tle);
-
+    const epochDay = this.getEpochDay(tle);
+    const epochYear = this.getEpochYear(tle);
     return this.dayOfYearToTimeStamp(epochDay, epochYear);
   }
 
@@ -520,20 +519,6 @@ class TLEJS {
     return output;
   }
 
-  getSatGroundSpeed(tle, timestamp) {
-    const parsedTLE = this.parseTLE(tle);
-    const timestampCopy = timestamp || Date.now();
-    const timestampPlus = timestampCopy + 10000;
-    const position1 = this.getSatelliteInfo(parsedTLE, timestampCopy);
-    const position2 = this.getSatelliteInfo(parsedTLE, timestampPlus);
-
-    const distance = this.getDistanceBetweenPointsGround(position1.lat, position1.lng, position2.lat, position2.lng);
-
-    const kmPerSec = distance / 10;
-
-    return kmPerSec;
-  }
-
   getLatLon(tle, timestamp) {
     const tleObj = this.parseTLE(tle);
 
@@ -542,7 +527,7 @@ class TLEJS {
       throw new Error('TLE could not be parsed', tle);
     }
 
-    var satInfo = this.getSatelliteInfo(tleObj.arr, timestamp);
+    const satInfo = this.getSatelliteInfo(tleObj.arr, timestamp);
     return {
       lat: satInfo.lat,
       lng: satInfo.lng
@@ -552,16 +537,6 @@ class TLEJS {
   getLatLonArr(tle, timestamp) {
     const ll = this.getLatLon(tle, timestamp);
     return [ ll.lat, ll.lng ];
-  }
-
-  getDistanceBetweenPointsGround(lat1, lon1, lat2, lon2) {
-    var p = 0.017453292519943295;    // Math.PI / 180
-    var c = Math.cos;
-    var a = 0.5 - c((lat2 - lat1) * p)/2 +
-            c(lat1 * p) * c(lat2 * p) *
-            (1 - c((lon2 - lon1) * p))/2;
-
-    return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
   }
 
   getLookAngles(tle, timestamp, lat, lng, height) {

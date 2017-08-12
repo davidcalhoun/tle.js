@@ -283,14 +283,13 @@ tlejs.getEpochDay(tleStr);
 -> 206.18396726
 ```
 
-You can convert this to a millisecond timestamp by using `dayOfYearToTimeStamp()`:
+### getEpochTimestamp
+Millisecond timestamp when the TLE was generated (the TLE epoch).
+
 ```js
-const tleEpochYear = tlejs.getEpochYear(tleStr);
-const tleEpochDay = tlejs.getEpochDay(tleStr);
-const tleEpochTimestampMS = tle.dayOfYearToTimeStamp(tleEpochDay, tleEpochYear);
+tle.getEpochTimestamp(tleStr);
 -> 1500956694771
 ```
-
 
 ### getFirstTimeDerivative
 First Time Derivative of the [Mean Motion](https://en.wikipedia.org/wiki/Mean_Motion) divided by

@@ -66,6 +66,10 @@ describe('getters', function(){
       expect(tle.getEpochDay(tleStr)).toEqual(206.18396726);
     });
 
+    it('getEpochTimestamp', () => {
+      expect(tle.getEpochTimestamp(tleStr)).toEqual(1500956694771);
+    });
+
     it('getFirstTimeDerivative', () => {
       expect(tle.getFirstTimeDerivative(tleStr)).toEqual(0.00001961);
     });

@@ -142,22 +142,6 @@ describe('tle.js', function(){
     });
   });
 
-  // describe('getSatGroundSpeed', () => {
-  //   it('1', () => {
-  //     const result = tle.getSatGroundSpeed(tleStr, 1501052618772);
-  //     const expectedResult = 6.943747800497668;
-  //     expect(result).toEqual(expectedResult);
-  //   });
-  // });
-
-  describe('getDistanceBetweenPoints', () => {
-    it('1', () => {
-      const result = tle.getDistanceBetweenPointsGround(34.267411, -116.947186, 34.243889, -116.911389);
-      const expectedResult = 4.202964410817332;
-      expect(result).toEqual(expectedResult);
-    });
-  });
-
   describe('getSatelliteInfo', () => {
     const tleStr = `ISS (ZARYA)
 1 25544U 98067A   17206.51418347  .00001345  00000-0  27503-4 0  9993
