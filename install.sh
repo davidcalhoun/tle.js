@@ -1,4 +1,3 @@
-rm -rf dist || true
 mkdir dist || true
 
 alias babel="npm-exec babel-cli"

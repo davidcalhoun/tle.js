@@ -21,6 +21,9 @@ can use one of the [TLE getters](#basic-tle-getters).
 Note that TLEs should be update daily to avoid drift in calculations.  You can get them online at
 [Celestrak](http://celestrak.com/NORAD/elements/).
 
+More info on TLEs:
+* [http://castor2.ca/03_Mechanics/03_TLE/](http://castor2.ca/03_Mechanics/03_TLE/)
+
 ## Shared code
 Let's start out with some code to define some variables which we'll use in many examples below.
 
@@ -50,10 +53,13 @@ Get the current latitude/longitude of a spacecraft.
 
 ```js
 const latLonObj = tle.getLatLon(tleStr);
-// {
-//   lat: -35.120571636901786,
-//   lng: -54.5473164683468
-// }
+
+->
+{
+  lat: -35.120571636901786,
+  lng: -54.5473164683468
+}
+*/
 ```
 
 ### getLatLon specific time
@@ -65,21 +71,29 @@ was generated (the TLE's epoch).
 ```js
 const timestampMS = 1502342329860;
 const latLonObj = tle.getLatLon(tleStr, timestampMS);
-// {
-//   lat: -47.64247588153391,
-//   lng: -29.992233800623634
-// }
+
+->
+{
+  lat: -47.64247588153391,
+  lng: -29.992233800623634
+}
 ```
 
 ## Orbit lines (ground track)
 ### getGroundTrackLatLng (current time)
 Returns an array of latitude, longitude pairs for drawing the ground track (satellite path) for
-three orbits: one past orbit, one current orbit, and one future orbit.  Orbits start and stop at the international date line (antemeridian) because values passing over that line is commonly
-problematic in mapping.
+three orbits: one past orbit, one current orbit, and one future orbit.
+
+Orbits start and stop at the international date line (antemeridian) because values passing over
+that line is commonly problematic in mapping.
+
+Note: if you need the points in reverse order (longitude, latitude), e.g. for GeoJSON points, you
+can use the function `getGroundTrackLngLat` instead.
 
 ```js
 const threeOrbitsArr = tle.getGroundTrackLatLng(tleStr);
-/*
+
+->
 [
   // previous orbit
   [
@@ -99,7 +113,6 @@ const threeOrbitsArr = tle.getGroundTrackLatLng(tleStr);
     ...
   ]
 ]
-*/
 ```
 
 ### getGroundTrackLatLng (specific time and controlling resolution)
@@ -115,7 +128,8 @@ const threeOrbitsArr = tle.getGroundTrackLatLng(
   stepMS,
   timestampMS
 );
-/*
+
+->
 [
   // previous orbit
   [
@@ -135,7 +149,6 @@ const threeOrbitsArr = tle.getGroundTrackLatLng(
     ...
   ]
 ]
-*/
 ```
 
 ## Observer look angles
@@ -144,40 +157,43 @@ Get both look angles (for a ground observer) as well as a few more tidbits of sa
 
 ```js
 const timestampMS = 1501039265000;
-
-// Observer details.
 const observer = {
   lat: 34.243889,
-  lon: -116.911389,
+  lng: -116.911389,
   height: 0
 };
-
 const satInfo = tle.getSatelliteInfo(
-  tleStr, 
+  tleStr,          // Satellite TLE string or array.
   timestampMS,     // Timestamp (ms)
   observer.lat,    // Observer latitude (degrees)
-  observer.lon,    // Observer longitude (degrees)
+  observer.lng,    // Observer longitude (degrees)
   observer.height  // Observer elevation (km)
 );
 
-// {
-//   // satellite compass heading from observer in degrees
-//   azimuth:   294.5780478624994,
-//   // satellite elevation from observer in degrees (90 is directly overhead)
-//   elevation: 81.63903620330046,
-//   // km distance from observer to spacecraft
-//   range:     406.60211015810074,
-//
-//   // spacecraft altitude in km
-//   height:   402.9082788620108,
-//   // spacecraft latitude in degrees
-//   lat:      34.45112876592785,
-//   // spacecraft longitude in degrees
-//   lng:      -117.46176597710809,
-//   // spacecraft velocity in km/s
-//   velocity: 7.675627442183371
-// }
+->
+{
+  // satellite compass heading from observer in degrees
+  azimuth: 294.5780478624994,
+  
+  // satellite elevation from observer in degrees (90 is directly overhead)
+  elevation: 81.63903620330046,
+  
+  // km distance from observer to spacecraft
+  range: 406.60211015810074,
 
+  // spacecraft altitude in km
+  height: 402.9082788620108,
+
+  // spacecraft latitude in degrees
+  lat: 34.45112876592785,
+
+  // spacecraft longitude in degrees
+  lng: -117.46176597710809,
+  
+  // spacecraft velocity in km/s
+  velocity: 7.675627442183371
+}
+*/
 ```
 
 
@@ -199,23 +215,29 @@ Returns the name of the satellite.  Note that this defaults to 'Unknown' for 2-l
 the satellite name on the first line.
 ```js
 tlejs.getSatelliteName(tleStr);
-// ISS (ZARYA)
+-> 'ISS (ZARYA)'
 ```
 
 ### getSatelliteNumber
-Returns the [satellite catalog number](https://en.wikipedia.org/wiki/Satellite_Catalog_Number).
+Returns the [NORAD satellite catalog number](https://en.wikipedia.org/wiki/Satellite_Catalog_Number).
+Used since Sputnik was launched in 1957 (Sputnik's rocket was 00001, while Sputnik itself was
+00002).
 
 ```js
 tlejs.getSatelliteNumber(tleStr);
-// 25544
+-> 25544
 ```
 
 ### getClassification
-Returns the classification ('U' means 'unclassified').
+Returns the classification:
+
+* 'U' = unclassified
+* 'C' = classified
+* 'S' = secret
 
 ```js
 tlejs.getClassification(tleStr);
-// 'U'
+-> 'U'
 ```
 
 ### getIntDesignatorYear
@@ -223,7 +245,7 @@ Launch year (last two digits) ([international designator](https://en.wikipedia.o
 
 ```js
 tlejs.getIntDesignatorYear(tleStr);
-// 98
+-> 98
 ```
 
 ### getIntDesignatorLaunchNumber
@@ -232,7 +254,7 @@ Launch number of the year
 
 ```js
 tlejs.getIntDesignatorLaunchNumber(tleStr);
-// 67
+-> 67
 ```
 
 ### getIntDesignatorPieceOfLaunch
@@ -241,7 +263,7 @@ Piece of the launch
 
 ```js
 tlejs.getIntDesignatorPieceOfLaunch(tleStr);
-// A
+-> 'A'
 ```
 
 ### getEpochYear
@@ -249,7 +271,7 @@ TLE epoch year (last two digits) when the TLE was generated.
 
 ```js
 tlejs.getEpochYear(tleStr);
-// 17
+-> 17
 ```
 
 ### getEpochDay
@@ -258,129 +280,157 @@ generated.
 
 ```js
 tlejs.getEpochDay(tleStr);
-// 206.18396726
+-> 206.18396726
 ```
 
 You can convert this to a millisecond timestamp by using `dayOfYearToTimeStamp()`:
 ```js
 const tleEpochYear = tlejs.getEpochYear(tleStr);
-// 17
 const tleEpochDay = tlejs.getEpochDay(tleStr);
-// 206.18396726
 const tleEpochTimestampMS = tle.dayOfYearToTimeStamp(tleEpochDay, tleEpochYear);
-// 1500956694771
+-> 1500956694771
 ```
 
 
 ### getFirstTimeDerivative
 First Time Derivative of the [Mean Motion](https://en.wikipedia.org/wiki/Mean_Motion) divided by
-two.
+two, measured orbits per day per day (orbits/day<sup>2</sup>).  Defines how mean motion changes
+from day to day, so TLE propagators can still be used to make reasonable guesses when distant
+from the original TLE epoch.
 
 ```js
 tlejs.getFirstTimeDerivative(tleStr);
-// 0.00001961
+-> 0.00001961
 ```
 
 ### getSecondTimeDerivative
-Second Time Derivative of [Mean Motion](https://en.wikipedia.org/wiki/Mean_Motion) divided by six
-(decimal point assumed).
+Second Time Derivative of [Mean Motion](https://en.wikipedia.org/wiki/Mean_Motion) divided by six,
+measured in orbits per day per day per day (orbits/day<sup>3</sup>).  Similar to the first time
+derivative, it measures rate of change in the [Mean Motion Dot](http://castor2.ca/03_Mechanics/03_TLE/Mean_Mot_Dot.html)
+so software can make reasonable guesses when distant from the original TLE epoch.
+
+Usually zero, unless the satellite is manuevering or in a decaying orbit.
 
 ```js
 tlejs.getSecondTimeDerivative(tleStr);
-// 0
+-> 0
 ```
 
+Note: original value in TLE is '00000-0' (= 0.0 * 10 ^ 0).
+
 ### getBstarDrag
-[BSTAR](https://en.wikipedia.org/wiki/BSTAR) drag term (decimal point assumed).  Note that this
-value in the original TLE is `36771-4`, which means 0.36771 * 10<sup>-4</sup>, or `3.67710`, which is
-the value returned.
+[BSTAR](https://en.wikipedia.org/wiki/BSTAR) drag term in EarthRadii<sup>-1</sup> units.  This
+estimates the effects of atmospheric drag on the satellite's motion.
 
 ```js
 tlejs.getBstarDrag(tleStr);
-// 3.67710
+-> 0.000036771
+```
+
+Note: original value in TLE is '36771-4' (= `0.36771` * `10`<sup>-4</sup> = `0.000036771`).
+
+### getOrbitModel
+Private value - used by Air Force Space Command to reference the orbit model used to generate the
+TLE.  Externally, this will always be seen as 0.
+
+```js
+tlejs.getOrbitModel(tleStr);
+-> 0
 ```
 
 ### getTleSetNumber
-TLE element set number.  Incremented for each new TLE generated.  (Note: 999 seems to mean the TLE
-has maxxed out).
+TLE element set number, incremented for each new TLE generated since launch.  999 seems to mean the
+TLE has maxed out.
 
 ```js
 tlejs.getTleSetNumber(tleStr);
-// 999
+-> 999
 ```
 
 ### getChecksum1
-TLE line 1 checksum (modulo 10).
+TLE line 1 checksum (modulo 10), for verifying the integrity of this line of the TLE.  You can 
+compare this number to the calculated checksum by using `tleLineChecksum()`.
 
 ```js
 tlejs.getChecksum1(tleStr);
-// 3
+-> 3
 ```
 
 ### getInclination
-[Inclination](https://en.wikipedia.org/wiki/Orbital_inclination) in degrees.
+[Inclination](https://en.wikipedia.org/wiki/Orbital_inclination) relative to the Earth's
+equatorial plane in degrees.  Values can be 0-180 degrees, with 0-90 degrees being a prograde orbit
+and 90-180 degrees being a retrograde orbit).
 
 ```js
 tlejs.getInclination(tleStr);
-// 51.6400
+-> 51.6400
 ```
 
 ### getRightAscension
-[Right ascension of the ascending node](https://en.wikipedia.org/wiki/Right_ascension_of_the_ascending_node) in degrees.
+[Right ascension of the ascending node](https://en.wikipedia.org/wiki/Right_ascension_of_the_ascending_node)
+in degrees.  Can be 0-360 degrees.  Essentially is the angle of the satellite as it crosses
+northward (ascending) across the Earth's equator (equatorial plane).
 
 ```js
 tlejs.getRightAscension(tleStr);
-// 208.9163
+-> 208.9163
 ```
 
 ### getEccentricity
 [Orbital eccentricity](https://en.wikipedia.org/wiki/Orbital_eccentricity), decimal point assumed.
-Note that this value in the original TLE is `0006317`, which means `0.0006317`, which is the value
-returned.
+All artifical Earth satellites have an eccentricity between 0 (perfect circle) and 1 (parabolic
+orbit).
 
 ```js
 tlejs.getEccentricity(tleStr);
-// 0.0006317
+-> 0.0006317
 ```
 
+Note that this value in the original TLE is `0006317`, with the preceding decimal point assumed
+(= `0.0006317`).
+
 ### getPerigee
-[Argument of perigee](https://en.wikipedia.org/wiki/Argument_of_perigee) in degrees.
+[Argument of perigee](https://en.wikipedia.org/wiki/Argument_of_perigee) in degrees (0-360 degrees).
 
 ```js
 tlejs.getPerigee(tleStr);
-// 69.9862
+-> 69.9862
 ```
 
 ### getMeanAnomaly
-[Mean Anomaly](https://en.wikipedia.org/wiki/Mean_Anomaly) in degrees.
+[Mean Anomaly](https://en.wikipedia.org/wiki/Mean_Anomaly) in degrees (0-360 degrees).  Indicates
+where the satellite was located within its orbit at the time of the TLE epoch.
 
 ```js
 tlejs.getMeanAnomaly(tleStr);
-// 3
+-> 25.2906
 ```
 
 ### getMeanMotion
-Revolutions per day ([mean motion](https://en.wikipedia.org/wiki/Mean_Motion)).
+Revolutions per day ([mean motion](https://en.wikipedia.org/wiki/Mean_Motion)).  Theoretically can
+be anywhere between 0 and 17.
 
 ```js
 tlejs.getMeanMotion(tleStr);
-// 25.2906
+-> 15.54225995
 ```
 
 ### getRevNumberAtEpoch
-Total satellite revolutions when this TLE was generated.
+Total satellite revolutions when this TLE was generated.  This number seems to roll over (e.g.
+99999 -> 0).
 
 ```js
 tlejs.getRevNumberAtEpoch(tleStr);
-// 6766
+-> 6766
 ```
 
 ### getChecksum2
-TLE line 2 checksum (modulo 10).
+TLE line 2 checksum (modulo 10), for verifying the integrity of this line of the TLE.  You can 
+compare this number to the calculated checksum by using `tleLineChecksum()`.
 
 ```js
 tlejs.getChecksum2(tleStr);
-// 0
+-> 0
 ```
 
 

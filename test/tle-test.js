@@ -1,5 +1,5 @@
 const expect = require('expect');
-const tle = require('../tle.js');
+const TLEJS = require('../tle.js');
 
 const NS_PER_SEC = 1e9;
 
@@ -8,6 +8,11 @@ const getHRTimeDiffNS = (diff) => {
 }
 
 describe('tle.js', function(){
+  let tle;
+  beforeEach(() => {
+    tle = new TLEJS();
+  });
+
   const tleStr = `ISS (ZARYA)
 1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
 2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
@@ -18,7 +23,7 @@ describe('tle.js', function(){
     it('errors on invalid type', () => {
       expect(() => {
         tle.parseTLE(new Date());
-      }).toThrow('TLE passed is invalid type object');
+      }).toThrow('TLE input is invalid');
     });
 
     describe('string', () => {

@@ -13,9 +13,10 @@
   }
 }(this, function (SatelliteJS) {
 
-const satellitejs = SatelliteJS.satellite;
-
+const satellitejs = (SatelliteJS.twoline2satrec) ? SatelliteJS : SatelliteJS.satellite;
 const MS_IN_A_DAY = 1000 * 60 * 60 * 24;
+
+const cachedAntemeridiamTimesKey = 'antemeridiamCrossings';
 
 const DATA_TYPES = {
   INT: 'INT',
@@ -105,8 +106,9 @@ const tleLines = {
       type: DATA_TYPES.DECIMAL_ASSUMED_E
     },
 
-    // The number 0 (originally this should have been "Ephemeris type").
-    numZero: {
+    // Private value - used by Air Force Space Command to reference the orbit model used to generate
+    // the TLE.  Will always be seen as zero.
+    orbitModel: {
       start: 62,
       length: 1,
       type: DATA_TYPES.INT
@@ -200,16 +202,23 @@ const tleLines = {
   }
 }
 
-var tle = {
-  cache: {},
-
-  init: function(){
+class TLEJS {
+  constructor() {
     this.createTLEGetters();
-  },
 
-  parseTLE: function(inputTLE) {
-    // Check if already parsed.
+    this.cache = {};
+    this[cachedAntemeridiamTimesKey] = {};
+  }
+
+  parseTLE(inputTLE) {
+    const fnName = 'parseTLE';
+
+    // Check if already an instance of a TLE object.
     if (typeof inputTLE === 'object' && inputTLE.arr) return inputTLE;
+    const tleStrLong = (Array.isArray(inputTLE)) ? inputTLE.join('') : inputTLE;
+    const tleStr = tleStrLong.substr && tleStrLong.substr(0, 30);
+    const cacheKey = `${fnName}-${tleStr}`;
+    if (this.cache[cacheKey]) return this.cache[cacheKey];
 
     const outputObj = {};
     const tleType = (Array.isArray(inputTLE)) ? 'array' : typeof inputTLE;
@@ -227,7 +236,7 @@ var tle = {
       break;
 
       default:
-        throw new Error(`TLE passed is invalid type ${tleType}`);
+        throw new Error(`TLE input is invalid`);
     }
 
     // Handle 2 and 3 line variants.
@@ -249,18 +258,24 @@ var tle = {
 
     outputObj.arr = tleArr;
 
+    this.cache[cacheKey] = outputObj;
+
     return outputObj;
-  },
+  }
 
-  isInt: function (num) {
+  isInt(num) {
     return typeof num === 'number' && num % 1 === 0;
-  },
+  }
 
-  isValidTLE: function(tle) {
-    let isValid = true;
+  isValidTLE(tle) {
+    const fnName = 'isValidTLE';
 
-    const isParsedTLE = typeof tle === 'object' && tle.arr;
     const parsedTLE = this.parseTLE(tle);
+    const tleStr = parsedTLE.arr.join('').substr(0, 30);
+    const cacheKey = `${fnName}-${tleStr}`;
+    if (this.cache[cacheKey]) return this.cache[cacheKey];
+
+    let isValid = true;
 
     if (parsedTLE.arr.length !== 2) return false;
 
@@ -285,15 +300,17 @@ var tle = {
       }
     });
 
+    this.cache[cacheKey] = isValid;
+
     return isValid;
-  },
+  }
 
   /**
    * "The checksums for each line are calculated by adding all numerical digits on that line,
    * including the line number. One is added to the checksum for each negative sign (−) on that
    * line. All other non-digit characters are ignored."
    */
-  tleLineChecksum: function(tleLine) {
+  tleLineChecksum(tleLine) {
     let charArr = tleLine.split('');
 
     // Remove trailing checksum.
@@ -318,13 +335,24 @@ var tle = {
     });
 
     return checksum % 10;
-  },
+  }
+
+  getDigitCount(num) {
+    const absVal = Math.abs(num);
+    return absVal.toString().length;
+  }
+
+  toLeadingDecimal(num) {
+    const numDigits = this.getDigitCount(num);
+    const zeroes = '0'.repeat(numDigits - 1);
+    return parseFloat(num * `0.${zeroes}1`);
+  }
 
   /**
    * Creates simple getters for each part of a TLE.
    */
-  createTLEGetters: function(){
-    var self = this;
+  createTLEGetters() {
+    const self = this;
 
     // Create getters.
     Object.keys(tleLines).forEach((tleLine) => {
@@ -356,10 +384,11 @@ var tle = {
             break;
 
             case DATA_TYPES.DECIMAL_ASSUMED_E:
-              const num = substr.substr(0, substr.length - 2);
-              const leadingDecimalPoints = substr.substr(substr.length - 2, 2);
-              const float = num * Math.pow(10, parseInt(leadingDecimalPoints));
-              output = float.toFixed(5);
+              const numWithAssumedLeadingDecimal = substr.substr(0, substr.length - 2);
+              const num = this.toLeadingDecimal(numWithAssumedLeadingDecimal);
+              const leadingDecimalPoints = parseInt(substr.substr(substr.length - 2, 2));
+              const float = num * Math.pow(10, leadingDecimalPoints);
+              output = float.toPrecision(5);
             break;
 
             case DATA_TYPES.CHAR:
@@ -372,9 +401,9 @@ var tle = {
         }
       });
     });
-  },
+  }
 
-  toCamelCase: function(str, divider){
+  toCamelCase(str, divider) {
     divider = divider || '-';
 
     var bits = str.split(divider);
@@ -388,31 +417,28 @@ var tle = {
     }
 
     return output.join('');
-  },
+  }
 
-  getEpochTimestamp: function(tle) {
+  getEpochTimestamp(tle) {
     var epochDay = this.getEpochDay(tle);
     var epochYear = this.getEpochYear(tle);
 
     return this.dayOfYearToTimeStamp(epochDay, epochYear);
-  },
+  }
 
-  getSatelliteName: function(tle) {
+  getSatelliteName(tle) {
     const parsedTLE = this.parseTLE(tle);
     return parsedTLE.name;
-  },
+  }
 
   // Use satellite.js.
-  getSatelliteInfo: function(tle, timestamp, observerLat, observerLng, observerHeight) {
+  getSatelliteInfo(tle, timestamp, observerLat, observerLng, observerHeight) {
     const fnName = 'getSatelliteInfo';
 
     const timestampCopy = timestamp || Date.now();
 
     const tleArr = (this.parseTLE(tle)).arr;
-
-    // Memoization
-    const cacheKey = `${fnName}-${tleArr[0]}-${tleArr[1]}-${timestampCopy}-${observerLat}-${observerLng}-${observerHeight}`;
-    if (this.cache[cacheKey]) return this.cache[cacheKey];
+    const tleStrShort = tleArr.join('').substr(0, 30);
 
     const defaultObserverPosition = {
       lat: 36.9613422,
@@ -423,6 +449,10 @@ var tle = {
     const obsLat = observerLat || defaultObserverPosition.lat;
     const obsLng = observerLng || defaultObserverPosition.lng;
     const obsHeight = observerHeight || defaultObserverPosition.height;
+
+    // Memoization
+    const cacheKey = `${fnName}-${tleStrShort}-${timestampCopy}-${observerLat}-${observerLng}-${observerHeight}`;
+    if (this.cache[cacheKey]) return this.cache[cacheKey];
 
     // Initialize a satellite record
     const satrec = satellitejs.twoline2satrec(tleArr[0], tleArr[1]);
@@ -488,9 +518,9 @@ var tle = {
     this.cache[cacheKey] = output;
 
     return output;
-  },
+  }
 
-  getSatGroundSpeed: function(tle, timestamp) {
+  getSatGroundSpeed(tle, timestamp) {
     const parsedTLE = this.parseTLE(tle);
     const timestampCopy = timestamp || Date.now();
     const timestampPlus = timestampCopy + 10000;
@@ -502,9 +532,9 @@ var tle = {
     const kmPerSec = distance / 10;
 
     return kmPerSec;
-  },
+  }
 
-  getLatLon: function(tle, timestamp) {
+  getLatLon(tle, timestamp) {
     const tleObj = this.parseTLE(tle);
 
     // Validation.
@@ -517,14 +547,14 @@ var tle = {
       lat: satInfo.lat,
       lng: satInfo.lng
     }
-  },
+  }
 
-  getLatLonArr: function(tle, timestamp) {
+  getLatLonArr(tle, timestamp) {
     const ll = this.getLatLon(tle, timestamp);
     return [ ll.lat, ll.lng ];
-  },
+  }
 
-  getDistanceBetweenPointsGround: function distance(lat1, lon1, lat2, lon2) {
+  getDistanceBetweenPointsGround(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;    // Math.PI / 180
     var c = Math.cos;
     var a = 0.5 - c((lat2 - lat1) * p)/2 +
@@ -532,9 +562,9 @@ var tle = {
             (1 - c((lon2 - lon1) * p))/2;
 
     return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
-  },
+  }
 
-  getLookAngles: function(tle, timestamp, lat, lng, height) {
+  getLookAngles(tle, timestamp, lat, lng, height) {
     const satInfo = this.getSatelliteInfo(tle, timestamp);
 
     return {
@@ -542,25 +572,35 @@ var tle = {
       azimuth: satInfo.azimuth,
       range: satInfo.range  // km?
     }
-  },
+  }
 
-  radiansToDegrees: function(radians) {
+  radiansToDegrees(radians) {
     return radians * (180 / Math.PI);
-  },
+  }
 
-  degreesToRadians: function(degrees) {
+  degreesToRadians(degrees) {
     return degrees * (Math.PI / 180);
-  },
+  }
 
-  getLatLonAtEpoch: function(tle) {
+  getLatLonAtEpoch(tle) {
     return this.getLatLon(tle, this.getEpochTimestamp(tle));
-  },
+  }
 
-  getAverageOrbitLengthMins: function(tle) {
-    return  (24 * 60) / this.getMeanMotion(tle);
-  },
+  getAverageOrbitLengthMins(tle) {
+    const fnName = 'getAverageOrbitLengthMins';
 
-  dayOfYearToTimeStamp: function(dayOfYear, year) {
+    const tleStr = tle.join('').substr(0, 30);
+    const cacheKey = `${fnName}-${tleStr}`;
+    if (this.cache[cacheKey]) return this.cache[cacheKey];
+
+    const meanMotionSeconds = (24 * 60) / this.getMeanMotion(tle);
+
+    this.cache[cacheKey] = meanMotionSeconds;
+
+    return meanMotionSeconds;
+  }
+
+  dayOfYearToTimeStamp(dayOfYear, year) {
     year = year || (new Date()).getFullYear();
     var dayMS = 1000 * 60 * 60 * 24;
     var yearStart = new Date('1/1/' + year + ' 0:0:0 Z');
@@ -568,18 +608,42 @@ var tle = {
     yearStart = yearStart.getTime();
 
     return Math.floor(yearStart + ((dayOfYear - 1) * dayMS));
-  },
+  }
 
-  getTLEEpochTimestamp: function (tle) {
+  getTLEEpochTimestamp(tle) {
     const epochYear = this.getEpochYear(tle);
     const epochDayOfYear = this.getEpochDay(tle);
     const timestamp = this.dayOfYearToTimeStamp(epochDayOfYear, epochYear);
 
     return timestamp;
-  },
+  }
+
+  getCachedLastAntemeridiamCrossingTimeMS(tle, timeMS) {
+    const orbitLengthMS = this.getAverageOrbitLengthMins(tle.arr) * 60 * 1000;
+
+    const tleStr = tle.arr.join('').substr(0, 30);
+
+    const cachedCrossingTimes = this.cache[cachedAntemeridiamTimesKey] && this.cache[cachedAntemeridiamTimesKey][tleStr];
+
+    if (!cachedCrossingTimes) return false;
+
+    const cachedTime = cachedCrossingTimes.filter(val => {
+      const diff = timeMS - val;
+      const isDiffPositive = diff > 0;
+      const isWithinOrbit = isDiffPositive && diff < orbitLengthMS;
+      return isWithinOrbit;
+    });
+
+    return cachedTime[0] || false;
+  }
 
   getLastAntemeridiamCrossingTimeMS(tle, timeMS) {
     const parsedTLE = this.parseTLE(tle);
+
+    const cachedVal = this.getCachedLastAntemeridiamCrossingTimeMS(parsedTLE, timeMS);
+    if (cachedVal) {
+      return cachedVal;
+    }
 
     const time = timeMS || Date.now();
 
@@ -605,22 +669,38 @@ var tle = {
         curTimeMS -= step;
         lastLatLon = curLatLon;
       }
-
     }
-    return parseInt(curTimeMS);
-  },
 
-  getOrbitTimeMS: function(tle) {
+    const crossingTime = parseInt(curTimeMS);
+
+    const tleStr = parsedTLE.arr.join('').substr(0, 30);
+    if (!this.cache[cachedAntemeridiamTimesKey][tleStr]) this.cache[cachedAntemeridiamTimesKey][tleStr] = [];
+    this.cache[cachedAntemeridiamTimesKey][tleStr].push(crossingTime);
+
+    return crossingTime;
+  }
+
+  getOrbitTimeMS(tle) {
     return parseInt(MS_IN_A_DAY / this.getMeanMotion(tle));
-  },
+  }
 
-  getGroundTrackLatLng: function (tle, stepMS, optionalTimeMS) {
+  getGroundTrackLatLng(tle, stepMS, optionalTimeMS) {
+    const fnName = 'getGroundTrackLatLng';
+
     const timeMS = optionalTimeMS || Date.now();
 
     const parsedTLE = this.parseTLE(tle);
 
     const orbitTimeMS = this.getOrbitTimeMS(tle);
     const curOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle, timeMS);
+
+    // Check for memoized values.
+    const curOrbitStartS = (curOrbitStartMS / 1000).toFixed();
+    const cacheKey = `${fnName}-${stepMS}-${curOrbitStartS}`;
+    if (this.cache[cacheKey]) {
+      return this.cache[cacheKey];
+    }
+
     const lastOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle, curOrbitStartMS - 10000);
     const nextOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle, curOrbitStartMS + orbitTimeMS + 1000 * 60 * 30);
 
@@ -632,13 +712,26 @@ var tle = {
 
     const orbitLatLons = orbitStartTimes.map(orbitStartMS => this.getOrbitTrack(parsedTLE.arr, orbitStartMS, stepMS));
 
+    this.cache[cacheKey] = orbitLatLons;
+
     return orbitLatLons;
-  },
+  }
 
   getOrbitTrack(TLEArr, startTimeMS, stepMS) {
+    const fnName = 'getOrbitTrack';
+
     if (!startTimeMS) return [];
 
-    //  default to 1 minute intervals
+    // Memoization.
+    const tleStr = TLEArr.join('');
+    const tleStrTrimmed = tleStr.substr(0, 30);
+    const startTime = (startTimeMS / 10000).toFixed();
+    const cacheKey = `${fnName}-${tleStrTrimmed}-${startTime}-${stepMS}`;
+    if (this.cache[cacheKey]) {
+      return this.cache[cacheKey];
+    }
+
+    // default to 1 minute intervals
     const defaultStepMS = 1000 * 60 * 1;
     let stepMSCopy = stepMS || defaultStepMS;
 
@@ -666,8 +759,10 @@ var tle = {
       }
     }
 
+    this.cache[cacheKey] = latLons;
+
     return latLons;
-  },
+  }
 
   getSatBearing(tle, customTimeMS) {
     const parsedTLE = this.parseTLE(tle);
@@ -702,13 +797,13 @@ var tle = {
       degrees,
       compass: `${NS}${EW}`
     };
-  },
+  }
 
-  isPositive: function(num) {
+  isPositive(num) {
     return num >= 0;
-  },
+  }
 
-  crossesAntemeridian: function(longitude1, longitude2) {
+  crossesAntemeridian(longitude1, longitude2) {
     if (!longitude1 || !longitude2) return false;
 
     const isLong1Positive = this.isPositive(longitude1);
@@ -721,18 +816,18 @@ var tle = {
     const isNearAntemeridian = Math.abs(longitude1) > 100;
 
     return isNearAntemeridian;
-  },
+  }
 
-  getGroundTrackLngLat: function (tle, stepMS) {
-    const latLngArr = this.getGroundTrackLatLng(tle, stepMS);
+  getGroundTrackLngLat(tle, stepMS, optionalTimeMS) {
+    const fnName = 'getGroundTrackLngLat';
 
+    const latLngArr = this.getGroundTrackLatLng(tle, stepMS, optionalTimeMS);
     const lngLatArr = latLngArr.map(line => line.map(latLng => [latLng[1], latLng[0]]));
 
     return lngLatArr;
   }
 };
 
-tle.init();
+return TLEJS;
 
-return tle;
 }));

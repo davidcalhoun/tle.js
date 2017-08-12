@@ -1,5 +1,5 @@
 const expect = require('expect');
-const tle = require('../tle.js');
+const TLEJS = require('../tle.js');
 
 const NS_PER_SEC = 1e9;
 
@@ -8,6 +8,11 @@ const getHRTimeDiffNS = (diff) => {
 }
 
 describe('getters', function(){
+  let tle;
+  beforeEach(() => {
+    tle = new TLEJS();
+  });
+
   const tleStr = `ISS (ZARYA)
 1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
 2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
@@ -74,15 +79,15 @@ describe('getters', function(){
     });
 
     it('getBstarDrag', () => {
-      expect(tle.getBstarDrag(tleStr)).toEqual(3.67710);
+      expect(tle.getBstarDrag(tleStr)).toEqual(0.000036771);
     });
 
     it('getBstarDrag 2', () => {
-      expect(tle.getBstarDrag(tleStr2)).toEqual(-0.29896);
+      expect(tle.getBstarDrag(tleStr2)).toEqual(-0.0000029896);
     });
 
-    it('getNumZero', () => {
-      expect(tle.getNumZero(tleStr)).toEqual(0);
+    it('getOrbitModel', () => {
+      expect(tle.getOrbitModel(tleStr)).toEqual(0);
     });
 
     it('getTleSetNumber', () => {
