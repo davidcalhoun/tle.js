@@ -1,5 +1,5 @@
 const expect = require('expect');
-const TLEJS = require('../tle.js');
+const TLEJS = require('../dist/tle.js');
 
 const NS_PER_SEC = 1e9;
 
