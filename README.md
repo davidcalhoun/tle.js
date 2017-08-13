@@ -28,7 +28,8 @@ More info on TLEs:
 Let's start out with some code to define some variables which we'll use in many examples below.
 
 ```js
-const tlejs = require('tle.js');
+const TLEJS = require('tle.js');
+const tlejs = new TLEJS();
 
 const tleStr = `ISS (ZARYA)
 1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
@@ -59,7 +60,6 @@ const latLonObj = tle.getLatLon(tleStr);
   lat: -35.120571636901786,
   lng: -54.5473164683468
 }
-*/
 ```
 
 ### getLatLon specific time
@@ -193,7 +193,6 @@ const satInfo = tle.getSatelliteInfo(
   // spacecraft velocity in km/s
   velocity: 7.675627442183371
 }
-*/
 ```
 
 
@@ -204,6 +203,7 @@ specific information from a TLE itself.
 ### Shared variables for below examples.
 ```js
 const tlejs = require('tle.js');
+const tlejs = new TLEJS();
 
 const tleStr = `ISS (ZARYA)
 1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
@@ -223,13 +223,15 @@ Returns the [NORAD satellite catalog number](https://en.wikipedia.org/wiki/Satel
 Used since Sputnik was launched in 1957 (Sputnik's rocket was 00001, while Sputnik itself was
 00002).
 
+* Range: 0 to 99999
+
 ```js
 tlejs.getSatelliteNumber(tleStr);
 -> 25544
 ```
 
 ### getClassification
-Returns the classification:
+Returns the satellite classification.
 
 * 'U' = unclassified
 * 'C' = classified
@@ -243,6 +245,11 @@ tlejs.getClassification(tleStr);
 ### getIntDesignatorYear
 Launch year (last two digits) ([international designator](https://en.wikipedia.org/wiki/International_Designator)).
 
+Note that a value between 57 and 99 means the launch year was in the 1900s, while a value between
+00 and 56 means the launch year was in the 2000s.
+
+* Range: 00 to 99
+
 ```js
 tlejs.getIntDesignatorYear(tleStr);
 -> 98
@@ -251,6 +258,8 @@ tlejs.getIntDesignatorYear(tleStr);
 ### getIntDesignatorLaunchNumber
 Launch number of the year
 ([international designator](https://en.wikipedia.org/wiki/International_Designator)).
+
+* Range: 1 to 999
 
 ```js
 tlejs.getIntDesignatorLaunchNumber(tleStr);
@@ -261,6 +270,8 @@ tlejs.getIntDesignatorLaunchNumber(tleStr);
 Piece of the launch
 ([international designator](https://en.wikipedia.org/wiki/International_Designator)).
 
+* Range: A to ZZZ
+
 ```js
 tlejs.getIntDesignatorPieceOfLaunch(tleStr);
 -> 'A'
@@ -268,6 +279,8 @@ tlejs.getIntDesignatorPieceOfLaunch(tleStr);
 
 ### getEpochYear
 TLE epoch year (last two digits) when the TLE was generated.
+
+* Range: 00 to 99
 
 ```js
 tlejs.getEpochYear(tleStr);
@@ -277,6 +290,8 @@ tlejs.getEpochYear(tleStr);
 ### getEpochDay
 TLE epoch day of the year (day of year with fractional portion of the day) when the TLE was
 generated.
+
+* Range: 1 to 365.99999999
 
 ```js
 tlejs.getEpochDay(tleStr);
@@ -293,9 +308,11 @@ tle.getEpochTimestamp(tleStr);
 
 ### getFirstTimeDerivative
 First Time Derivative of the [Mean Motion](https://en.wikipedia.org/wiki/Mean_Motion) divided by
-two, measured orbits per day per day (orbits/day<sup>2</sup>).  Defines how mean motion changes
+two, measured in orbits per day per day (orbits/day<sup>2</sup>).  Defines how mean motion changes
 from day to day, so TLE propagators can still be used to make reasonable guesses when distant
 from the original TLE epoch.
+
+* Units: Orbits / day<sup>2</sup>
 
 ```js
 tlejs.getFirstTimeDerivative(tleStr);
@@ -310,27 +327,32 @@ so software can make reasonable guesses when distant from the original TLE epoch
 
 Usually zero, unless the satellite is manuevering or in a decaying orbit.
 
+* Units: Orbits / day ^ 3.
+
 ```js
 tlejs.getSecondTimeDerivative(tleStr);
 -> 0
 ```
 
-Note: original value in TLE is '00000-0' (= 0.0 * 10 ^ 0).
+Note: original value in TLE is '00000-0' (= `0.0 x 10`<sup>`0`</sup>).
 
 ### getBstarDrag
-[BSTAR](https://en.wikipedia.org/wiki/BSTAR) drag term in EarthRadii<sup>-1</sup> units.  This
-estimates the effects of atmospheric drag on the satellite's motion.
+[BSTAR](https://en.wikipedia.org/wiki/BSTAR) drag term.  This estimates the effects of atmospheric
+drag on the satellite's motion.
+
+* Units: EarthRadii<sup>-1</sup>
 
 ```js
 tlejs.getBstarDrag(tleStr);
 -> 0.000036771
 ```
 
-Note: original value in TLE is '36771-4' (= `0.36771` * `10`<sup>-4</sup> = `0.000036771`).
+Note: original value in TLE is '36771-4' (= `0.36771 x 10`<sup>`-4`</sup> = `0.000036771`).
 
 ### getOrbitModel
 Private value - used by Air Force Space Command to reference the orbit model used to generate the
-TLE.  Externally, this will always be seen as 0.
+TLE.  Will always be seen as zero externally (e.g. by "us", unless you are "them" - in which case,
+hello!).
 
 ```js
 tlejs.getOrbitModel(tleStr);
@@ -341,24 +363,40 @@ tlejs.getOrbitModel(tleStr);
 TLE element set number, incremented for each new TLE generated since launch.  999 seems to mean the
 TLE has maxed out.
 
+* Range: Technically 1 to 9999, though in practice the maximum number seems to be 999.
+
 ```js
 tlejs.getTleSetNumber(tleStr);
 -> 999
 ```
 
 ### getChecksum1
-TLE line 1 checksum (modulo 10), for verifying the integrity of this line of the TLE.  You can 
-compare this number to the calculated checksum by using `tleLineChecksum()`.
+TLE line 1 checksum (modulo 10), for verifying the integrity of this line of the TLE.
+
+* Range: 0 to 9
 
 ```js
 tlejs.getChecksum1(tleStr);
 -> 3
 ```
 
+You can compare this number to the calculated checksum by using `tleLineChecksum()`:
+
+```js
+const expectedChecksum = tlejs.getChecksum1(tleArr);
+-> 3
+const calculatedChecksum = tlejs.tleLineChecksum(tleArr[0]);
+-> 3
+```
+
+
 ### getInclination
 [Inclination](https://en.wikipedia.org/wiki/Orbital_inclination) relative to the Earth's
-equatorial plane in degrees.  Values can be 0-180 degrees, with 0-90 degrees being a prograde orbit
-and 90-180 degrees being a retrograde orbit).
+equatorial plane in degrees. 0 to 90 degrees is a prograde orbit and 90 to 180 degrees is a
+retrograde orbit.
+
+* Units: degrees
+* Range: 0 to 180
 
 ```js
 tlejs.getInclination(tleStr);
@@ -367,8 +405,11 @@ tlejs.getInclination(tleStr);
 
 ### getRightAscension
 [Right ascension of the ascending node](https://en.wikipedia.org/wiki/Right_ascension_of_the_ascending_node)
-in degrees.  Can be 0-360 degrees.  Essentially is the angle of the satellite as it crosses
-northward (ascending) across the Earth's equator (equatorial plane).
+in degrees.  Essentially, this is the angle of the satellite as it crosses northward (ascending)
+across the Earth's equator (equatorial plane).
+
+* Units: degrees
+* Range: 0 to 359.9999
 
 ```js
 tlejs.getRightAscension(tleStr);
@@ -380,16 +421,21 @@ tlejs.getRightAscension(tleStr);
 All artifical Earth satellites have an eccentricity between 0 (perfect circle) and 1 (parabolic
 orbit).
 
+* Range: 0 to 1
+
 ```js
 tlejs.getEccentricity(tleStr);
 -> 0.0006317
 ```
 
-Note that this value in the original TLE is `0006317`, with the preceding decimal point assumed
+Note that the value in the original TLE is `0006317`, with the preceding decimal point assumed
 (= `0.0006317`).
 
 ### getPerigee
-[Argument of perigee](https://en.wikipedia.org/wiki/Argument_of_perigee) in degrees (0-360 degrees).
+[Argument of perigee](https://en.wikipedia.org/wiki/Argument_of_perigee).
+
+* Units: degrees
+* Range: 0 to 359.9999
 
 ```js
 tlejs.getPerigee(tleStr);
@@ -397,8 +443,11 @@ tlejs.getPerigee(tleStr);
 ```
 
 ### getMeanAnomaly
-[Mean Anomaly](https://en.wikipedia.org/wiki/Mean_Anomaly) in degrees (0-360 degrees).  Indicates
-where the satellite was located within its orbit at the time of the TLE epoch.
+[Mean Anomaly](https://en.wikipedia.org/wiki/Mean_Anomaly). Indicates where the satellite was
+located within its orbit at the time of the TLE epoch.
+
+* Units: degrees
+* Range: 0 to 359.9999
 
 ```js
 tlejs.getMeanAnomaly(tleStr);
@@ -406,8 +455,9 @@ tlejs.getMeanAnomaly(tleStr);
 ```
 
 ### getMeanMotion
-Revolutions per day ([mean motion](https://en.wikipedia.org/wiki/Mean_Motion)).  Theoretically can
-be anywhere between 0 and 17.
+Revolutions around the Earth per day ([mean motion](https://en.wikipedia.org/wiki/Mean_Motion)).
+
+* Range: 0 to 17 (theoretically)
 
 ```js
 tlejs.getMeanMotion(tleStr);
@@ -418,17 +468,29 @@ tlejs.getMeanMotion(tleStr);
 Total satellite revolutions when this TLE was generated.  This number seems to roll over (e.g.
 99999 -> 0).
 
+* Range: 0 to 99999
+
 ```js
 tlejs.getRevNumberAtEpoch(tleStr);
 -> 6766
 ```
 
 ### getChecksum2
-TLE line 2 checksum (modulo 10), for verifying the integrity of this line of the TLE.  You can 
-compare this number to the calculated checksum by using `tleLineChecksum()`.
+TLE line 2 checksum (modulo 10), for verifying the integrity of this line of the TLE.
+
+* Range: 0 to 9
 
 ```js
 tlejs.getChecksum2(tleStr);
+-> 0
+```
+
+You can compare this number to the calculated checksum by using `tleLineChecksum()`:
+
+```js
+const expectedChecksum = tlejs.getChecksum2(tleArr);
+-> 0
+const calculatedChecksum = tlejs.tleLineChecksum(tleArr[1]);
 -> 0
 ```
 
