@@ -349,8 +349,9 @@
     constructor() {
       this.createTLEGetters();
 
-      this.cache = {};
-      this[cachedAntemeridiamTimesKey] = {};
+      this.cache = {
+        [cachedAntemeridiamTimesKey]: {}
+      };
     }
 
     isInt(num) {
