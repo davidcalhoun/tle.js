@@ -472,7 +472,7 @@
       charArr.splice(charArr.length - 1, 1);
 
       if (charArr.length === 0) {
-        throw new Error('Character array empty!', tleLine);
+        throw new Error('Character array empty!', tleLineStr);
       }
 
       const checksum = charArr.reduce((sum, val) => {
