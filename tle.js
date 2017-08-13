@@ -347,7 +347,7 @@
 
   class TLEJS {
     constructor() {
-      this.createTLEGetters();
+      this.createAllTLEGetters(tleLines);
 
       this.cache = {
         [cachedAntemeridianTimesKey]: {}
@@ -534,49 +534,63 @@
     }
 
     /**
-     * Creates simple getters for each part of a TLE.
+     * Creates simple getters for each line of a TLE.
      */
-    createTLEGetters() {
-      Object.keys(tleLines).forEach((tleLine) => {
-        Object.keys(tleLines[tleLine]).forEach((prop) => {
-          this[this.toCamelCase(`get-${prop}`)] = (tle) => {
-            const parsedTLE = this.parseTLE(tle);
+    createAllTLEGetters(lines) {
+      const boundCreateTLELineGetters = this.createTLELineGetters.bind(this, lines);
+      Object.keys(lines).forEach(boundCreateTLELineGetters);
+    }
 
-            const tleArr = parsedTLE.arr;
-            const line = (tleLine === 'line1') ? tleArr[0] : tleArr[1];
-            const start = tleLines[tleLine][prop].start;
-            const length = tleLines[tleLine][prop].length;
+    /**
+     * Creates simple getters for all values on a single line of a TLE.
+     */
+    createTLELineGetters(lines, line) {
+      const boundCreateTLEValGetter = this.createTLEValGetter.bind(this, line);
+      Object.keys(lines[line]).forEach(boundCreateTLEValGetter);
+    }
 
-            const substr = line.substr(start, length);
+    /**
+     * Creates a simple getter for a single TLE value.
+     *
+     * TODO: proper ES6 getters?
+     */
+    createTLEValGetter(tleLine, prop) {
+      this[this.toCamelCase(`get-${prop}`)] = (tle) => {
+        const parsedTLE = this.parseTLE(tle);
 
-            let output;
-            switch (tleLines[tleLine][prop].type) {
-            case DATA_TYPES.INT:
-              output = parseInt(substr, 10);
-              break;
+        const tleArr = parsedTLE.arr;
+        const line = (tleLine === 'line1') ? tleArr[0] : tleArr[1];
+        const start = tleLines[tleLine][prop].start;
+        const length = tleLines[tleLine][prop].length;
 
-            case DATA_TYPES.FLOAT:
-              output = parseFloat(substr);
-              break;
+        const substr = line.substr(start, length);
 
-            case DATA_TYPES.DECIMAL_ASSUMED:
-              output = parseFloat(`0.${substr}`);
-              break;
+        let output;
+        switch (tleLines[tleLine][prop].type) {
+        case DATA_TYPES.INT:
+          output = parseInt(substr, 10);
+          break;
 
-            case DATA_TYPES.DECIMAL_ASSUMED_E:
-              output = this.decimalAssumedEToFloat(substr);
-              break;
+        case DATA_TYPES.FLOAT:
+          output = parseFloat(substr);
+          break;
 
-            case DATA_TYPES.CHAR:
-            default:
-              output = substr.trim();
-              break;
-            }
+        case DATA_TYPES.DECIMAL_ASSUMED:
+          output = parseFloat(`0.${substr}`);
+          break;
 
-            return output;
-          };
-        });
-      });
+        case DATA_TYPES.DECIMAL_ASSUMED_E:
+          output = this.decimalAssumedEToFloat(substr);
+          break;
+
+        case DATA_TYPES.CHAR:
+        default:
+          output = substr.trim();
+          break;
+        }
+
+        return output;
+      };
     }
 
     /**
