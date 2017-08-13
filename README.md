@@ -22,7 +22,8 @@ Note that TLEs should be update daily to avoid drift in calculations.  You can g
 [Celestrak](http://celestrak.com/NORAD/elements/).
 
 More info on TLEs:
-* [http://castor2.ca/03_Mechanics/03_TLE/](http://castor2.ca/03_Mechanics/03_TLE/)
+* [Two-line element set (Wikipedia)](https://en.wikipedia.org/wiki/Two-line_element_set)
+* [TLE details from CASTOR](http://castor2.ca/03_Mechanics/03_TLE/)
 
 ## Shared code
 Let's start out with some code to define some variables which we'll use in many examples below.
