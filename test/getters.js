@@ -10,7 +10,6 @@ const getHRTimeDiffNS = (diff) => {
 describe('getters', function(){
   let tle;
   beforeEach(() => {
-    console.log(11, TLEJS)
     tle = new TLEJS();
   });
 
