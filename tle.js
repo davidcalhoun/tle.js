@@ -2,8 +2,6 @@ import SatelliteJS from 'satellite.js';
 const satellitejs = (SatelliteJS.twoline2satrec) ? SatelliteJS : SatelliteJS.satellite;
 const MS_IN_A_DAY = 1000 * 60 * 60 * 24;
 
-const cachedAntemeridianTimesKey = 'antemeridianCrossings';
-
 // Data formats for TLE orbital elements.
 const DATA_TYPES = {
   INT: 'INT',
@@ -333,7 +331,7 @@ export default class TLEJS {
     this.createAllTLEGetters(tleLines);
 
     this.cache = {
-      [cachedAntemeridianTimesKey]: {}
+      antemeridianCrossings: {}
     };
   }
 
@@ -849,9 +847,7 @@ export default class TLEJS {
 
     const tleStr = tle.arr.join('').substr(0, 30);
 
-    const cachedCrossingTimes =
-      this.cache[cachedAntemeridianTimesKey] && this.cache[cachedAntemeridianTimesKey][tleStr];
-
+    const cachedCrossingTimes = this.cache.antemeridianCrossings[tleStr];
     if (!cachedCrossingTimes) return false;
 
     const cachedTime = cachedCrossingTimes.filter(val => {
@@ -903,10 +899,10 @@ export default class TLEJS {
     const crossingTime = parseInt(curTimeMS, 10);
 
     const tleStr = parsedTLE.arr.join('').substr(0, 30);
-    if (!this.cache[cachedAntemeridianTimesKey][tleStr]) {
-      this.cache[cachedAntemeridianTimesKey][tleStr] = [];
+    if (!this.cache.antemeridianCrossings[tleStr]) {
+      this.cache.antemeridianCrossings[tleStr] = [];
     }
-    this.cache[cachedAntemeridianTimesKey][tleStr].push(crossingTime);
+    this.cache.antemeridianCrossings[tleStr].push(crossingTime);
 
     return crossingTime;
   }
