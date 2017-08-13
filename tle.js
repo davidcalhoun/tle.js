@@ -19,7 +19,7 @@
   const satellitejs = (SatelliteJS.twoline2satrec) ? SatelliteJS : SatelliteJS.satellite;
   const MS_IN_A_DAY = 1000 * 60 * 60 * 24;
 
-  const cachedAntemeridiamTimesKey = 'antemeridiamCrossings';
+  const cachedAntemeridianTimesKey = 'antemeridianCrossings';
 
   // Data formats for TLE orbital elements.
   const DATA_TYPES = {
@@ -350,18 +350,20 @@
       this.createTLEGetters();
 
       this.cache = {
-        [cachedAntemeridiamTimesKey]: {}
+        [cachedAntemeridianTimesKey]: {}
       };
     }
 
-    isInt(num) {
-      return typeof num === 'number' && num % 1 === 0;
-    }
-
+    /**
+     * Determines if a number is positive.
+     */
     isPositive(num) {
       return num >= 0;
     }
 
+    /**
+     * Parses a TLE from a string or array input.  Both two and three-line variants are acceptable.
+     */
     parseTLE(inputTLE) {
       const fnName = 'parseTLE';
 
@@ -415,6 +417,10 @@
       return outputObj;
     }
 
+    /**
+     * Determines if a TLE is valid, checking for the presence of line numbers and making sure
+     * the calculated checksum matches the expected checksum.
+     */
     isValidTLE(tle) {
       const fnName = 'isValidTLE';
 
@@ -454,12 +460,13 @@
     }
 
     /**
-     * "The checksums for each line are calculated by adding all numerical digits on that line,
-     * including the line number. One is added to the checksum for each negative sign (−) on that
-     * line. All other non-digit characters are ignored."
+     * Determines the checksum for a single line of a TLE.
+     *
+     * Checksum = modulo 10 of sum of all numbers (including line number) + 1 for each negative
+     * sign (-).  Everything else is ignored.
      */
-    tleLineChecksum(tleLine) {
-      const charArr = tleLine.split('');
+    tleLineChecksum(tleLineStr) {
+      const charArr = tleLineStr.split('');
 
       // Remove trailing checksum.
       charArr.splice(charArr.length - 1, 1);
@@ -474,8 +481,7 @@
 
         if (Number.isInteger(parsedVal)) {
           return parsedSum + parsedVal;
-        }
-        if (val === '-') {
+        } else if (val === '-') {
           return parsedSum + 1;
         }
 
@@ -485,17 +491,40 @@
       return checksum % 10;
     }
 
+    /**
+     * Determines the amount of digits in a number.  Used for converting a TLE's "leading decimal
+     * assumed" notation.
+     *
+     * Example:
+     * getDigitCount(12345);
+     * -> 5
+     */
     getDigitCount(num) {
       const absVal = Math.abs(num);
       return absVal.toString().length;
     }
 
+    /**
+     * Converts a TLE's "leading decimal assumed" notation to a float representation.
+     *
+     * Example:
+     * toLeadingDecimal(12345);
+     * -> 0.12345
+     */
     toLeadingDecimal(num) {
       const numDigits = this.getDigitCount(num);
       const zeroes = '0'.repeat(numDigits - 1);
       return parseFloat(num * `0.${zeroes}1`);
     }
 
+    /**
+     * Converts a TLE's "leading decimal assumed" notation with leading zeroes to a float
+     * representation.
+     *
+     * Example:
+     * decimalAssumedEToFloat('12345-4');
+     * -> 0.000012345
+     */
     decimalAssumedEToFloat(str) {
       const numWithAssumedLeadingDecimal = str.substr(0, str.length - 2);
       const num = this.toLeadingDecimal(numWithAssumedLeadingDecimal);
@@ -508,7 +537,6 @@
      * Creates simple getters for each part of a TLE.
      */
     createTLEGetters() {
-      // Create getters.
       Object.keys(tleLines).forEach((tleLine) => {
         Object.keys(tleLines[tleLine]).forEach((prop) => {
           this[this.toCamelCase(`get-${prop}`)] = (tle) => {
@@ -551,6 +579,15 @@
       });
     }
 
+    /**
+     * Converts a string divided by spacer characters to camelCase representation.
+     *
+     * Examples:
+     * toCamelCase('foo-bar');
+     * -> 'fooBar'
+     * toCamelCase('foo bar', ' ');
+     * -> 'fooBar'
+     */
     toCamelCase(str, divider) {
       divider = divider || '-';
 
@@ -567,18 +604,74 @@
       return output.join('');
     }
 
+    /**
+     * Determines the Unix timestamp (in ms) of a TLE epoch (the time a TLE was generated).
+     *
+     * Example:
+     * getEpochTimestamp(tleStr);
+     * -> 1500956694771
+     */
     getEpochTimestamp(tle) {
       const epochDay = this.getEpochDay(tle);
       const epochYear = this.getEpochYear(tle);
       return this.dayOfYearToTimeStamp(epochDay, epochYear);
     }
 
+    /**
+     * Determines the name of a satellite, if present in the first line of a 3-line TLE.  If not
+     * present, 'Unknown' is returned.
+     *
+     * Example:
+     * getSatelliteName(tleStr);
+     * -> 'ISS (ZARYA)'
+     */
     getSatelliteName(tle) {
       const parsedTLE = this.parseTLE(tle);
       return parsedTLE.name;
     }
 
-    // Use satellite.js.
+    /**
+     * Determines satellite position and look angles from an earth observer.
+     *
+     * Example:
+     * const timestampMS = 1501039265000;
+     * const observer = {
+     *   lat: 34.243889,
+     *   lng: -116.911389,
+     *   height: 0
+     * };
+     * const satInfo = tle.getSatelliteInfo(
+     *   tleStr,          // Satellite TLE string or array.
+     *   timestampMS,     // Timestamp (ms)
+     *   observer.lat,    // Observer latitude (degrees)
+     *   observer.lng,    // Observer longitude (degrees)
+     *   observer.height  // Observer elevation (km)
+     * );
+     *
+     * ->
+     * {
+     *   // satellite compass heading from observer in degrees (0 = north, 180 = south)
+     *   azimuth: 294.5780478624994,
+     *
+     *   // satellite elevation from observer in degrees (90 is directly overhead)
+     *   elevation: 81.63903620330046,
+     *
+     *   // km distance from observer to spacecraft
+     *   range: 406.60211015810074,
+     *
+     *   // spacecraft altitude in km
+     *   height: 402.9082788620108,
+
+     *   // spacecraft latitude in degrees
+     *   lat: 34.45112876592785,
+
+     *   // spacecraft longitude in degrees
+     *   lng: -117.46176597710809,
+     *
+     *   // spacecraft velocity in km/s
+     *   velocity: 7.675627442183371
+     * }
+     */
     getSatelliteInfo(tle, timestamp, observerLat, observerLng, observerHeight) {
       const fnName = 'getSatelliteInfo';
 
@@ -663,7 +756,10 @@
       return output;
     }
 
-    getLatLon(tle, timestamp) {
+    /**
+     * Determines current satellite position, or position at optional timestamp if passed in.
+     */
+    getLatLon(tle, optionalTimestamp = Date.now()) {
       const tleObj = this.parseTLE(tle);
 
       // Validation.
@@ -671,30 +767,45 @@
         throw new Error('TLE could not be parsed', tle);
       }
 
-      const satInfo = this.getSatelliteInfo(tleObj.arr, timestamp);
+      const satInfo = this.getSatelliteInfo(tleObj.arr, optionalTimestamp);
       return {
         lat: satInfo.lat,
         lng: satInfo.lng
       };
     }
 
-    getLatLonArr(tle, timestamp) {
-      const ll = this.getLatLon(tle, timestamp);
+    /**
+     * Determines current satellite position, or position at optional timestamp if passed in.
+     */
+    getLatLonArr(tle, optionalTimestamp = Date.now()) {
+      const ll = this.getLatLon(tle, optionalTimestamp);
       return [ll.lat, ll.lng];
     }
 
+    /**
+     * Converts radians (0 to 2π) to degrees (0 to 360).
+     */
     radiansToDegrees(radians) {
       return radians * (180 / Math.PI);
     }
 
+    /**
+     * Converts degrees (0 to 360) to radians (0 to 2π).
+     */
     degreesToRadians(degrees) {
       return degrees * (Math.PI / 180);
     }
 
+    /**
+     * Determines the position of the satellite at the time the TLE was generated.
+     */
     getLatLonAtEpoch(tle) {
       return this.getLatLon(tle, this.getEpochTimestamp(tle));
     }
 
+    /**
+     * Determines the average orbit length of the satellite in minutes.
+     */
     getAverageOrbitLengthMins(tle) {
       const fnName = 'getAverageOrbitLengthMins';
 
@@ -709,6 +820,9 @@
       return meanMotionSeconds;
     }
 
+    /**
+     * Converts a fractional day of the year to a timestamp.  Used for parsing the TLE epoch.
+     */
     dayOfYearToTimeStamp(dayOfYear, year) {
       year = year || (new Date()).getFullYear();
       const yearStart = new Date(`1/1/${year} 0:0:0 Z`);
@@ -718,6 +832,9 @@
       return Math.floor(yearStartMS + ((dayOfYear - 1) * MS_IN_A_DAY));
     }
 
+    /**
+     * Determines the Unix timestamp (in ms) of the the TLE epoch (when the TLE was generated).
+     */
     getTLEEpochTimestamp(tle) {
       const epochYear = this.getEpochYear(tle);
       const epochDayOfYear = this.getEpochDay(tle);
@@ -726,13 +843,17 @@
       return timestamp;
     }
 
-    getCachedLastAntemeridiamCrossingTimeMS(tle, timeMS) {
+    /**
+     * Determines if the last antemeridian crossing has been cached.  If it has, the time (in ms)
+     * is returned, otherwise it returns false.
+     */
+    getCachedLastAntemeridianCrossingTimeMS(tle, timeMS) {
       const orbitLengthMS = this.getAverageOrbitLengthMins(tle.arr) * 60 * 1000;
 
       const tleStr = tle.arr.join('').substr(0, 30);
 
       const cachedCrossingTimes =
-        this.cache[cachedAntemeridiamTimesKey] && this.cache[cachedAntemeridiamTimesKey][tleStr];
+        this.cache[cachedAntemeridianTimesKey] && this.cache[cachedAntemeridianTimesKey][tleStr];
 
       if (!cachedCrossingTimes) return false;
 
@@ -746,13 +867,15 @@
       return cachedTime[0] || false;
     }
 
-    getLastAntemeridiamCrossingTimeMS(tle, timeMS) {
+    /**
+     * Determines the last time the satellite crossed the antemeridian.  For mapping convenience
+     * and to avoid headaches, we want to avoid plotting ground tracks that cross the antemeridian.
+     */
+    getLastAntemeridianCrossingTimeMS(tle, timeMS) {
       const parsedTLE = this.parseTLE(tle);
 
-      const cachedVal = this.getCachedLastAntemeridiamCrossingTimeMS(parsedTLE, timeMS);
-      if (cachedVal) {
-        return cachedVal;
-      }
+      const cachedVal = this.getCachedLastAntemeridianCrossingTimeMS(parsedTLE, timeMS);
+      if (cachedVal) return cachedVal;
 
       const time = timeMS || Date.now();
 
@@ -783,18 +906,47 @@
       const crossingTime = parseInt(curTimeMS, 10);
 
       const tleStr = parsedTLE.arr.join('').substr(0, 30);
-      if (!this.cache[cachedAntemeridiamTimesKey][tleStr]) {
-        this.cache[cachedAntemeridiamTimesKey][tleStr] = [];
+      if (!this.cache[cachedAntemeridianTimesKey][tleStr]) {
+        this.cache[cachedAntemeridianTimesKey][tleStr] = [];
       }
-      this.cache[cachedAntemeridiamTimesKey][tleStr].push(crossingTime);
+      this.cache[cachedAntemeridianTimesKey][tleStr].push(crossingTime);
 
       return crossingTime;
     }
 
+    /**
+     * Determines the average amount of milliseconds in one orbit.
+     */
     getOrbitTimeMS(tle) {
       return parseInt(MS_IN_A_DAY / this.getMeanMotion(tle), 10);
     }
 
+    /**
+     * Calculates three orbit arrays of latitude/longitude pairs.
+     *
+     * Example:
+     * const threeOrbitsArr = tle.getGroundTrackLatLng(tleStr);
+     * ->
+     * [
+     *   // previous orbit
+     *   [
+     *     [ 45.85524291891481, -179.93297540317567 ],
+     *     ...
+     *   ],
+     *
+     *   // current orbit
+     *   [
+     *     [ 51.26165992503701, -179.9398612198045 ],
+     *     ...
+     *   ],
+     *
+     *   // next orbit
+     *   [
+     *     [ 51.0273714070371, -179.9190165549038 ],
+     *     ...
+     *   ]
+     * ]
+     */
     getGroundTrackLatLng(tle, stepMS, optionalTimeMS) {
       const fnName = 'getGroundTrackLatLng';
 
@@ -803,7 +955,7 @@
       const parsedTLE = this.parseTLE(tle);
 
       const orbitTimeMS = this.getOrbitTimeMS(tle);
-      const curOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle, timeMS);
+      const curOrbitStartMS = this.getLastAntemeridianCrossingTimeMS(tle, timeMS);
 
       // Check for memoized values.
       const curOrbitStartS = (curOrbitStartMS / 1000).toFixed();
@@ -812,8 +964,8 @@
         return this.cache[cacheKey];
       }
 
-      const lastOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(tle, curOrbitStartMS - 10000);
-      const nextOrbitStartMS = this.getLastAntemeridiamCrossingTimeMS(
+      const lastOrbitStartMS = this.getLastAntemeridianCrossingTimeMS(tle, curOrbitStartMS - 10000);
+      const nextOrbitStartMS = this.getLastAntemeridianCrossingTimeMS(
           tle, curOrbitStartMS + orbitTimeMS + (1000 * 60 * 30));
 
       const orbitStartTimes = [
@@ -831,6 +983,11 @@
       return orbitLatLons;
     }
 
+    /**
+     * Generates an array of lat/lng pairs representing a ground track (orbit track), starting
+     * from startTimeMS and continuing until crossing the antemeridian, which is considered the end
+     * of the orbit for convenience.
+     */
     getOrbitTrack(TLEArr, startTimeMS, stepMS) {
       const fnName = 'getOrbitTrack';
 
@@ -878,6 +1035,12 @@
       return latLons;
     }
 
+    /**
+     * Determes the compass bearing from the perspective of the satellite.  Useful for 3D / pitched
+     * map perspectives.
+     *
+     * TODO: a bit buggy at extreme parts of orbits, where latitude hardly changes.
+     */
     getSatBearing(tle, customTimeMS) {
       const parsedTLE = this.parseTLE(tle);
 
@@ -913,6 +1076,10 @@
       };
     }
 
+    /**
+     * Determines if a pair of longitude points crosses over the antemeridian, which is a
+     * pain point for mapping software.
+     */
     crossesAntemeridian(longitude1, longitude2) {
       if (!longitude1 || !longitude2) return false;
 
@@ -929,6 +1096,10 @@
       return isNearAntemeridian;
     }
 
+    /**
+     * Determines a set of three orbit ground tracks.  Similar to getGroundTrackLatLng, except
+     * points are returned in reversed order ([longitude, latitude]), which is handy for GeoJSON.
+     */
     getGroundTrackLngLat(tle, stepMS, optionalTimeMS) {
       const latLngArr = this.getGroundTrackLatLng(tle, stepMS, optionalTimeMS);
       const lngLatArr = latLngArr.map(line => line.map(latLng => [latLng[1], latLng[0]]));

@@ -172,7 +172,7 @@ const satInfo = tle.getSatelliteInfo(
 
 ->
 {
-  // satellite compass heading from observer in degrees
+  // satellite compass heading from observer in degrees (0 = north, 180 = south)
   azimuth: 294.5780478624994,
   
   // satellite elevation from observer in degrees (90 is directly overhead)
