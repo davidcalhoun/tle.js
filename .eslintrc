@@ -14,11 +14,7 @@
     "require": true
   },
   "settings": {
-    "import/resolver": {
-      "webpack": {
-        "config": "webpack.config.base.js"
-      }
-    }
+
   },
   "rules": {
     "indent": ["error", 2],
