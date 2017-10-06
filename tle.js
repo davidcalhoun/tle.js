@@ -1,4 +1,5 @@
 import SatelliteJS from 'satellite.js';
+import { isPositive } from './tle-utils';
 const satellitejs = (SatelliteJS.twoline2satrec) ? SatelliteJS : SatelliteJS.satellite;
 const MS_IN_A_DAY = 1000 * 60 * 60 * 24;
 
@@ -333,13 +334,6 @@ export default class TLEJS {
     this.cache = {
       antemeridianCrossings: {}
     };
-  }
-
-  /**
-   * Determines if a number is positive.
-   */
-  isPositive(num) {
-    return num >= 0;
   }
 
   /**
@@ -759,7 +753,7 @@ export default class TLEJS {
 
     // Validation.
     if (!this.isValidTLE(tleObj)) {
-      throw new Error('TLE could not be parsed', tle);
+      throw new Error('TLE could not be parsed:', tle);
     }
 
     const satInfo = this.getSatelliteInfo(tleObj.arr, optionalTimestamp);
@@ -877,7 +871,8 @@ export default class TLEJS {
     let lastLatLon = [];
     let curTimeMS = time;
     let didCrossAntemeridian = false;
-    while (step > 500) {
+    let tries = 0;
+    while (tries < 100) {
       curLatLon = this.getLatLonArr(parsedTLE.arr, curTimeMS);
 
       didCrossAntemeridian = this.crossesAntemeridian(lastLatLon[1], curLatLon[1]);
@@ -894,9 +889,12 @@ export default class TLEJS {
         curTimeMS -= step;
         lastLatLon = curLatLon;
       }
+
+      tries++;
     }
 
-    const crossingTime = parseInt(curTimeMS, 10);
+    const couldNotFindCrossing = tries === 100;
+    const crossingTime = (couldNotFindCrossing) ? -1 : parseInt(curTimeMS, 10);
 
     const tleStr = parsedTLE.arr.join('').substr(0, 30);
     if (!this.cache.antemeridianCrossings[tleStr]) {
@@ -949,6 +947,11 @@ export default class TLEJS {
 
     const orbitTimeMS = this.getOrbitTimeMS(tle);
     const curOrbitStartMS = this.getLastAntemeridianCrossingTimeMS(tle, timeMS);
+    if (curOrbitStartMS === -1) {
+      return [
+        this.getOrbitTrack(parsedTLE.arr, timeMS, stepMS)
+      ];
+    }
 
     // Check for memoized values.
     const curOrbitStartS = (curOrbitStartMS / 1000).toFixed();
@@ -983,6 +986,7 @@ export default class TLEJS {
    */
   getOrbitTrack(TLEArr, startTimeMS, stepMS) {
     const fnName = 'getOrbitTrack';
+    const MAX_TRACK_TIME_MS = 6000000; // 100 minutes
 
     if (!startTimeMS) return [];
 
@@ -1010,9 +1014,9 @@ export default class TLEJS {
 
       crossesAntemeridian = this.crossesAntemeridian(lastLatLon[1], curLatLon[1]);
 
-      if (crossesAntemeridian && stepMSCopy === 500) isDone = true;
-
       if (crossesAntemeridian) {
+        if (stepMSCopy === 500) isDone = true;
+
         // Go back a bit.
         curTimeMS -= stepMSCopy;
         stepMSCopy = 500;
@@ -1020,6 +1024,10 @@ export default class TLEJS {
         latLons.push(curLatLon);
         curTimeMS += stepMSCopy;
         lastLatLon = curLatLon;
+      }
+
+      if (curTimeMS - startTimeMS > MAX_TRACK_TIME_MS) {
+        isDone = true;
       }
     }
 
@@ -1076,8 +1084,8 @@ export default class TLEJS {
   crossesAntemeridian(longitude1, longitude2) {
     if (!longitude1 || !longitude2) return false;
 
-    const isLong1Positive = this.isPositive(longitude1);
-    const isLong2Positive = this.isPositive(longitude2);
+    const isLong1Positive = isPositive(longitude1);
+    const isLong2Positive = isPositive(longitude2);
     const haveSameSigns = isLong1Positive === isLong2Positive;
 
     if (haveSameSigns) return false;

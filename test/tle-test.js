@@ -216,4 +216,42 @@ describe('tle.js', function(){
     });
   });
 
+  describe('geosynchronous orbit', () => {
+    const tleStr = `ABS-3
+1 24901U 97042A   17279.07057876  .00000084  00000-0  00000+0 0  9995
+2 24901   5.0867  62.6208 0007858 138.4124 258.4388  0.99995119 73683`;
+
+    it('getLatLon', () => {
+      const timestamp = 1501039265000;
+      const result = tle.getLatLon(tleStr, timestamp);
+      const expectedResult = {
+        lat: 4.398127013771438,
+        lng: 130.7180691975153
+      };
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('getLastAntemeridianCrossingTimeMS', () => {
+      const timestamp = 1501039265000;
+      const result = tle.getLastAntemeridianCrossingTimeMS(tleStr, timestamp);
+      const expectedResult = -1;
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('getOrbitTrack', () => {
+      const timestamp = 1501039265000;
+      const result = tle.getOrbitTrack(tleStr.split('\n'), timestamp, 1000);
+      const expectedResult = 6001;
+      expect(result.length).toEqual(expectedResult);
+    });
+
+    it('getGroundTrackLatLng', () => {
+      const timestamp = 1501039265000;
+      const result = tle.getGroundTrackLatLng(tleStr, 1000, timestamp);
+      expect(result.length).toEqual(1);
+      expect(result[0].length).toEqual(6001);
+    });
+
+  });
+
 });

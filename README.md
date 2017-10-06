@@ -5,10 +5,11 @@
 Satellite TLE tools in JavaScript
 
 ## Introduction
-A [TLE, or two-line element set](https://en.wikipedia.org/wiki/Two-line_element_set), is used by
-[SGP4 propagators](https://en.wikipedia.org/wiki/Simplified_perturbations_models) to determine
-spacecraft information.  Their origin goes back to the punchcard days!  `tle.js` is designed to
-simplify TLE processing with a friendly interface.
+`tle.js` is designed to simplify satellite TLEs and SGP4 with a friendly interface.
+
+The origin of TLEs goes back to the punchcard days!  A [TLE, or two-line element set](https://en.wikipedia.org/wiki/Two-line_element_set), is used by [SGP4 propagators](https://en.wikipedia.org/wiki/Simplified_perturbations_models)
+to determine spacecraft positioning information, taking into account gravity perturbations (the
+moon, etc).
 
 Most users will probably want to simply get the latitude/longitude of a satellite (see
 [getLatLon](#getlatlon)) or get the look angles from a ground position, which can be used to track
@@ -32,6 +33,8 @@ Let's start out with some code to define some variables which we'll use in many 
 const TLEJS = require('tle.js');
 const tlejs = new TLEJS();
 
+// Satellite TLE; should be updated daily.
+// TLE source: http://celestrak.com/NORAD/elements/
 const tleStr = `ISS (ZARYA)
 1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
 2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
@@ -300,7 +303,7 @@ tlejs.getEpochDay(tleStr);
 ```
 
 ### getEpochTimestamp
-Millisecond timestamp when the TLE was generated (the TLE epoch).
+Unix timestamp (in milliseconds) when the TLE was generated (the TLE epoch).
 
 ```js
 tle.getEpochTimestamp(tleStr);
@@ -335,7 +338,7 @@ tlejs.getSecondTimeDerivative(tleStr);
 -> 0
 ```
 
-Note: original value in TLE is '00000-0' (= `0.0 x 10`<sup>`0`</sup>).
+Note: the original value in TLE is '00000-0' (= `0.0 x 10`<sup>`0`</sup> = 0).
 
 ### getBstarDrag
 [BSTAR](https://en.wikipedia.org/wiki/BSTAR) drag term.  This estimates the effects of atmospheric
@@ -348,7 +351,7 @@ tlejs.getBstarDrag(tleStr);
 -> 0.000036771
 ```
 
-Note: original value in TLE is '36771-4' (= `0.36771 x 10`<sup>`-4`</sup> = `0.000036771`).
+Note: the original value in TLE is '36771-4' (= `0.36771 x 10`<sup>`-4`</sup> = `0.000036771`).
 
 ### getOrbitModel
 Private value - used by Air Force Space Command to reference the orbit model used to generate the

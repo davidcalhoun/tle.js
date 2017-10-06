@@ -2,8 +2,9 @@
   "name": "tle.js",
   "version": "1.0.16",
   "description": "Satellite TLE tools in JavaScript.",
-  "main": "dist/tle.js",
+  "main": "dist/tle-min.js",
   "scripts": {
+    "dist": "./install.sh",
     "postinstall": "./install.sh",
     "test": "./install.sh && ./node_modules/mocha/bin/mocha",
     "patch": "npm version patch && npm publish"
