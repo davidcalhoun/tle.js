@@ -249,7 +249,7 @@ describe('tle.js', function(){
       const timestamp = 1501039265000;
       const result = tle.getGroundTrackLatLng(tleStr, 1000, timestamp);
       expect(result.length).toEqual(1);
-      expect(result[0].length).toEqual(6001);
+      expect(result[0].length).toEqual(145);
     });
 
   });

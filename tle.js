@@ -844,7 +844,11 @@ export default class TLEJS {
     const cachedCrossingTimes = this.cache.antemeridianCrossings[tleStr];
     if (!cachedCrossingTimes) return false;
 
+    if (cachedCrossingTimes === -1) return cachedCrossingTimes;
+
     const cachedTime = cachedCrossingTimes.filter(val => {
+      if (typeof val === 'object' && val.tle === tle) return -1;
+
       const diff = timeMS - val;
       const isDiffPositive = diff > 0;
       const isWithinOrbit = isDiffPositive && diff < orbitLengthMS;
@@ -872,35 +876,37 @@ export default class TLEJS {
     let curTimeMS = time;
     let didCrossAntemeridian = false;
     let tries = 0;
-    while (tries < 100) {
+    let isDone = false;
+    const maxTries = 1000;
+    while (!isDone) {
       curLatLon = this.getLatLonArr(parsedTLE.arr, curTimeMS);
 
       didCrossAntemeridian = this.crossesAntemeridian(lastLatLon[1], curLatLon[1]);
       if (didCrossAntemeridian) {
         // back up
         curTimeMS += step;
-
-        if (step > 20000) {
-          step = 20000;
-        } else {
-          step /= 2;
-        }
+        step = (step > 20000) ? 20000 : step / 2;
       } else {
         curTimeMS -= step;
         lastLatLon = curLatLon;
       }
 
+      isDone = step < 500 || tries >= maxTries;
+
       tries++;
     }
 
-    const couldNotFindCrossing = tries === 100;
+    const couldNotFindCrossing = tries - 1 === maxTries;
     const crossingTime = (couldNotFindCrossing) ? -1 : parseInt(curTimeMS, 10);
 
     const tleStr = parsedTLE.arr.join('').substr(0, 30);
-    if (!this.cache.antemeridianCrossings[tleStr]) {
-      this.cache.antemeridianCrossings[tleStr] = [];
+    if (!this.cache.antemeridianCrossings[tleStr]) this.cache.antemeridianCrossings[tleStr] = [];
+
+    if (couldNotFindCrossing) {
+      this.cache.antemeridianCrossings[tleStr] = -1;
+    } else {
+      this.cache.antemeridianCrossings[tleStr].push(crossingTime);
     }
-    this.cache.antemeridianCrossings[tleStr].push(crossingTime);
 
     return crossingTime;
   }
@@ -942,21 +948,33 @@ export default class TLEJS {
     const fnName = 'getGroundTrackLatLng';
 
     const timeMS = optionalTimeMS || Date.now();
+    const timeS = (timeMS / 1000).toFixed();
 
     const parsedTLE = this.parseTLE(tle);
+    const tleStrTrimmed = parsedTLE.arr[1].substr(0, 30);
 
     const orbitTimeMS = this.getOrbitTimeMS(tle);
-    const curOrbitStartMS = this.getLastAntemeridianCrossingTimeMS(tle, timeMS);
-    if (curOrbitStartMS === -1) {
-      return [
-        this.getOrbitTrack(parsedTLE.arr, timeMS, stepMS)
-      ];
-    }
+    const curOrbitStartMS = this.getLastAntemeridianCrossingTimeMS(parsedTLE, timeMS);
 
-    // Check for memoized values.
-    const curOrbitStartS = (curOrbitStartMS / 1000).toFixed();
-    const cacheKey = `${fnName}-${stepMS}-${curOrbitStartS}`;
-    if (this.cache[cacheKey]) {
+    const foundCrossing = curOrbitStartMS !== -1;
+
+    let cacheKey;
+    if (foundCrossing) {
+      const curOrbitStartS = (curOrbitStartMS / 1000).toFixed();
+
+      // Check for memoized values.
+      cacheKey = `${fnName}-${tleStrTrimmed}-${stepMS}-${curOrbitStartS}`;
+      if (this.cache[cacheKey]) return this.cache[cacheKey];
+    } else {
+      // Geosync or unusual orbit.
+
+      cacheKey = `${fnName}-${tleStrTrimmed}-${stepMS}-${timeS}`;
+      if (this.cache[cacheKey]) return this.cache[cacheKey];
+
+      this.cache[cacheKey] = [
+        this.getOrbitTrack(parsedTLE.arr, timeMS, 600000, 86400000)
+      ];
+
       return this.cache[cacheKey];
     }
 
@@ -984,9 +1002,9 @@ export default class TLEJS {
    * from startTimeMS and continuing until crossing the antemeridian, which is considered the end
    * of the orbit for convenience.
    */
-  getOrbitTrack(TLEArr, startTimeMS, stepMS) {
+  getOrbitTrack(TLEArr, startTimeMS, stepMS, maxTimeMS) {
     const fnName = 'getOrbitTrack';
-    const MAX_TRACK_TIME_MS = 6000000; // 100 minutes
+    const MAX_TRACK_TIME_MS = (maxTimeMS) ? maxTimeMS : 6000000;
 
     if (!startTimeMS) return [];
 
@@ -995,9 +1013,7 @@ export default class TLEJS {
     const tleStrTrimmed = tleStr.substr(0, 30);
     const startTime = (startTimeMS / 10000).toFixed();
     const cacheKey = `${fnName}-${tleStrTrimmed}-${startTime}-${stepMS}`;
-    if (this.cache[cacheKey]) {
-      return this.cache[cacheKey];
-    }
+    if (this.cache[cacheKey]) return this.cache[cacheKey];
 
     // default to 1 minute intervals
     const defaultStepMS = 1000 * 60 * 1;
@@ -1013,7 +1029,6 @@ export default class TLEJS {
       curLatLon = this.getLatLonArr(TLEArr, curTimeMS);
 
       crossesAntemeridian = this.crossesAntemeridian(lastLatLon[1], curLatLon[1]);
-
       if (crossesAntemeridian) {
         if (stepMSCopy === 500) isDone = true;
 
@@ -1026,9 +1041,7 @@ export default class TLEJS {
         lastLatLon = curLatLon;
       }
 
-      if (curTimeMS - startTimeMS > MAX_TRACK_TIME_MS) {
-        isDone = true;
-      }
+      if (curTimeMS - startTimeMS > MAX_TRACK_TIME_MS) isDone = true;
     }
 
     this.cache[cacheKey] = latLons;
