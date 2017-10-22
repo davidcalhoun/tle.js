@@ -989,8 +989,8 @@ export default class TLEJS {
     ];
 
     const orbitLatLons = orbitStartTimes.map(
-      orbitStartMS => this.getOrbitTrack(parsedTLE.arr, orbitStartMS, stepMS
-    ));
+      orbitStartMS => this.getOrbitTrack(parsedTLE.arr, orbitStartMS, stepMS, false)
+    );
 
     this.cache[cacheKey] = orbitLatLons;
 
@@ -1002,9 +1002,8 @@ export default class TLEJS {
    * from startTimeMS and continuing until crossing the antemeridian, which is considered the end
    * of the orbit for convenience.
    */
-  getOrbitTrack(TLEArr, startTimeMS, stepMS, maxTimeMS) {
+  getOrbitTrack(TLEArr, startTimeMS, stepMS, maxTimeMS = 6000000) {
     const fnName = 'getOrbitTrack';
-    const MAX_TRACK_TIME_MS = (maxTimeMS) ? maxTimeMS : 6000000;
 
     if (!startTimeMS) return [];
 
@@ -1041,7 +1040,7 @@ export default class TLEJS {
         lastLatLon = curLatLon;
       }
 
-      if (curTimeMS - startTimeMS > MAX_TRACK_TIME_MS) isDone = true;
+      if (maxTimeMS && (curTimeMS - startTimeMS > maxTimeMS)) isDone = true;
     }
 
     this.cache[cacheKey] = latLons;

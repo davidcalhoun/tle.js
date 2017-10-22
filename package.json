@@ -2,7 +2,7 @@
   "name": "tle.js",
   "version": "1.0.18",
   "description": "Satellite TLE tools in JavaScript.",
-  "main": "dist/tle-min.js",
+  "main": "dist/tle.js",
   "scripts": {
     "dist": "./install.sh",
     "postinstall": "./install.sh",
