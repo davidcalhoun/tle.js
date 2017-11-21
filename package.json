@@ -6,7 +6,7 @@
   "scripts": {
     "dist": "./node_modules/.bin/webpack --config webpack.config.js",
     "test": "./node_modules/mocha/bin/mocha",
-    "patch": "npm version patch && npm publish"
+    "patch": "npm version patch && npm publish && git push --tags"
   },
   "repository": {
     "type": "git",
