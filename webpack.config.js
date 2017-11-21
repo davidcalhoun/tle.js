@@ -40,10 +40,17 @@ module.exports = {
 
     // Minifies JavaScript.
     new webpack.optimize.UglifyJsPlugin({
-      mangle: true,
+      parallel: true,
+      mangle: {
+        // ALSO compress properties matching this regexp.
+        props: {
+          regex: /^_/
+        }
+      },
       sourceMap: true,
       compress: {
-        warnings: true
+        warnings: true,
+        passes: 3
       },
       output: {
         comments: false
