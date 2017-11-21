@@ -4,6 +4,9 @@
 
 Satellite TLE tools in JavaScript
 
+## Installation
+`npm add tle.js` or `yarn add tle.js`
+
 ## Introduction
 `tle.js` is designed to simplify satellite TLEs and SGP4 with a friendly interface.
 
