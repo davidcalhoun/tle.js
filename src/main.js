@@ -1,5 +1,6 @@
 import SatelliteJS from 'satellite.js';
 import { isPositive } from './tle-utils';
+
 const satellitejs = (SatelliteJS.twoline2satrec) ? SatelliteJS : SatelliteJS.satellite;
 const MS_IN_A_DAY = 1000 * 60 * 60 * 24;
 
@@ -683,6 +684,11 @@ export default class TLEJS {
     const cacheKey = `${fnName}-${tleStrShort}-${timestampCopy}-${observerLat}-${observerLng}
 -${observerHeight}`;
     if (this.cache[cacheKey]) return this.cache[cacheKey];
+
+    // Sanity check
+    if (!satellitejs) {
+      throw new Error('satellite.js not found');
+    }
 
     // Initialize a satellite record
     const satrec = satellitejs.twoline2satrec(tleArr[0], tleArr[1]);
