@@ -60,7 +60,7 @@ const tleArr = [
 Get the current latitude/longitude of a spacecraft.
 
 ```js
-const latLonObj = tle.getLatLon(tleStr);
+const latLonObj = tlejs.getLatLon(tleStr);
 
 ->
 {
@@ -77,7 +77,7 @@ was generated (the TLE's epoch).
 
 ```js
 const timestampMS = 1502342329860;
-const latLonObj = tle.getLatLon(tleStr, timestampMS);
+const latLonObj = tlejs.getLatLon(tleStr, timestampMS);
 
 ->
 {
@@ -98,7 +98,7 @@ Note: if you need the points in reverse order (longitude, latitude), e.g. for Ge
 can use the function `getGroundTrackLngLat` instead.
 
 ```js
-const threeOrbitsArr = tle.getGroundTrackLatLng(tleStr);
+const threeOrbitsArr = tlejs.getGroundTrackLatLng(tleStr);
 
 ->
 [
@@ -130,7 +130,7 @@ const stepMS = 1000;
 // Relative time to draw orbits from.  This will be used as the "middle"/current orbit.
 const timestampMS = 1502342329860;
 
-const threeOrbitsArr = tle.getGroundTrackLatLng(
+const threeOrbitsArr = tlejs.getGroundTrackLatLng(
   tleStr,
   stepMS,
   timestampMS
@@ -169,7 +169,7 @@ const observer = {
   lng: -116.911389,
   height: 0
 };
-const satInfo = tle.getSatelliteInfo(
+const satInfo = tlejs.getSatelliteInfo(
   tleStr,          // Satellite TLE string or array.
   timestampMS,     // Timestamp (ms)
   observer.lat,    // Observer latitude (degrees)
