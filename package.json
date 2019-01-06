@@ -27,7 +27,9 @@
     "url": "https://github.com/davidcalhoun/tle.js/issues"
   },
   "homepage": "https://github.com/davidcalhoun/tle.js",
-  "dependencies": {},
+  "dependencies": {
+    "satellite.js": "^3.0.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
@@ -40,7 +42,6 @@
     "chai": "^3.4.1",
     "expect": "^1.20.2",
     "mocha": "^5.2.0",
-    "satellite.js": "^1.2.0",
     "uglify-es": "^3.0.27",
     "webpack": "^4.28.3"
   }
