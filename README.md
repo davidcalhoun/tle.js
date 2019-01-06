@@ -209,7 +209,7 @@ specific information from a TLE itself.
 
 ### Shared variables for below examples.
 ```js
-const tlejs = require('tle.js');
+const TLEJS = require('tle.js');
 const tlejs = new TLEJS();
 
 const tleStr = `ISS (ZARYA)
