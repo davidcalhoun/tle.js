@@ -163,13 +163,13 @@ describe('tle.js', function(){
         height: 403.01331234690133,
         velocity: 7.675512139515791
       };
-      expect(result.lat).toEqual(34.439283990227125);
-      expect(result.lng).toEqual(-117.47561122364522);
-      expect(result.azimuth.toFixed(7)).toEqual(292.8250329);
-      expect(result.elevation.toFixed(7)).toEqual(81.5452074);
-      expect(result.range).toEqual(406.80066121261547);
-      expect(result.height).toEqual(403.01331234690133);
-      expect(result.velocity).toEqual(7.675512139515791);
+      expect(result.lat).toEqual(34.43928468167498);
+      expect(result.lng).toEqual(-117.47561026844932);
+      expect(result.azimuth.toFixed(7)).toEqual(292.8251393);
+      expect(result.elevation.toFixed(7)).toEqual(81.5452178);
+      expect(result.range).toEqual(406.8007926883391);
+      expect(result.height).toEqual(403.0134527800419);
+      expect(result.velocity).toEqual(7.675511980883446);
     });
 
     describe('memoization', () => {
@@ -209,8 +209,8 @@ describe('tle.js', function(){
       const timestamp = 1501039265000;
       const result = tle.getLatLon(tleStr, timestamp);
       const expectedResult = {
-        lat: 34.439283990227125,
-        lng: -117.47561122364522
+        lat: 34.43928468167498,
+        lng: -117.47561026844932
       };
       expect(result).toEqual(expectedResult);
     });
@@ -225,8 +225,8 @@ describe('tle.js', function(){
       const timestamp = 1501039265000;
       const result = tle.getLatLon(tleStr, timestamp);
       const expectedResult = {
-        lat: 4.398127013771438,
-        lng: 130.7180691975153
+        lat: 4.353016018653351,
+        lng: 129.632535483672
       };
       expect(result).toEqual(expectedResult);
     });
