@@ -120,5 +120,5 @@ module.exports = {
   _toCamelCase,
   _radiansToDegrees,
   _degreesToRadians,
-  _crossesAntemeridian,
+  _crossesAntemeridian
 };

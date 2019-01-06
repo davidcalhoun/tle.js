@@ -316,4 +316,4 @@ const line2 = {
 module.exports = {
   line1,
   line2
-}
+};
