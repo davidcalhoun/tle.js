@@ -2,10 +2,9 @@
   "name": "tle.js",
   "version": "1.0.21",
   "description": "Satellite TLE tools in JavaScript.",
-  "main": "dist/tle.js",
+  "main": "src/main.js",
   "scripts": {
-    "dist": "./node_modules/.bin/webpack --config webpack.config.js",
-    "test": "./node_modules/mocha/bin/mocha",
+    "test": "mocha",
     "patch": "npm version patch && npm publish && git push --tags"
   },
   "repository": {

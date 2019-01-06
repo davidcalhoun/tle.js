@@ -1,4 +1,4 @@
-import { _DATA_TYPES } from './constants';
+const { _DATA_TYPES } = require('./constants');
 
 const line1 = {
   /* TLE line number. Will always return 1 for valid TLEs. */
@@ -313,4 +313,7 @@ const line2 = {
  * punchcard days.
  * See https://en.wikipedia.org/wiki/Two-line_element_set.
  */
-export default { line1, line2 };
+module.exports = {
+  line1,
+  line2
+}
