@@ -15,10 +15,12 @@
     "satellite",
     "satellites",
     "tle",
-    "two-line",
-    "element",
-    "set",
-    "space"
+    "two-line element set",
+    "space",
+    "tle",
+    "geodesy",
+    "geodetics",
+    "satellite.js"
   ],
   "author": "David Calhoun",
   "license": "MIT",
