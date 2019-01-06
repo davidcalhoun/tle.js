@@ -1,24 +1,24 @@
-import SatelliteJS from 'satellite.js';
-import {
+const SatelliteJS = require('satellite.js');
+const {
   _crossesAntemeridian,
   _dayOfYearToTimeStamp,
   _decimalAssumedEToFloat,
   _degreesToRadians,
   _radiansToDegrees,
   _toCamelCase
-} from './utils';
-import tleLines from './line-defs';
-import {
+} = require('./utils');
+const tleLines = require('./line-defs');
+const {
   _ACCEPTABLE_TLE_INPUT_TYPES,
   _DATA_TYPES,
   _LEADING_ZERO_ASSUMED_PREFIX,
   _MS_IN_A_DAY
-} from './constants';
+} = require('./constants');
 
 // TODO: fix this ugliness
 const satellitejs = (SatelliteJS.twoline2satrec) ? SatelliteJS : SatelliteJS.satellite;
 
-export default class TLEJS {
+class TLEJS {
   constructor() {
     this.createAllTLEGetters(tleLines);
 
@@ -342,7 +342,7 @@ export default class TLEJS {
 
     // Get GMST for some coordinate transforms.
     // http://en.wikipedia.org/wiki/Sidereal_time#Definition
-    const gmst = satellitejs.gstimeFromDate(time);
+    const gmst = satellitejs.gstime(time);
 
     // Get ECF, Geodetic, Look Angles, and Doppler Factor.
     const positionEcf = satellitejs.eciToEcf(positionEci, gmst);
@@ -706,3 +706,5 @@ export default class TLEJS {
     return lngLatArr;
   }
 }
+
+module.exports = TLEJS;

@@ -1,11 +1,10 @@
 {
   "name": "tle.js",
-  "version": "1.0.21",
+  "version": "2.0.0",
   "description": "Satellite TLE tools in JavaScript.",
-  "main": "dist/tle.js",
+  "main": "src/main.js",
   "scripts": {
-    "dist": "./node_modules/.bin/webpack --config webpack.config.js",
-    "test": "./node_modules/mocha/bin/mocha",
+    "test": "mocha",
     "patch": "npm version patch && npm publish && git push --tags"
   },
   "repository": {
@@ -16,10 +15,12 @@
     "satellite",
     "satellites",
     "tle",
-    "two-line",
-    "element",
-    "set",
-    "space"
+    "two-line element set",
+    "space",
+    "tle",
+    "geodesy",
+    "geodetics",
+    "satellite.js"
   ],
   "author": "David Calhoun",
   "license": "MIT",
@@ -27,21 +28,12 @@
     "url": "https://github.com/davidcalhoun/tle.js/issues"
   },
   "homepage": "https://github.com/davidcalhoun/tle.js",
-  "dependencies": {},
+  "dependencies": {
+    "satellite.js": "^3.0.0"
+  },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.32",
-    "@babel/preset-env": "^7.0.0-beta.32",
-    "babel-cli": "^6.24.1",
-    "babel-loader": "^8.0.0-beta.0",
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-es2015": "^6.24.1",
     "chai": "^3.4.1",
     "expect": "^1.20.2",
-    "mocha": "^2.3.3",
-    "satellite.js": "^1.2.0",
-    "uglify-es": "^3.0.27",
-    "webpack": "^3.8.1"
+    "mocha": "^5.2.0"
   }
 }

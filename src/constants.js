@@ -1,7 +1,7 @@
-export const _MS_IN_A_DAY = 1000 * 60 * 60 * 24;
+const _MS_IN_A_DAY = 1000 * 60 * 60 * 24;
 
 // Data formats for TLE orbital elements.
-export const _DATA_TYPES = {
+const _DATA_TYPES = {
   _INT: Symbol(),
   _FLOAT: Symbol(),
   _CHAR: Symbol(),
@@ -9,10 +9,17 @@ export const _DATA_TYPES = {
   _DECIMAL_ASSUMED_E: Symbol()   // 12345-2 -> 0.0012345
 };
 
-export const _ACCEPTABLE_TLE_INPUT_TYPES = {
+const _ACCEPTABLE_TLE_INPUT_TYPES = {
   _STRING: 'string',
   _ARRAY: 'array',
   _OBJECT: 'object'
 };
 
-export const _LEADING_ZERO_ASSUMED_PREFIX = '0.';
+const _LEADING_ZERO_ASSUMED_PREFIX = '0.';
+
+module.exports = {
+  _MS_IN_A_DAY,
+  _DATA_TYPES,
+  _ACCEPTABLE_TLE_INPUT_TYPES,
+  _LEADING_ZERO_ASSUMED_PREFIX
+};

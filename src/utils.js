@@ -1,9 +1,9 @@
-import { _MS_IN_A_DAY, _LEADING_ZERO_ASSUMED_PREFIX } from './constants';
+const { _MS_IN_A_DAY, _LEADING_ZERO_ASSUMED_PREFIX } = require('./constants');
 
 /**
  * Determines if a number is positive.
  */
-export const _isPositive = num => num >= 0;
+const _isPositive = num => num >= 0;
 
 /**
  * Determines the amount of digits in a number.  Used for converting a TLE's "leading decimal
@@ -13,7 +13,7 @@ export const _isPositive = num => num >= 0;
  * getDigitCount(12345);
  * -> 5
  */
-export const _getDigitCount = (num) => {
+const _getDigitCount = (num) => {
   const absVal = Math.abs(num);
   return absVal.toString().length;
 };
@@ -25,7 +25,7 @@ export const _getDigitCount = (num) => {
  * toLeadingDecimal(12345);
  * -> 0.12345
  */
-export const _toLeadingDecimal = (num) => {
+const _toLeadingDecimal = (num) => {
   const numDigits = _getDigitCount(num);
   const zeroes = '0'.repeat(numDigits - 1);
   return parseFloat(num * `${_LEADING_ZERO_ASSUMED_PREFIX}${zeroes}1`);
@@ -39,7 +39,7 @@ export const _toLeadingDecimal = (num) => {
  * decimalAssumedEToFloat('12345-4');
  * -> 0.000012345
  */
-export const _decimalAssumedEToFloat = (str) => {
+const _decimalAssumedEToFloat = (str) => {
   const numWithAssumedLeadingDecimal = str.substr(0, str.length - 2);
   const num = _toLeadingDecimal(numWithAssumedLeadingDecimal);
   const leadingDecimalPoints = parseInt(str.substr(str.length - 2, 2), 10);
@@ -50,7 +50,7 @@ export const _decimalAssumedEToFloat = (str) => {
 /**
  * Converts a fractional day of the year to a timestamp.  Used for parsing the TLE epoch.
  */
-export const _dayOfYearToTimeStamp = (dayOfYear, year = (new Date()).getFullYear()) => {
+const _dayOfYearToTimeStamp = (dayOfYear, year = (new Date()).getFullYear()) => {
   const yearStart = new Date(`1/1/${year} 0:0:0 Z`);
 
   const yearStartMS = yearStart.getTime();
@@ -67,7 +67,7 @@ export const _dayOfYearToTimeStamp = (dayOfYear, year = (new Date()).getFullYear
  * toCamelCase('foo bar', ' ');
  * -> 'fooBar'
  */
-export const _toCamelCase = (str, divider = '-') => {
+const _toCamelCase = (str, divider = '-') => {
   const bits = str.split(divider);
 
   const output = [];
@@ -84,18 +84,18 @@ export const _toCamelCase = (str, divider = '-') => {
 /**
  * Converts radians (0 to 2π) to degrees (0 to 360).
  */
-export const _radiansToDegrees = radians => radians * (180 / Math.PI);
+const _radiansToDegrees = radians => radians * (180 / Math.PI);
 
 /**
  * Converts degrees (0 to 360) to radians (0 to 2π).
  */
-export const _degreesToRadians = degrees => degrees * (Math.PI / 180);
+const _degreesToRadians = degrees => degrees * (Math.PI / 180);
 
 /**
  * Determines if a pair of longitude points crosses over the antemeridian, which is a
  * pain point for mapping software.
  */
-export const _crossesAntemeridian = (longitude1, longitude2) => {
+const _crossesAntemeridian = (longitude1, longitude2) => {
   if (!longitude1 || !longitude2) return false;
 
   const isLong1Positive = _isPositive(longitude1);
@@ -109,4 +109,16 @@ export const _crossesAntemeridian = (longitude1, longitude2) => {
   const isNearAntemeridian = Math.abs(longitude1) > 100;
 
   return isNearAntemeridian;
+};
+
+module.exports = {
+  _isPositive,
+  _getDigitCount,
+  _toLeadingDecimal,
+  _decimalAssumedEToFloat,
+  _dayOfYearToTimeStamp,
+  _toCamelCase,
+  _radiansToDegrees,
+  _degreesToRadians,
+  _crossesAntemeridian
 };
