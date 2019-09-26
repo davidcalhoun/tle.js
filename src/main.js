@@ -395,12 +395,7 @@ class TLEJS {
       throw new Error('TLE could not be parsed:', tle);
     }
 
-    let satInfo;
-    try {
-      satInfo = this.getSatelliteInfo(tleObj.arr, optionalTimestamp);
-    } catch (error) {
-      throw error;
-    }
+    const satInfo = this.getSatelliteInfo(tleObj.arr, optionalTimestamp);
     return {
       lat: satInfo.lat,
       lng: satInfo.lng
