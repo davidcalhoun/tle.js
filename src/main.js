@@ -324,10 +324,17 @@ class TLEJS {
     // Propagate SGP4.
     const positionAndVelocity = satellitejs.propagate(satrec, time);
 
-    if (satellitejs.error) {
-      throw new Error('Error: problematic TLE with unexpected eccentricity');
+   if (satrec.error) {
+      const errorMessages = {
+        1: 'mean elements, ecc >= 1.0 or ecc < -0.001 or a < 0.95 er',
+        2: 'mean motion less than 0.0',
+        3: 'pert elements, ecc < 0.0  or  ecc > 1.0',
+        4: 'semi-latus rectum < 0.0',
+        5: 'epoch elements are sub-orbital',
+        6: 'satellite has decayed'
+      }
+      throw new Error(errorMessages[satrec.error] || 'Error: problematic TLE with unexpected eccentricity')
     }
-
     // The position_velocity result is a key-value pair of ECI coordinates.
     // These are the base results from which all other coordinates are derived.
     const positionEci = positionAndVelocity.position;
