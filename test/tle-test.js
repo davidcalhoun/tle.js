@@ -87,9 +87,9 @@ describe('tle.js', function(){
     it('1', () => {
       const allVisible = tle.getVisibleSatellites(34.439283990227125, -117.47561122364522, 0, tles, 0, 1570911182419);
       const deg75to90 = allVisible.filter(sat => sat.info.elevation >= 75);
-      const deg50to75 = allVisible.filter(sat => sat.info.elevation > 50 && sat.info.elevation < 75);
-      const deg25to50 = allVisible.filter(sat => sat.info.elevation > 25 && sat.info.elevation < 50);
-      const deg0to25 = allVisible.filter(sat => sat.info.elevation > 0 && sat.info.elevation < 25);
+      const deg50to75 = allVisible.filter(sat => sat.info.elevation >= 50 && sat.info.elevation < 75);
+      const deg25to50 = allVisible.filter(sat => sat.info.elevation >= 25 && sat.info.elevation < 50);
+      const deg0to25 = allVisible.filter(sat => sat.info.elevation >= 0 && sat.info.elevation < 25);
 
       expect(allVisible.length).toEqual(760);
       expect(deg75to90.length).toEqual(5);
