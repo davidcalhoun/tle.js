@@ -163,18 +163,12 @@ const threeOrbitsArr = tlejs.getGroundTrackLatLng(
 Get both look angles (for a ground observer) as well as a few more tidbits of satellite info.
 
 ```js
-const timestampMS = 1501039265000;
-const observer = {
-  lat: 34.243889,
-  lng: -116.911389,
-  height: 0
-};
 const satInfo = tlejs.getSatelliteInfo(
-  tleStr,          // Satellite TLE string or array.
-  timestampMS,     // Timestamp (ms)
-  observer.lat,    // Observer latitude (degrees)
-  observer.lng,    // Observer longitude (degrees)
-  observer.height  // Observer elevation (km)
+  tleStr,         // Satellite TLE string or array.
+  1501039265000,  // Timestamp (ms)
+  34.243889,      // Observer latitude (degrees)
+  -116.911389,    // Observer longitude (degrees)
+  0               // Observer elevation (km)
 );
 
 ->
@@ -206,6 +200,8 @@ const satInfo = tlejs.getSatelliteInfo(
 ## Basic TLE getters
 In addition to the powerful functions above, there are also helpful functions for getting
 specific information from a TLE itself.
+
+For further reading, see ([Kelso's article](https://celestrak.com/columns/v04n03/)).
 
 ### Shared variables for below examples.
 ```js
@@ -378,7 +374,7 @@ tlejs.getTleSetNumber(tleStr);
 ```
 
 ### getChecksum1
-TLE line 1 checksum (modulo 10), for verifying the integrity of this line of the TLE.
+TLE line 1 checksum (modulo 10), for verifying the integrity of this line of the TLE.  Note that letters, blanks, periods, and plus signs are counted as 0, while minus signs are counted as 1.
 
 * Range: 0 to 9
 
@@ -387,7 +383,7 @@ tlejs.getChecksum1(tleStr);
 -> 3
 ```
 
-You can compare this number to the calculated checksum by using `tleLineChecksum()`:
+Note that this simply reads the checksum baked into the TLE string.  Use `tlejs.tleLineChecksum()` to manually calculate the checksum and compare it to this number to ensure integrity:
 
 ```js
 const expectedChecksum = tlejs.getChecksum1(tleArr);
@@ -425,7 +421,7 @@ tlejs.getRightAscension(tleStr);
 
 ### getEccentricity
 [Orbital eccentricity](https://en.wikipedia.org/wiki/Orbital_eccentricity), decimal point assumed.
-All artifical Earth satellites have an eccentricity between 0 (perfect circle) and 1 (parabolic
+All artificial Earth satellites have an eccentricity between 0 (perfect circle) and 1 (parabolic
 orbit).
 
 * Range: 0 to 1
@@ -464,6 +460,7 @@ tlejs.getMeanAnomaly(tleStr);
 ### getMeanMotion
 Revolutions around the Earth per day ([mean motion](https://en.wikipedia.org/wiki/Mean_Motion)).
 
+* Units: revs per day
 * Range: 0 to 17 (theoretically)
 
 ```js
@@ -475,6 +472,7 @@ tlejs.getMeanMotion(tleStr);
 Total satellite revolutions when this TLE was generated.  This number seems to roll over (e.g.
 99999 -> 0).
 
+* Units: revs
 * Range: 0 to 99999
 
 ```js
@@ -483,7 +481,7 @@ tlejs.getRevNumberAtEpoch(tleStr);
 ```
 
 ### getChecksum2
-TLE line 2 checksum (modulo 10), for verifying the integrity of this line of the TLE.
+TLE line 2 checksum (modulo 10) for verifying the integrity of this line of the TLE.
 
 * Range: 0 to 9
 
