@@ -610,6 +610,59 @@ class TLEJS {
     return orbitLatLons;
   }
 
+  getGroundTrackLatLngAsync(tle, stepMS, optionalTimeMS) {
+    return new Promise(async (resolve, reject) => {
+      const fnName = 'getGroundTrackLatLngAsync';
+
+      const timeMS = optionalTimeMS || Date.now();
+      const timeS = (timeMS / 1000).toFixed();
+
+      const parsedTLE = this.parseTLE(tle);
+      const tleStrTrimmed = parsedTLE.arr[1].substr(0, 30);
+
+      const orbitTimeMS = this.getOrbitTimeMS(tle);
+      const curOrbitStartMS = this.getLastAntemeridianCrossingTimeMS(parsedTLE, timeMS);
+
+      const foundCrossing = curOrbitStartMS !== -1;
+
+      let cacheKey;
+      if (foundCrossing) {
+        const curOrbitStartS = (curOrbitStartMS / 1000).toFixed();
+
+        // Check for memoized values.
+        cacheKey = `${fnName}-${tleStrTrimmed}-${stepMS}-${curOrbitStartS}`;
+        if (this.cache[cacheKey]) return this.cache[cacheKey];
+      } else {
+        // Geosync or unusual orbit.
+
+        cacheKey = `${fnName}-${tleStrTrimmed}-${stepMS}-${timeS}`;
+        if (this.cache[cacheKey]) return this.cache[cacheKey];
+
+        this.cache[cacheKey] = [
+          await this.getOrbitTrackAsync(parsedTLE.arr, timeMS, 600000, 86400000)
+        ];
+
+        return this.cache[cacheKey];
+      }
+
+      const lastOrbitStartMS = this.getLastAntemeridianCrossingTimeMS(tle, curOrbitStartMS - 10000);
+      const nextOrbitStartMS = this.getLastAntemeridianCrossingTimeMS(
+          tle, curOrbitStartMS + orbitTimeMS + (1000 * 60 * 30));
+
+      const orbitLatLonsPromises = [
+        this.getOrbitTrackAsync(parsedTLE.arr, lastOrbitStartMS, stepMS, false),
+        this.getOrbitTrackAsync(parsedTLE.arr, curOrbitStartMS, stepMS, false),
+        this.getOrbitTrackAsync(parsedTLE.arr, nextOrbitStartMS, stepMS, false)
+      ];
+
+      const orbitLatLons = await Promise.all(orbitLatLonsPromises);
+
+      this.cache[cacheKey] = orbitLatLons;
+
+      resolve(orbitLatLons);
+    });
+  }
+
   /**
    * Generates an array of lat/lng pairs representing a ground track (orbit track), starting
    * from startTimeMS and continuing until crossing the antemeridian, which is considered the end
@@ -659,6 +712,48 @@ class TLEJS {
     this.cache[cacheKey] = latLons;
 
     return latLons;
+  }
+
+  * getNextPosition(TLEArr, startTimeMS, stepMS) {
+    let curTimeMS = startTimeMS;
+
+    while (true) {
+      curTimeMS += stepMS;
+      yield this.getLatLonArr(TLEArr, curTimeMS);
+    }
+  }
+
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  getOrbitTrackAsync(TLEArr, startTimeMS = Date.now(), stepMS = 1000, sleepMS = 0, jobSize = 1000) {
+    return new Promise(async (resolve, reject) => {
+      const generator = this.getNextPosition(TLEArr, startTimeMS, stepMS);
+
+      let step = 0;
+      let isDone = false;
+      let latLons = [];
+      while (!isDone) {
+        const curVal = generator.next().value;
+
+        const lastLon = latLons.length && latLons[latLons.length - 1][1];
+        const curLon = curVal[1];
+        if (_crossesAntemeridian(lastLon, curLon)) {
+          isDone = true;
+        }
+
+        latLons.push(curVal);
+
+        if (step % jobSize === 0) {
+          await this.sleep(sleepMS);
+        }
+
+        step++;
+      }
+
+      resolve(latLons);
+    });
   }
 
   /**
@@ -711,6 +806,24 @@ class TLEJS {
     const lngLatArr = latLngArr.map(line => line.map(latLng => [latLng[1], latLng[0]]));
 
     return lngLatArr;
+  }
+
+  async getGroundTrackLngLatAsync(tle, stepMS, optionalTimeMS) {
+    return new Promise(async (resolve, reject) => {
+      const latLngArr = await this.getGroundTrackLatLngAsync(tle, stepMS, optionalTimeMS);
+      const lngLatArr = latLngArr.map(line => line.map(latLng => [latLng[1], latLng[0]]));
+
+      resolve(lngLatArr);
+    });
+  }
+
+  getVisibleSatellites(observerLat, observerLng, observerHeight, tles = [], elevationThreshold = 0, timestampMS = Date.now()) {
+    return tles.reduce((visibleSats, tleArr, index) => {
+      const info = this.getSatelliteInfo(tleArr, timestampMS, observerLat, observerLng, observerHeight);
+      return (info.elevation >= elevationThreshold)
+        ? visibleSats.concat({ tleArr, info })
+        : visibleSats;
+    }, []);
   }
 }
 

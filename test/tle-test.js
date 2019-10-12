@@ -1,5 +1,7 @@
 const expect = require('expect');
 const TLEJS = require('../src/main');
+const fs = require('fs');
+const R = require('ramda');
 
 const NS_PER_SEC = 1e9;
 
@@ -68,6 +70,37 @@ describe('tle.js', function(){
       const result = tle.getTLEEpochTimestamp(tleStr);
       const expectedResult = 1500956694771;
       expect(result).toEqual(expectedResult);
+    });
+  });
+
+  describe('getVisibleSatellites', () => {
+    let tleText;
+    try {
+        tleText = fs.readFileSync(`${ __dirname }/tles.txt`, 'utf8');
+    } catch (e) {
+        console.log(e.stack);
+    }
+
+    const arr = tleText.split('\n');
+    const tles = R.splitEvery(3, arr);
+
+    it('1', () => {
+      const allVisible = tle.getVisibleSatellites(34.439283990227125, -117.47561122364522, 0, tles, 0, 1570911182419);
+      const deg75to90 = allVisible.filter(sat => sat.info.elevation >= 75);
+      const deg50to75 = allVisible.filter(sat => sat.info.elevation > 50 && sat.info.elevation < 75);
+      const deg25to50 = allVisible.filter(sat => sat.info.elevation > 25 && sat.info.elevation < 50);
+      const deg0to25 = allVisible.filter(sat => sat.info.elevation > 0 && sat.info.elevation < 25);
+
+      expect(allVisible.length).toEqual(760);
+      expect(deg75to90.length).toEqual(5);
+      expect(deg50to75.length).toEqual(66);
+      expect(deg25to50.length).toEqual(361);
+      expect(deg0to25.length).toEqual(328);
+    });
+
+    it('with elevation threshold', () => {
+      const allVisible = tle.getVisibleSatellites(34.439283990227125, -117.47561122364522, 0, tles, 75, 1570911182419);
+      expect(allVisible.length).toEqual(5);
     });
   });
 
@@ -195,7 +228,7 @@ describe('tle.js', function(){
         const secondDiff = process.hrtime(timeStart)
         const secondRunTimeNS = getHRTimeDiffNS(secondDiff);
 
-        expect(firstRunTimeNS - 100000).toBeGreaterThan(secondRunTimeNS);
+        expect(firstRunTimeNS).toBeGreaterThan(secondRunTimeNS);
       })
     });
   });
@@ -213,6 +246,14 @@ describe('tle.js', function(){
         lng: -117.47561026844932
       };
       expect(result).toEqual(expectedResult);
+    });
+  });
+
+  describe('getOrbitTrackAsync', () => {
+    it('1', async () => {
+      const timestamp = 1501039265000;
+      const latLons = await tle.getOrbitTrackAsync(tleArr, timestamp);
+      expect(latLons.length).toEqual(4594);
     });
   });
 
@@ -252,6 +293,19 @@ describe('tle.js', function(){
       expect(result[0].length).toEqual(145);
     });
 
+    it('getOrbitTrack problematic 1', () => {
+      const problemTLE = ['FLOCK 1B-28',
+'1 40423U 98067FP  15219.24788283  .05567779  12028-4  14293-2 0  9997',
+'2 40423  51.6133 170.3484 0007348 241.2767 118.7501 16.27910103 34192'];
+      expect(() => tle.getOrbitTrack(problemTLE, 1501039265000).to.throw());
+    });
+
+    it('getOrbitTrack problematic 2', () => {
+      const problemTLE = ['MICROMAS',
+'1 40457U 98067GA  15213.38588329  .08885032  12472-4  72013-3 0  9998',
+'2 40457  51.6142 195.6182 0009646 310.7124  49.3640 16.38908268 33335'];
+      expect(() => tle.getOrbitTrack(problemTLE, 1501039265000).to.throw());
+    });
   });
 
 });
