@@ -5,7 +5,10 @@
   "main": "src/main.js",
   "scripts": {
     "test": "mocha",
-    "patch": "npm version patch && npm publish && git push --tags"
+    "patch": "npm version patch && npm run npm-publish",
+    "minor": "npm version minor && npm run npm-publish",
+    "major": "npm version major && npm run npm-publish",
+    "npm-publish": "npm publish && git push && git push --tags"
   },
   "repository": {
     "type": "git",
