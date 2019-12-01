@@ -1,11 +1,14 @@
 {
   "name": "tle.js",
-  "version": "2.1.0",
+  "version": "2.1.2",
   "description": "Satellite TLE tools in JavaScript.",
   "main": "src/main.js",
   "scripts": {
     "test": "mocha",
-    "patch": "npm version patch && npm publish && git push --tags"
+    "patch": "npm version patch && npm run npm-publish",
+    "minor": "npm version minor && npm run npm-publish",
+    "major": "npm version major && npm run npm-publish",
+    "npm-publish": "npm publish && git push && git push --tags"
   },
   "repository": {
     "type": "git",
@@ -33,6 +36,11 @@
   },
   "devDependencies": {
     "chai": "^3.4.1",
+    "eslint": "^6.7.1",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.16.0",
     "expect": "^1.20.2",
     "mocha": "^5.2.0",
     "ramda": "^0.26.1"
