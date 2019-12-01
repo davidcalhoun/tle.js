@@ -819,8 +819,15 @@ class TLEJS {
 
   getVisibleSatellites(observerLat, observerLng, observerHeight, tles = [], elevationThreshold = 0, timestampMS = Date.now()) {
     return tles.reduce((visibleSats, tleArr, index) => {
-      const info = this.getSatelliteInfo(tleArr, timestampMS, observerLat, observerLng, observerHeight);
-      return (info.elevation >= elevationThreshold)
+
+      let info;
+      try {
+        info = this.getSatelliteInfo(tleArr, timestampMS, observerLat, observerLng, observerHeight);
+      } catch(e) {
+        //console.log(e, tleArr);
+      }
+
+      return (info && info.elevation >= elevationThreshold)
         ? visibleSats.concat({ tleArr, info })
         : visibleSats;
     }, []);
