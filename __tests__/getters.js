@@ -21,9 +21,16 @@ describe('getters', function(){
 1 42684U 17021A   17221.56595738 -.00000599  00000-0 -29896-5 0  9990
 2 42684  42.7845  37.8962 0002841 275.1472 140.9012 15.57909698 17345`;
 
+  const tleStr3 = `1 42684U 17021A   17221.56595738 -.00000599  00000-0 -29896-5 0  9990
+2 42684  42.7845  37.8962 0002841 275.1472 140.9012 15.57909698 17345`;
+
   describe('name', () => {
     it('getSatelliteName', () => {
       expect(tle.getSatelliteName(tleStr)).toEqual('ISS (ZARYA)');
+    });
+
+    it('getSatelliteName 2', () => {
+      expect(tle.getSatelliteName(tleStr2)).toEqual('TIANZHOU 1');
     });
 
     it('getSatelliteName 2', () => {

@@ -1,11 +1,8 @@
 {
   "extends": "airbnb",
-  "ecmaFeatures": {
-    "experimentalObjectRestSpread": true
-  },
   "env": {
     "browser": true,
-    "mocha": true
+    "jest": true
   },
   "globals": {
     "CONFIG": true,
@@ -17,7 +14,11 @@
 
   },
   "rules": {
-    "indent": ["error", 2],
+    "indent": ["error", "tab"],
+    "no-tabs": "off",
+    "quotes": "off",
+    "operator-linebreak": "off",
+    "implicit-arrow-linebreak": "off",
     "comma-dangle": ["error", "never"],
     "no-underscore-dangle": 0,
     "max-len": ["error", {

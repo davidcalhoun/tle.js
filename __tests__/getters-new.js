@@ -1,0 +1,204 @@
+import {
+	getAverageOrbitTimeMins,
+	getAverageOrbitTimeMS,
+	getAverageOrbitTimeS,
+	getBstarDrag,
+	getCatalogNumber,
+	getCatalogNumber1,
+	getCatalogNumber2,
+	getChecksum1,
+	getChecksum2,
+	getClassification,
+	getEccentricity,
+	getEpochDay,
+	getEpochTimestamp,
+	getEpochYear,
+	getFirstTimeDerivative,
+	getInclination,
+	getIntDesignatorLaunchNumber,
+	getIntDesignatorPieceOfLaunch,
+	getIntDesignatorYear,
+	getLineNumber1,
+	getLineNumber2,
+	getMeanAnomaly,
+	getMeanMotion,
+	getOrbitModel,
+	getPerigee,
+	getRevNumberAtEpoch,
+	getRightAscension,
+	getSatelliteName,
+	getSecondTimeDerivative,
+	getTleSetNumber,
+	getCOSPAR
+} from "../src/index";
+
+describe("getters", () => {
+	const tleStr = `ISS (ZARYA)
+1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
+2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
+
+	const tleStr2 = `TIANZHOU 1
+1 42684U 17021A   17221.56595738 -.00000599  00000-0 -29896-5 0  9990
+2 42684  42.7845  37.8962 0002841 275.1472 140.9012 15.57909698 17345`;
+
+	const tleStr3 = `1 42684U 17021A   17221.56595738 -.00000599  00000-0 -29896-5 0  9990
+2 42684  42.7845  37.8962 0002841 275.1472 140.9012 15.57909698 17345`;
+
+	describe("line 1", () => {
+		test("getLineNumber1", () => {
+			const result = getLineNumber1(tleStr);
+			const expectedResult = 1;
+			expect(result).toEqual(expectedResult);
+		});
+
+		test("getCatalogNumber1", () => {
+			expect(getCatalogNumber1(tleStr)).toEqual(25544);
+		});
+
+		test("getClassification", () => {
+			expect(getClassification(tleStr)).toEqual("U");
+		});
+
+		test("getIntDesignatorYear", () => {
+			expect(getIntDesignatorYear(tleStr)).toEqual(98);
+		});
+
+		test("getIntDesignatorLaunchNumber", () => {
+			expect(getIntDesignatorLaunchNumber(tleStr)).toEqual(67);
+		});
+
+		test("getIntDesignatorPieceOfLaunch", () => {
+			expect(getIntDesignatorPieceOfLaunch(tleStr)).toEqual("A");
+		});
+
+		test("getEpochYear", () => {
+			expect(getEpochYear(tleStr)).toEqual(17);
+		});
+
+		test("getEpochDay", () => {
+			expect(getEpochDay(tleStr)).toEqual(206.18396726);
+		});
+
+		test("getFirstTimeDerivative", () => {
+			expect(getFirstTimeDerivative(tleStr)).toEqual(0.00001961);
+		});
+
+		test("getSecondTimeDerivative", () => {
+			expect(getSecondTimeDerivative(tleStr)).toEqual(0);
+		});
+
+		test("getSecondTimeDerivative 2", () => {
+			expect(getSecondTimeDerivative(tleStr2)).toEqual(0);
+		});
+
+		test("getBstarDrag", () => {
+			expect(getBstarDrag(tleStr)).toEqual(0.000036771);
+		});
+
+		test("getBstarDrag 2", () => {
+			expect(getBstarDrag(tleStr2)).toEqual(-0.0000029896);
+		});
+
+		test("getOrbitModel", () => {
+			expect(getOrbitModel(tleStr)).toEqual(0);
+		});
+
+		test("getTleSetNumber", () => {
+			expect(getTleSetNumber(tleStr)).toEqual(999);
+		});
+
+		test("getChecksum1", () => {
+			expect(getChecksum1(tleStr)).toEqual(3);
+		});
+	});
+
+	describe("line 2", () => {
+		test("getLineNumber2", () => {
+			expect(getLineNumber2(tleStr)).toEqual(2);
+		});
+
+		test("getCatalogNumber2", () => {
+			expect(getCatalogNumber2(tleStr)).toEqual(25544);
+		});
+
+		test("getInclination", () => {
+			expect(getInclination(tleStr)).toEqual(51.64);
+		});
+
+		test("getRightAscension", () => {
+			expect(getRightAscension(tleStr)).toEqual(208.9163);
+		});
+
+		test("getEccentricity", () => {
+			expect(getEccentricity(tleStr)).toEqual(0.0006317);
+		});
+
+		test("getEccentricity 2", () => {
+			expect(getEccentricity(tleStr2)).toEqual(0.0002841);
+		});
+
+		test("getPerigee", () => {
+			expect(getPerigee(tleStr)).toEqual(69.9862);
+		});
+
+		test("getMeanAnomaly", () => {
+			expect(getMeanAnomaly(tleStr)).toEqual(25.2906);
+		});
+
+		test("getMeanMotion", () => {
+			expect(getMeanMotion(tleStr)).toEqual(15.54225995);
+		});
+
+		test("getRevNumberAtEpoch", () => {
+			expect(getRevNumberAtEpoch(tleStr)).toEqual(6766);
+		});
+
+		test("getChecksum2", () => {
+			expect(getChecksum2(tleStr)).toEqual(0);
+		});
+	});
+
+	describe("sugar fn getters", () => {
+		describe("getSatelliteName", () => {
+			test("ISS", () => {
+				expect(getSatelliteName(tleStr)).toEqual("ISS (ZARYA)");
+			});
+
+			test("TIANZHOU", () => {
+				expect(getSatelliteName(tleStr2)).toEqual("TIANZHOU 1");
+			});
+
+			test("Unknown", () => {
+				expect(getSatelliteName(tleStr3)).toEqual("Unknown");
+			});
+
+			test("Unknown", () => {
+				expect(getSatelliteName(tleStr3, true)).toEqual("2017-021A");
+			});
+		});
+
+		test("getCatalogNumber", () => {
+			expect(getCatalogNumber(tleStr)).toEqual(25544);
+		});
+
+		test("getCOSPAR", () => {
+			expect(getCOSPAR(tleStr)).toEqual("1998-067A");
+		});
+
+		test("getEpochTimestamp", () => {
+			expect(getEpochTimestamp(tleStr)).toEqual(1500956694771);
+		});
+
+		test("getAverageOrbitTimeMins", () => {
+			expect(getAverageOrbitTimeMins(tleStr)).toEqual(92.65061666666666);
+		});
+
+		test("getAverageOrbitTimeS", () => {
+			expect(getAverageOrbitTimeS(tleStr)).toEqual(5559.037);
+		});
+
+		test("getAverageOrbitTimeMS", () => {
+			expect(getAverageOrbitTimeMS(tleStr)).toEqual(5559037);
+		});
+	});
+});

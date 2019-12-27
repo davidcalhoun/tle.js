@@ -72,7 +72,7 @@ class TLEJS {
       // Remove name from array.
       tleArr.splice(0, 1);
     } else {
-      // 2-line TLE with no satellite name.
+      // 2-line TLE with no satellite name, so use the COSPAR id instead.
       outputObj.name = 'Unknown';
     }
 
@@ -250,18 +250,12 @@ class TLEJS {
    * Determines satellite position and look angles from an earth observer.
    *
    * Example:
-   * const timestampMS = 1501039265000;
-   * const observer = {
-   *   lat: 34.243889,
-   *   lng: -116.911389,
-   *   height: 0
-   * };
    * const satInfo = tle.getSatelliteInfo(
    *   tleStr,          // Satellite TLE string or array.
-   *   timestampMS,     // Timestamp (ms)
-   *   observer.lat,    // Observer latitude (degrees)
-   *   observer.lng,    // Observer longitude (degrees)
-   *   observer.height  // Observer elevation (km)
+   *   1501039265000,   // Timestamp (ms)
+   *   34.243889,       // Observer latitude (degrees)
+   *   -116.911389,     // Observer longitude (degrees)
+   *   0                // Observer elevation (km)
    * );
    *
    * ->
@@ -385,7 +379,7 @@ class TLEJS {
   }
 
   /**
-   * Determines current satellite position, or position at optional timestamp if passed in.
+   * Determines current satellite position, or position at time of timestamp (optional).
    */
   getLatLon(tle, optionalTimestamp = Date.now()) {
     const tleObj = this.parseTLE(tle);
@@ -403,7 +397,7 @@ class TLEJS {
   }
 
   /**
-   * Determines current satellite position, or position at optional timestamp if passed in.
+   * Determines current satellite position, or position at time of timestamp (optional).
    */
   getLatLonArr(tle, optionalTimestamp = Date.now()) {
     const ll = this.getLatLon(tle, optionalTimestamp);
