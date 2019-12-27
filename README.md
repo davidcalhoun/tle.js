@@ -148,7 +148,7 @@ const satInfo = getSatelliteInfo(
   // spacecraft longitude in degrees
   lng: -117.46176597710809,
   
-  // spacecraft velocity in km/s
+  // spacecraft velocity (relative to observer) in km/s
   velocity: 7.675627442183371
 }
 ```

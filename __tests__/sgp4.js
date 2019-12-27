@@ -10,6 +10,13 @@ import fs from "fs";
 import R from "ramda";
 
 const NS_PER_SEC = 1e9;
+const NS_PER_MSEC = 1e6;
+const MS_PER_SEC = 1000;
+
+const nsToMS = (nsArray) => {
+	const [seconds, nanoseconds] = nsArray;
+	return (seconds * MS_PER_SEC) + (nanoseconds / NS_PER_MSEC);
+};
 
 const getHRTimeDiffNS = diff => {
 	return diff[0] * NS_PER_SEC + diff[1];
@@ -109,6 +116,10 @@ describe("getOrbitTrackAsync", () => {
 });
 
 describe("getVisibleSatellites", () => {
+	beforeEach(() => {
+		clearCache();
+	});
+
 	let tleText;
 	try {
 		tleText = fs.readFileSync(`${__dirname}/tles.txt`, "utf8");
@@ -119,12 +130,41 @@ describe("getVisibleSatellites", () => {
 	const arr = tleText.split("\n");
 	const tles = R.splitEvery(3, arr);
 
-	it("1", () => {
+	const getTLEComparator = threeLineTLE => threeLineTLE[1];
+	const uniqTLES = R.uniqBy(getTLEComparator, tles);
+
+	test("memoizes", () => {
+		let timeStart = nsToMS(process.hrtime());
 		const allVisible = getVisibleSatellites(
 			34.439283990227125,
 			-117.47561122364522,
 			0,
-			tles,
+			uniqTLES,
+			0,
+			1570911182419
+		);
+		const firstRunTimeNS = nsToMS(process.hrtime()) - timeStart;
+
+		timeStart = nsToMS(process.hrtime());
+		const allVisibleSecondRun = getVisibleSatellites(
+			34.439283990227125,
+			-117.47561122364522,
+			0,
+			uniqTLES,
+			0,
+			1570911192419
+		);
+		const secondRunTimeNS = nsToMS(process.hrtime()) - timeStart;
+
+		expect(firstRunTimeNS).toBeGreaterThan(secondRunTimeNS);
+	});
+
+	test("1", () => {
+		const allVisible = getVisibleSatellites(
+			34.439283990227125,
+			-117.47561122364522,
+			0,
+			uniqTLES,
 			0,
 			1570911182419
 		);
@@ -139,22 +179,32 @@ describe("getVisibleSatellites", () => {
 			sat => sat.info.elevation >= 0 && sat.info.elevation < 25
 		);
 
-		expect(allVisible.length).toEqual(757);
-		expect(deg75to90.length).toEqual(5);
-		expect(deg50to75.length).toEqual(66);
-		expect(deg25to50.length).toEqual(361);
-		expect(deg0to25.length).toEqual(325);
+		expect(allVisible.length).toEqual(369);
+		expect(deg75to90.length).toEqual(2);
+		expect(deg50to75.length).toEqual(38);
+		expect(deg25to50.length).toEqual(156);
+		expect(deg0to25.length).toEqual(173);
+
+		const allVisibleSoonAfter = getVisibleSatellites(
+			34.439283990227125,
+			-117.47561122364522,
+			0,
+			uniqTLES,
+			0,
+			1570911199419
+		);
+		expect(allVisibleSoonAfter.length).toEqual(373);
 	});
 
-	it("with elevation threshold", () => {
+	test("with high elevation threshold", () => {
 		const allVisible = getVisibleSatellites(
 			34.439283990227125,
 			-117.47561122364522,
 			0,
-			tles,
+			uniqTLES,
 			75,
 			1570911182419
 		);
-		expect(allVisible.length).toEqual(5);
+		expect(allVisible.length).toEqual(2);
 	});
 });

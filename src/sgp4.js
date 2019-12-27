@@ -31,7 +31,15 @@ const _SAT_REC_ERRORS = {
 let cachedSatelliteInfo = {};
 let cachedAntemeridianCrossings = {};
 let cachedOrbitTracks = {};
-const caches = [cachedSatelliteInfo, cachedAntemeridianCrossings, cachedOrbitTracks];
+let cachedVisibleSatellites = {
+	slowMoving: {}
+};
+const caches = [
+	cachedSatelliteInfo,
+	cachedAntemeridianCrossings,
+	cachedOrbitTracks,
+	cachedVisibleSatellites
+];
 
 export function getCacheSizes() {
 	return caches.map(cache => getObjLength);
@@ -41,7 +49,9 @@ export function getCacheSizes() {
  * Provides a way to clear up memory for long-running apps.
  */
 export function clearCache() {
-	caches.forEach(cache => cache = {});
+	caches.forEach(cache => (cache = {}));
+
+	cachedVisibleSatellites.slowMoving = [];
 }
 
 /**
@@ -389,6 +399,7 @@ export function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// TODO: cache geosync and erroring satellites and don't recompute on next pass.
 export function getVisibleSatellites(
 	observerLat,
 	observerLng,
@@ -398,6 +409,17 @@ export function getVisibleSatellites(
 	timestampMS = Date.now()
 ) {
 	return tles.reduce((visibleSats, tleArr, index) => {
+		// Don't waste time reprocessing geosync.
+		const cacheKey = tleArr[1];
+		const cachedVal = cachedVisibleSatellites.slowMoving[cacheKey];
+		if (cachedVal) {
+			const { info } = cachedVal;
+			const { elevation: cachedElevation } = info;
+			return cachedElevation >= elevationThreshold
+				? visibleSats.concat(cachedVal)
+				: visibleSats;
+		}
+
 		let info;
 		try {
 			info = getSatelliteInfo(
@@ -409,10 +431,19 @@ export function getVisibleSatellites(
 			);
 		} catch (e) {
 			// Don't worry about decayed sats, just move on.
+			// TODO cache error
+
 			return visibleSats;
 		}
 
-		return info && info.elevation >= elevationThreshold
+		const { elevation, velocity, range } = info;
+
+		const isSlowMoving = (velocity / range) < 0.001;
+		if (isSlowMoving) {
+			cachedVisibleSatellites.slowMoving[cacheKey] = { tleArr, info };
+		}
+
+		return elevation >= elevationThreshold
 			? visibleSats.concat({ tleArr, info })
 			: visibleSats;
 	}, []);
