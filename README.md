@@ -70,15 +70,15 @@ const tleArr = [
 
 ## Satellite latitude and longitude
 
-### getLatLon
-Get the latitude/longitude of a spacecraft.  Defaults to the current local time if not passed in.
+### getLatLngObj(tle, optionalTimestampMS)
+Get the latitude/longitude of a spacecraft.  Defaults to the current local time if `optionalTimestampMS` is not passed in.
 
 Note: the greater the difference between this timestamp and the TLE epoch (when the TLE was generated) will result in inaccuracies or even errors.
 
 ```js
-import { getLatLon } from "tle.js";
+import { getLatLngObj } from "tle.js";
 const optionalTimestampMS = 1502342329860;
-const latLonObj = getLatLon(tle, optionalTimestampMS);
+const latLonObj = getLatLngObj(tle, optionalTimestampMS);
 ->
 {
   lat: -47.64247588153391,
@@ -87,16 +87,16 @@ const latLonObj = getLatLon(tle, optionalTimestampMS);
 ```
 
 ## Orbit lines (ground track)
-### getGroundTrack(optionsObject)
+### getGroundTracks(options)
 Async function that returns a Promise that resolves with an array of longitude, latitude pairs for drawing the ground track (satellite path) for three orbits: one past orbit, one current orbit, and one future orbit.
 
 Orbits start and stop at the international date line (antemeridian) because values passing over
 that line is commonly problematic in mapping.
 
 ```js
-import { getGroundTrackLngLat } from "tle.js";
+import { getGroundTracks } from "tle.js";
 
-const threeOrbitsArr = await getGroundTrack({
+const threeOrbitsArr = await getGroundTracks({
   tle: tleStr,
 
   // Relative time to draw orbits from.  This will be used as the "middle"/current orbit.
@@ -104,7 +104,7 @@ const threeOrbitsArr = await getGroundTrack({
 });
 
 // Alternatively, if your setup doesn't support async/await:
-getGroundTrack({
+getGroundTracks({
   tle: tleStr,
   startTimeMS: 1502342329860
 }).then(function(threeOrbitsArr) {
@@ -177,7 +177,7 @@ const satInfo = getSatelliteInfo(
 In addition to the powerful functions above, there are also helpful functions for getting
 specific information from a TLE itself.
 
-For further reading, see ([Kelso's article](https://celestrak.com/columns/v04n03/)).
+For further reading, see [Kelso's article](https://celestrak.com/columns/v04n03/).
 
 ### Shared TLE for below examples.
 ```js

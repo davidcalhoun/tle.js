@@ -278,6 +278,9 @@ export function getLastAntemeridianCrossingTimeMS(tle, timeMS) {
 
 /**
  * Determines current satellite position, or position at time of timestamp (optional).
+ *
+ * @param {Array|String} tle
+ * @param {Number} optionalTimestamp Unix timestamp in milliseconds.
  */
 export function getLatLngObj(tle, optionalTimestamp = Date.now()) {
 	const { lat, lng } = getSatelliteInfo(tle, optionalTimestamp);
@@ -286,6 +289,9 @@ export function getLatLngObj(tle, optionalTimestamp = Date.now()) {
 
 /**
  * Determines current satellite position, or position at time of timestamp (optional).
+ *
+ * @param {Array|String} tle
+ * @param {Number} optionalTimestamp Unix timestamp in milliseconds.
  */
 export function getLatLng(tle, optionalTimestamp = Date.now()) {
 	const { lat, lng } = getSatelliteInfo(tle, optionalTimestamp);
@@ -294,6 +300,9 @@ export function getLatLng(tle, optionalTimestamp = Date.now()) {
 
 /**
  * Determines current satellite position, or position at time of timestamp (optional).
+ *
+ * @param {Array|String} tle
+ * @param {Number} optionalTimestamp Unix timestamp in milliseconds.
  */
 export function getLngLat(tle, optionalTimestamp = Date.now()) {
 	const { lat, lng } = getSatelliteInfo(tle, optionalTimestamp);
@@ -302,6 +311,8 @@ export function getLngLat(tle, optionalTimestamp = Date.now()) {
 
 /**
  * Determines the position of the satellite at the time the TLE was generated.
+ *
+ * @param {Array|String} tle
  */
 export function getLngLatAtEpoch(tle) {
 	return getLngLat(tle, getEpochTimestamp(tle));
@@ -490,6 +501,12 @@ export function getOrbitTrackSync({
  * Calculates three orbit arrays of latitude/longitude pairs.
  * TODO: just calculate future orbits
  *
+ * @param {Array|String} options.tle
+ * @param {Number} startTimeMS Unix timestamp in milliseconds.
+ * @param {Number} stepMS Time in milliseconds between points on the ground track.
+ * @param {Boolean} isLngLatFormat Formats coords in [lng, lat] order when true, [lat, lng] when false.
+ * 
+ *
  * Example:
  * const threeOrbitsArr = await getGroundTracks({ tle: tleStr });
  * ->
@@ -515,7 +532,7 @@ export function getOrbitTrackSync({
  */
 export function getGroundTracks({
 	tle,
-	optionalTimeMS = Date.now(),
+	startTimeMS = Date.now(),
 	stepMS = 1000,
 	isLngLatFormat = true
 }) {
@@ -526,7 +543,7 @@ export function getGroundTracks({
 		const orbitTimeMS = getAverageOrbitTimeMS(parsedTLE);
 		const curOrbitStartMS = getLastAntemeridianCrossingTimeMS(
 			parsedTLE,
-			optionalTimeMS
+			startTimeMS
 		);
 
 		const foundCrossing = curOrbitStartMS !== -1;
@@ -535,7 +552,7 @@ export function getGroundTracks({
 
 			const partialGroundTrack = await getOrbitTrack({
 				tle: parsedTLE,
-				startTimeMS: optionalTimeMS,
+				startTimeMS,
 				stepMS: _MS_IN_A_MINUTE,
 				maxTimeMS: _MS_IN_A_DAY / 4,
 				isLngLatFormat
