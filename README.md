@@ -17,7 +17,7 @@ moon, etc).
 Most users will probably want to simply get the latitude/longitude of a satellite (see
 [getLatLon](#getlatlngobjtle-optionaltimestampms)) or get the look angles from a ground position, which can be used to track
 where in the sky a satellite is visible (see [getSatelliteInfo](#getsatelliteinfotle-optionaltimestamp-observerlat-observerlng-observerelevation)).  Users may
-also want to plot orbit lines (see [getGroundTracks](#getgroundtracks)).
+also want to plot orbit lines (see [getGroundTracks](#getgroundtracksoptions)).
 
 Users may also be interested in grabbing specific values from a TLE.  In this case, you
 can use one of the [TLE getters](#basic-tle-getters).
@@ -68,10 +68,8 @@ const tleArr = [
 ];
 ```
 
-## Satellite latitude and longitude
-
 ### `getLatLngObj(tle, optionalTimestampMS)`
-Get the latitude/longitude of a spacecraft.  Defaults to the current local time if `optionalTimestampMS` is not passed in.
+Computes the latitude/longitude of a spacecraft.  Defaults to the current local time if `optionalTimestampMS` is not passed in.
 
 Note: the greater the difference between this timestamp and the TLE epoch (when the TLE was generated) will result in inaccuracies or even errors.
 
@@ -170,6 +168,29 @@ const satInfo = getSatelliteInfo(
   // spacecraft velocity (relative to observer) in km/s
   velocity: 7.675627442183371
 }
+```
+
+## `getVisibleSatellites(options)`
+Calculates satellites visible relative to an observer's position.
+
+```js
+import { getVisibleSatellites } from "tle.js";
+const allVisible = getVisibleSatellites({
+  observerLat: 34.439283990227125,
+  observerLng: -117.47561122364522,
+  observerHeight: 0,
+
+  // Array of 3-line TLE arrays.
+  tles: uniqTLES,
+
+  // Filters satellites above a certain elevation (0 is horizon, 90 is directly overhead).
+  // E.g. 75 will only return satellites 75 degrees or greater above the horizon.
+  // Defaults to 0.
+  elevationThreshold: 0,
+
+  // Defaults to current time.
+  timestampMS: 1570911182419
+});
 ```
 
 

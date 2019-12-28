@@ -243,39 +243,39 @@ describe("getVisibleSatellites", () => {
 
 	test("memoizes", () => {
 		let timeStart = nsToMS(process.hrtime());
-		const allVisible = getVisibleSatellites(
-			34.439283990227125,
-			-117.47561122364522,
-			0,
-			uniqTLES,
-			0,
-			1570911182419
-		);
+		const allVisible = getVisibleSatellites({
+			observerLat: 34.439283990227125,
+			observerLng: -117.47561122364522,
+			observerHeight: 0,
+			tles: uniqTLES,
+			elevationThreshold: 0,
+			timestampMS: 1570911182419
+		});
 		const firstRunTimeNS = nsToMS(process.hrtime()) - timeStart;
 
 		timeStart = nsToMS(process.hrtime());
-		const allVisibleSecondRun = getVisibleSatellites(
-			34.439283990227125,
-			-117.47561122364522,
-			0,
-			uniqTLES,
-			0,
-			1570911192419
-		);
+		const allVisibleSecondRun = getVisibleSatellites({
+			observerLat: 34.439283990227125,
+			observerLng: -117.47561122364522,
+			observerHeight: 0,
+			tles: uniqTLES,
+			elevationThreshold: 0,
+			timestampMS: 1570911182419
+		});
 		const secondRunTimeNS = nsToMS(process.hrtime()) - timeStart;
 
 		expect(firstRunTimeNS).toBeGreaterThan(secondRunTimeNS);
 	});
 
 	test("1", () => {
-		const allVisible = getVisibleSatellites(
-			34.439283990227125,
-			-117.47561122364522,
-			0,
-			uniqTLES,
-			0,
-			1570911182419
-		);
+		const allVisible = getVisibleSatellites({
+			observerLat: 34.439283990227125,
+			observerLng: -117.47561122364522,
+			observerHeight: 0,
+			tles: uniqTLES,
+			elevationThreshold: 0,
+			timestampMS: 1570911182419
+		});
 		const deg75to90 = allVisible.filter(sat => sat.info.elevation >= 75);
 		const deg50to75 = allVisible.filter(
 			sat => sat.info.elevation >= 50 && sat.info.elevation < 75
@@ -293,26 +293,26 @@ describe("getVisibleSatellites", () => {
 		expect(deg25to50.length).toEqual(156);
 		expect(deg0to25.length).toEqual(173);
 
-		const allVisibleSoonAfter = getVisibleSatellites(
-			34.439283990227125,
-			-117.47561122364522,
-			0,
-			uniqTLES,
-			0,
-			1570911199419
-		);
+		const allVisibleSoonAfter = getVisibleSatellites({
+			observerLat: 34.439283990227125,
+			observerLng: -117.47561122364522,
+			observerHeight: 0,
+			tles: uniqTLES,
+			elevationThreshold: 0,
+			timestampMS: 1570911199419
+		});
 		expect(allVisibleSoonAfter.length).toEqual(373);
 	});
 
 	test("with high elevation threshold", () => {
-		const allVisible = getVisibleSatellites(
-			34.439283990227125,
-			-117.47561122364522,
-			0,
-			uniqTLES,
-			75,
-			1570911182419
-		);
+		const allVisible = getVisibleSatellites({
+			observerLat: 34.439283990227125,
+			observerLng: -117.47561122364522,
+			observerHeight: 0,
+			tles: uniqTLES,
+			elevationThreshold: 75,
+			timestampMS: 1570911182419
+		});
 		expect(allVisible.length).toEqual(2);
 	});
 });

@@ -319,14 +319,14 @@ export function getLngLatAtEpoch(tle) {
 }
 
 // TODO: cache geosync and erroring satellites and don't recompute on next pass.
-export function getVisibleSatellites(
+export function getVisibleSatellites({
 	observerLat,
 	observerLng,
-	observerHeight,
+	observerHeight = 0,
 	tles = [],
 	elevationThreshold = 0,
 	timestampMS = Date.now()
-) {
+}) {
 	return tles.reduce((visibleSats, tleArr, index) => {
 		// Don't waste time reprocessing geosync.
 		const cacheKey = tleArr[1];
