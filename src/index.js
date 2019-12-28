@@ -1,9 +1,14 @@
 export {
 	clearCache,
 	getCacheSizes,
+	getGroundTracks,
+	getGroundTracksSync,
+	getLastAntemeridianCrossingTimeMS,
 	getLatLngObj,
+	getLngLatAtEpoch,
 	getOrbitTrack,
-	getOrbitTrackAsync,
+	getOrbitTrackSync,
+	getSatBearing,
 	getSatelliteInfo,
 	getVisibleSatellites
 } from "./sgp4";

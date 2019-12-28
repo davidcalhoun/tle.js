@@ -1,30 +1,11 @@
-import {
-	_DATA_TYPES
-} from "./constants";
+import { _DATA_TYPES } from "./constants";
+import { getType } from "./utils";
 
 const _ERRORS = {
 	_TYPE: (context = "", expected = [], got = "") =>
 		`${context} must be of type [${expected.join(", ")}], but got ${got}.`,
 	_NOT_PARSED_OBJECT: `Input object is malformed (should have name and tle properties).`
 };
-
-export function getType(input) {
-	const type = typeof input;
-
-	if (Array.isArray(input)) {
-		return _DATA_TYPES._ARRAY;
-	}
-
-	if (input instanceof Date) {
-		return _DATA_TYPES._DATE;
-	}
-
-	if (Number.isNaN(input)) {
-		return _DATA_TYPES._NAN;
-	}
-
-	return type;
-}
 
 export function isTLEObj(obj) {
 	return (

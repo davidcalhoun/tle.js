@@ -1,7 +1,33 @@
 import {
 	_MS_IN_A_DAY,
-	_TLE_DATA_TYPES
+	_TLE_DATA_TYPES,
+	_DATA_TYPES
 } from "./constants";
+
+/**
+ * General helper that provides more useful info than JavaScript's built-in "typeof" operator.
+ *
+ * Example:
+ * getType([]);
+ * -> 'array'
+ */
+export function getType(input) {
+	const type = typeof input;
+
+	if (Array.isArray(input)) {
+		return _DATA_TYPES._ARRAY;
+	}
+
+	if (input instanceof Date) {
+		return _DATA_TYPES._DATE;
+	}
+
+	if (Number.isNaN(input)) {
+		return _DATA_TYPES._NAN;
+	}
+
+	return type;
+}
 
 /**
  * Determines if a number is positive.
@@ -122,6 +148,12 @@ export const _crossesAntemeridian = (longitude1, longitude2) => {
 /**
  * Note: TLEs have a year 2000 style problem in 2057, because they only represent years in 2
  * characters.  This function doesn't account for that problem.
+ *
+ * Example:
+ * _getFullYear(98);
+ * -> 1998
+ *
+ * @param {Number} twoDigitYear
  */
 export function _getFullYear(twoDigitYear) {
 	const twoDigitYearInt = parseInt(twoDigitYear, 10);
@@ -174,5 +206,10 @@ export function getFromTLE(parsedTLE, lineNumber, definition) {
 	return output;
 }
 
+/**
+ * Returns the length of the keys in an object, ignoring the size of the values.
+ *
+ * @param {Object} obj
+ */
 export const _getObjLength = obj => Object.keys(obj).length;
 

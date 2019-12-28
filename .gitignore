@@ -12,4 +12,5 @@ dump.rdb
 
 # Generated JS/CSS #
 ######################
+dist
 yarn-error.log

@@ -1,5 +1,10 @@
 import { _TLE_DATA_TYPES } from "./constants";
 
+/**
+ * Two-Line Element Set (TLE) format definitions, Line 2
+ * See https://en.wikipedia.org/wiki/Two-line_element_set and https://celestrak.com/columns/v04n03/
+ */
+
 /* TLE line number. Will always return 2 for valid TLEs. */
 export const lineNumber2 = {
 	start: 0,

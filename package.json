@@ -2,9 +2,17 @@
   "name": "tle.js",
   "version": "2.1.3",
   "description": "Satellite TLE tools in JavaScript.",
-  "main": "src/index.js",
+  "main": "dist/tlejs.umd.js",
+  "browser": "dist/tlejs.umd.js",
+  "module": "dist/tlejs.esm.js",
+  "type": "module",
+  "engines" : {
+    "node" : ">=13"
+  },
   "scripts": {
-    "test": "jest ./__tests__/index.js",
+    "build": "rm -rf dist && rollup --config",
+    "prepare": "npm run build",
+    "test": "jest",
     "patch": "npm version patch && npm run npm-publish",
     "minor": "npm version minor && npm run npm-publish",
     "major": "npm version major && npm run npm-publish",
@@ -34,7 +42,6 @@
   "transform": {
     "^.+\\.[t|j]sx?$": "babel-jest"
   },
-  "type": "module",
   "dependencies": {
     "satellite.js": "^3.0.0"
   },
@@ -52,6 +59,8 @@
     "jest": "^24.9.0",
     "mocha": "^5.2.0",
     "prettier": "^1.19.1",
-    "ramda": "^0.26.1"
+    "ramda": "^0.26.1",
+    "rollup": "^1.27.14",
+    "rollup-plugin-babel": "^4.3.3"
   }
 }

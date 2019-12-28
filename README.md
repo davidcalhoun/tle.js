@@ -29,13 +29,28 @@ More info on TLEs:
 * [Two-line element set (Wikipedia)](https://en.wikipedia.org/wiki/Two-line_element_set)
 * [TLE details from CASTOR](http://castor2.ca/03_Mechanics/03_TLE/)
 
+## Changelog
+* `3.0.0` - breaking changes!  Code refactoring and rewrite
+  * Code rewritten to properly take advantage of tree shaking (resulting in smaller code on your end!).
+  * `getGroundTracks()` is now async by default and returns a Promise.  It also now accepts an object of options, and returns [lng, lat] pairs by default instead of [lat, lng] pairs.  To use the synchronous version of the code, use `getGroundTracksSync()` instead.
+  * In general, functions now default to [lng, lat] output
+  * Renamed `getGroundTrack()` to `getGroundTracks()`
+  * Renamed `getSatelliteNumber()` to `getCatalogNumber()`
+  * Renamed `getOrbitTimeMS()` to `getAverageOrbitTimeMS()`
+  * Renamed `getTLEEpochTimestamp()` to `getEpochTimestamp()`
+  * Changed `getLatLonAtEpoch()` to `getLngLatAtEpoch()`
+  * Added `getCOSPAR()` getter, which is useful for identifying satellites from 2-line elements lacking a name.
+  * Added `clearCache()` to clear out memoized data from SGP4 helpers.  This should help clear out memory for long-running apps.
+  * Switched from Mocha to Jest for testing, added a few new tests.
+  * Added Rollup for exporting ESM and UMD outputs.
+  * Added better code documentation.
+* `2.1.3` - initial add of async ground track functions, `getVisibleSatellites()`
+
 ## Shared code
 Let's start out with some code to define some variables which we'll use in many examples below.
 
 ```js
-import { getLatLon } from "tle.js";
-
-// Satellite TLE; should be updated daily.
+// Satellite TLE; should be updated at least once a day for best results.
 // TLE source: http://celestrak.com/NORAD/elements/
 const tle = `ISS (ZARYA)
 1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
@@ -61,9 +76,9 @@ Get the latitude/longitude of a spacecraft.  Defaults to the current local time 
 Note: the greater the difference between this timestamp and the TLE epoch (when the TLE was generated) will result in inaccuracies or even errors.
 
 ```js
+import { getLatLon } from "tle.js";
 const optionalTimestampMS = 1502342329860;
 const latLonObj = getLatLon(tle, optionalTimestampMS);
-
 ->
 {
   lat: -47.64247588153391,
@@ -72,27 +87,31 @@ const latLonObj = getLatLon(tle, optionalTimestampMS);
 ```
 
 ## Orbit lines (ground track)
-### getGroundTrackLngLat
-Returns an array of longitude, latitude pairs for drawing the ground track (satellite path) for
-three orbits: one past orbit, one current orbit, and one future orbit.
+### getGroundTrack(optionsObject)
+Async function that returns a Promise that resolves with an array of longitude, latitude pairs for drawing the ground track (satellite path) for three orbits: one past orbit, one current orbit, and one future orbit.
 
 Orbits start and stop at the international date line (antemeridian) because values passing over
 that line is commonly problematic in mapping.
 
-Note: if you need the pairs in reverse order ([latitude, longitude]), you can use `getGroundTrackLatLng` instead.
-
 ```js
 import { getGroundTrackLngLat } from "tle.js";
 
-// Resolution: plot a new point in the ground track polygon every 1000 milliseconds.
-const optionalStepMS = 1000;
+const threeOrbitsArr = await getGroundTrack({
+  tle: tleStr,
 
-// Relative time to draw orbits from.  This will be used as the "middle"/current orbit.
-const optionalTimestampMS = 1502342329860;
+  // Relative time to draw orbits from.  This will be used as the "middle"/current orbit.
+  startTimeMS: 1502342329860
+});
 
-const threeOrbitsArr = getGroundTrackLngLat(tleStr, optionalStepMS, optionalTimestampMS);
+// Alternatively, if your setup doesn't support async/await:
+getGroundTrack({
+  tle: tleStr,
+  startTimeMS: 1502342329860
+}).then(function(threeOrbitsArr) {
+  // Do stuff with three orbits array here.
+});
 
-->
+// threeOrbitsArr contents
 [
   // previous orbit
   [
@@ -115,7 +134,7 @@ const threeOrbitsArr = getGroundTrackLngLat(tleStr, optionalStepMS, optionalTime
 ```
 
 ## Observer look angles
-### getSatelliteInfo
+### `getSatelliteInfo(tle, optionalTimestamp, observerLat, observerLng, observerElevation)`
 Get both look angles (for a ground observer) as well as a few more tidbits of satellite info.
 
 ```js
@@ -169,7 +188,7 @@ const tle = [
 ];
 ```
 
-### getSatelliteName
+### `getSatelliteName(tle)`
 Returns the name of the satellite.  Note that this defaults to 'Unknown' for 2-line TLEs that lack
 the satellite name on the first line.
 ```js
@@ -178,7 +197,7 @@ getSatelliteName(tle);
 -> 'ISS (ZARYA)'
 ```
 
-### getSatelliteNumber
+### `getSatelliteNumber(tle)`
 Returns the [NORAD satellite catalog number](https://en.wikipedia.org/wiki/Satellite_Catalog_Number).
 Used since Sputnik was launched in 1957 (Sputnik's rocket was 00001, while Sputnik itself was
 00002).
@@ -191,7 +210,7 @@ getSatelliteNumber(tle);
 -> 25544
 ```
 
-### getCOSPAR
+### `getCOSPAR(tle)`
 Returns the COSPAR id string, aka [international designator](https://en.wikipedia.org/wiki/International_Designator).
 
 ```js
@@ -200,7 +219,7 @@ getCOSPAR(tle);
 -> "1998-067A"
 ```
 
-### getClassification
+### `getClassification(tle)`
 Returns the satellite classification.
 
 * 'U' = unclassified
@@ -213,7 +232,7 @@ getClassification(tle);
 -> 'U'
 ```
 
-### getIntDesignatorYear
+### `getIntDesignatorYear(tle)`
 Launch year (last two digits) ([international designator](https://en.wikipedia.org/wiki/International_Designator)), which makes up part of the COSPAR id.
 
 Note that a value between 57 and 99 means the launch year was in the 1900s, while a value between
@@ -227,7 +246,7 @@ getIntDesignatorYear(tle);
 -> 98
 ```
 
-### getIntDesignatorLaunchNumber
+### `getIntDesignatorLaunchNumber(tle)`
 Launch number of the year
 ([international designator](https://en.wikipedia.org/wiki/International_Designator)), which makes up part of the COSPAR id.
 
@@ -239,7 +258,7 @@ getIntDesignatorLaunchNumber(tle);
 -> 67
 ```
 
-### getIntDesignatorPieceOfLaunch
+### `getIntDesignatorPieceOfLaunch(tle)`
 Piece of the launch
 ([international designator](https://en.wikipedia.org/wiki/International_Designator)), which makes up part of the COSPAR id.
 
@@ -251,7 +270,7 @@ getIntDesignatorPieceOfLaunch(tle);
 -> 'A'
 ```
 
-### getEpochYear
+### `getEpochYear(tle)`
 TLE epoch year (last two digits) when the TLE was generated.
 
 * Range: 00 to 99
@@ -262,7 +281,7 @@ getEpochYear(tle);
 -> 17
 ```
 
-### getEpochDay
+### `getEpochDay(tle)`
 TLE epoch day of the year (day of year with fractional portion of the day) when the TLE was
 generated.
 
@@ -274,7 +293,7 @@ getEpochDay(tle);
 -> 206.18396726
 ```
 
-### getEpochTimestamp
+### `getEpochTimestamp(tle)`
 Unix timestamp (in milliseconds) when the TLE was generated (the TLE epoch).
 
 ```js
@@ -283,7 +302,7 @@ getEpochTimestamp(tle);
 -> 1500956694771
 ```
 
-### getFirstTimeDerivative
+### `getFirstTimeDerivative(tle)`
 First Time Derivative of the [Mean Motion](https://en.wikipedia.org/wiki/Mean_Motion) divided by
 two, measured in orbits per day per day (orbits/day<sup>2</sup>).  Defines how mean motion changes
 from day to day, so TLE propagators can still be used to make reasonable guesses when distant
@@ -297,7 +316,7 @@ getFirstTimeDerivative(tle);
 -> 0.00001961
 ```
 
-### getSecondTimeDerivative
+### `getSecondTimeDerivative(tle)`
 Second Time Derivative of [Mean Motion](https://en.wikipedia.org/wiki/Mean_Motion) divided by six,
 measured in orbits per day per day per day (orbits/day<sup>3</sup>).  Similar to the first time
 derivative, it measures rate of change in the [Mean Motion Dot](http://castor2.ca/03_Mechanics/03_TLE/Mean_Mot_Dot.html)
@@ -313,9 +332,9 @@ getSecondTimeDerivative(tle);
 -> 0
 ```
 
-Note: the original value in TLE is '00000-0' (= `0.0 x 10`<sup>`0`</sup> = 0).
+Note: the original value in TLE is `00000-0` (= `0.0 x 10`<sup>`0`</sup> = `0`).
 
-### getBstarDrag
+### `getBstarDrag(tle)`
 [BSTAR](https://en.wikipedia.org/wiki/BSTAR) drag term.  This estimates the effects of atmospheric
 drag on the satellite's motion.
 
@@ -329,7 +348,7 @@ getBstarDrag(tle);
 
 Note: the original value in TLE is '36771-4' (= `0.36771 x 10`<sup>`-4`</sup> = `0.000036771`).
 
-### getOrbitModel
+### `getOrbitModel(tle)`
 Private value - used by Air Force Space Command to reference the orbit model used to generate the
 TLE.  Will always be seen as zero externally (e.g. by "us", unless you are "them" - in which case,
 hello!).
@@ -340,7 +359,7 @@ getOrbitModel(tle);
 -> 0
 ```
 
-### getTleSetNumber
+### `getTleSetNumber(tle)`
 TLE element set number, incremented for each new TLE generated since launch.  999 seems to mean the
 TLE has maxed out.
 
@@ -352,7 +371,7 @@ getTleSetNumber(tle);
 -> 999
 ```
 
-### getChecksum1
+### `getChecksum1(tle)`
 TLE line 1 checksum (modulo 10), for verifying the integrity of this line of the TLE.  Note that letters, blanks, periods, and plus signs are counted as 0, while minus signs are counted as 1.
 
 * Range: 0 to 9
@@ -376,7 +395,7 @@ expectedChecksum === computedChecksum;
 ```
 
 
-### getInclination
+### `getInclination(tle)`
 [Inclination](https://en.wikipedia.org/wiki/Orbital_inclination) relative to the Earth's
 equatorial plane in degrees. 0 to 90 degrees is a prograde orbit and 90 to 180 degrees is a
 retrograde orbit.
@@ -390,7 +409,7 @@ getInclination(tle);
 -> 51.6400
 ```
 
-### getRightAscension
+### `getRightAscension(tle)`
 [Right ascension of the ascending node](https://en.wikipedia.org/wiki/Right_ascension_of_the_ascending_node)
 in degrees.  Essentially, this is the angle of the satellite as it crosses northward (ascending)
 across the Earth's equator (equatorial plane).
@@ -404,7 +423,7 @@ getRightAscension(tle);
 -> 208.9163
 ```
 
-### getEccentricity
+### `getEccentricity(tle)`
 [Orbital eccentricity](https://en.wikipedia.org/wiki/Orbital_eccentricity), decimal point assumed.
 All artificial Earth satellites have an eccentricity between 0 (perfect circle) and 1 (parabolic
 orbit).
@@ -420,7 +439,7 @@ getEccentricity(tle);
 Note that the value in the original TLE is `0006317`, with the preceding decimal point assumed
 (= `0.0006317`).
 
-### getPerigee
+### `getPerigee(tle)`
 [Argument of perigee](https://en.wikipedia.org/wiki/Argument_of_perigee).
 
 * Units: degrees
@@ -432,7 +451,7 @@ getPerigee(tle);
 -> 69.9862
 ```
 
-### getMeanAnomaly
+### `getMeanAnomaly(tle)`
 [Mean Anomaly](https://en.wikipedia.org/wiki/Mean_Anomaly). Indicates where the satellite was
 located within its orbit at the time of the TLE epoch.
 
@@ -445,7 +464,7 @@ getMeanAnomaly(tle);
 -> 25.2906
 ```
 
-### getMeanMotion
+### `getMeanMotion(tle)`
 Revolutions around the Earth per day ([mean motion](https://en.wikipedia.org/wiki/Mean_Motion)).
 
 * Units: revs per day
@@ -457,7 +476,7 @@ getMeanMotion(tle);
 -> 15.54225995
 ```
 
-### getRevNumberAtEpoch
+### `getRevNumberAtEpoch(tle)`
 Total satellite revolutions when this TLE was generated.  This number seems to roll over (e.g.
 99999 -> 0).
 
@@ -470,7 +489,7 @@ getRevNumberAtEpoch(tle);
 -> 6766
 ```
 
-### getChecksum2
+### `getChecksum2(tle)`
 TLE line 2 checksum (modulo 10) for verifying the integrity of this line of the TLE.
 
 * Range: 0 to 9
