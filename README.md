@@ -186,11 +186,46 @@ const allVisible = getVisibleSatellites({
   // Filters satellites above a certain elevation (0 is horizon, 90 is directly overhead).
   // E.g. 75 will only return satellites 75 degrees or greater above the horizon.
   // Defaults to 0.
-  elevationThreshold: 0,
+  elevationThreshold: 75,
 
   // Defaults to current time.
   timestampMS: 1570911182419
 });
+->
+[
+  {
+    tleArr: [
+      'COSMOS 2492 [GLONASS-M]',
+      '1 39620U 14012A   19285.51719791 -.00000065  00000-0  10000-3 0  9999',
+      '2 39620  65.6759  35.9755 0011670 324.9338 289.9534  2.13103291 43246'
+    ],
+    info: {
+      lng: -124.83404516738146,
+      lat: 32.070522714505586,
+      elevation: 81.2241916805502,
+      azimuth: 251.01601040118692,
+      range: 19217.756476304672,
+      height: 19161.979896618526,
+      velocity: 3.9490073154305385
+    }
+  },
+  {
+    tleArr: [
+      'GSAT0203 (GALILEO 7)',
+      '1 40544U 15017A   19284.43409211 -.00000061  00000-0  00000+0 0  9996',
+      '2 40544  56.2559  48.3427 0003736 223.0231 136.9337  1.70475323 28252'
+    ],
+    info: {
+      lng: -117.86836105927033,
+      lat: 29.08239877156373,
+      elevation: 83.16839172166615,
+      azimuth: 183.67559090645165,
+      range: 23256.47316878015,
+      height: 23221.387218003325,
+      velocity: 3.6703580049175333
+    }
+  }
+]
 ```
 
 
