@@ -68,7 +68,7 @@ const tleArr = [
 ];
 ```
 
-### `getLatLngObj(tle, optionalTimestampMS)`
+## `getLatLngObj(tle, optionalTimestampMS)`
 Computes the latitude/longitude of a spacecraft.  Defaults to the current local time if `optionalTimestampMS` is not passed in.
 
 Note: the greater the difference between this timestamp and the TLE epoch (when the TLE was generated) will result in inaccuracies or even errors.
