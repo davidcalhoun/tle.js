@@ -1,13 +1,13 @@
 {
   "name": "tle.js",
-  "version": "2.1.3",
+  "version": "3.0.0",
   "description": "Satellite TLE tools in JavaScript.",
   "main": "dist/tlejs.umd.js",
   "browser": "dist/tlejs.umd.js",
   "module": "dist/tlejs.esm.js",
   "type": "module",
-  "engines" : {
-    "node" : ">=13"
+  "engines": {
+    "node": ">=13"
   },
   "scripts": {
     "build": "rm -rf dist && rollup --config",
