@@ -100,13 +100,21 @@ const threeOrbitsArr = await getGroundTracks({
   tle: tleStr,
 
   // Relative time to draw orbits from.  This will be used as the "middle"/current orbit.
-  startTimeMS: 1502342329860
+  startTimeMS: 1502342329860,
+
+  // Resolution of plotted points.  Defaults to 1000 (plotting a point once for every second).
+  stepMS: 1000,
+
+  // Returns points in [lng, lat] order when true, and [lng, lat] order when false.
+  isLngLatFormat: true
 });
 
 // Alternatively, if your setup doesn't support async/await:
 getGroundTracks({
   tle: tleStr,
-  startTimeMS: 1502342329860
+  startTimeMS: 1502342329860,
+  stepMS: 1000,
+  isLngLatFormat: true
 }).then(function(threeOrbitsArr) {
   // Do stuff with three orbits array here.
 });
