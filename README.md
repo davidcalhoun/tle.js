@@ -38,6 +38,7 @@ More info on TLEs:
   * Renamed `getSatelliteNumber()` to `getCatalogNumber()`
   * Renamed `getOrbitTimeMS()` to `getAverageOrbitTimeMS()`
   * Renamed `getTLEEpochTimestamp()` to `getEpochTimestamp()`
+  * Renamed `getLatLon()` to `getLatLngObj()`
   * Changed `getLatLonAtEpoch()` to `getLngLatAtEpoch()`
   * Added `getCOSPAR()` getter, which is useful for identifying satellites from 2-line elements lacking a name.
   * Added `clearCache()` to clear out memoized data from SGP4 helpers.  This should help clear out memory for long-running apps.
@@ -444,7 +445,7 @@ Note that this simply reads the checksum baked into the TLE string.  Compare thi
 import { getChecksum1, computeChecksum } from "tle.js";
 const expectedChecksum = getChecksum1(tle);
 -> 3
-const computedChecksum = computeChecksum(tle[0]);
+const computedChecksum = computeChecksum(tle[1]);
 -> 3
 expectedChecksum === computedChecksum;
 -> true
@@ -487,7 +488,7 @@ orbit).
 * Range: 0 to 1
 
 ```js
-import { getRightAscension } from "tle.js";
+import { getEccentricity } from "tle.js";
 getEccentricity(tle);
 -> 0.0006317
 ```
@@ -559,10 +560,10 @@ getChecksum2(tle);
 Note that this simply reads the checksum baked into the TLE string.  Compare this with the computed checksum to ensure data integrity:
 
 ```js
-import { getChecksum1, computeChecksum } from "tle.js";
-const expectedChecksum = getChecksum1(tle);
+import { getChecksum2, computeChecksum } from "tle.js";
+const expectedChecksum = getChecksum2(tle);
 -> 0
-const computedChecksum = computeChecksum(tle[1]);
+const computedChecksum = computeChecksum(tle[2]);
 -> 0
 expectedChecksum === computedChecksum;
 -> true
