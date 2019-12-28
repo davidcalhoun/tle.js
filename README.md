@@ -15,9 +15,9 @@ to determine spacecraft positioning information, taking into account gravity per
 moon, etc).
 
 Most users will probably want to simply get the latitude/longitude of a satellite (see
-[getLatLon](#getlatlon)) or get the look angles from a ground position, which can be used to track
-where in the sky a satellite is visible (see [getSatelliteInfo](#getsatelliteinfo)).  Users may
-also want to plot orbit lines (see [getGroundTrackLngLat](#getgroundtracklnglat)).
+[getLatLon](#getlatlngobjtle-optionaltimestampms)) or get the look angles from a ground position, which can be used to track
+where in the sky a satellite is visible (see [getSatelliteInfo](#getsatelliteinfotle-optionaltimestamp-observerlat-observerlng-observerelevation)).  Users may
+also want to plot orbit lines (see [getGroundTracks](#getgroundtracks)).
 
 Users may also be interested in grabbing specific values from a TLE.  In this case, you
 can use one of the [TLE getters](#basic-tle-getters).
@@ -70,7 +70,7 @@ const tleArr = [
 
 ## Satellite latitude and longitude
 
-### getLatLngObj(tle, optionalTimestampMS)
+### `getLatLngObj(tle, optionalTimestampMS)`
 Get the latitude/longitude of a spacecraft.  Defaults to the current local time if `optionalTimestampMS` is not passed in.
 
 Note: the greater the difference between this timestamp and the TLE epoch (when the TLE was generated) will result in inaccuracies or even errors.
@@ -86,12 +86,13 @@ const latLonObj = getLatLngObj(tle, optionalTimestampMS);
 }
 ```
 
-## Orbit lines (ground track)
-### getGroundTracks(options)
+## `getGroundTracks(options)`
 Async function that returns a Promise that resolves with an array of longitude, latitude pairs for drawing the ground track (satellite path) for three orbits: one past orbit, one current orbit, and one future orbit.
 
 Orbits start and stop at the international date line (antemeridian) because values passing over
 that line is commonly problematic in mapping.
+
+Note: the synchronous version of this function, `getGroundTracksSync`, has the same function signature (it accepts the same inputs).
 
 ```js
 import { getGroundTracks } from "tle.js";
@@ -133,8 +134,7 @@ getGroundTracks({
 ]
 ```
 
-## Observer look angles
-### `getSatelliteInfo(tle, optionalTimestamp, observerLat, observerLng, observerElevation)`
+## `getSatelliteInfo(tle, optionalTimestamp, observerLat, observerLng, observerElevation)`
 Get both look angles (for a ground observer) as well as a few more tidbits of satellite info.
 
 ```js
