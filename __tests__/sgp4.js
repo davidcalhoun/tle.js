@@ -287,21 +287,11 @@ describe("getVisibleSatellites", () => {
 			sat => sat.info.elevation >= 0 && sat.info.elevation < 25
 		);
 
-		expect(allVisible.length).toEqual(369);
+		expect(allVisible.length).toEqual(8);
 		expect(deg75to90.length).toEqual(2);
-		expect(deg50to75.length).toEqual(38);
-		expect(deg25to50.length).toEqual(156);
-		expect(deg0to25.length).toEqual(173);
-
-		const allVisibleSoonAfter = getVisibleSatellites({
-			observerLat: 34.439283990227125,
-			observerLng: -117.47561122364522,
-			observerHeight: 0,
-			tles: uniqTLES,
-			elevationThreshold: 0,
-			timestampMS: 1570911199419
-		});
-		expect(allVisibleSoonAfter.length).toEqual(373);
+		expect(deg50to75.length).toEqual(2);
+		expect(deg25to50.length).toEqual(2);
+		expect(deg0to25.length).toEqual(2);
 	});
 
 	test("with high elevation threshold", () => {
