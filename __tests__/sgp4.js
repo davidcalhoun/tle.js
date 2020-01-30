@@ -411,8 +411,6 @@ describe("getVisibleSatellites", () => {
 			timestampMS: 1580372100000
 		});
 
-		console.log(allVisible)
-
 		expect(allVisible.length).toEqual(1);
 	});
 });
