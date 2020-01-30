@@ -151,6 +151,15 @@ describe("isValidTLE", () => {
 		const expectedResult = false;
 		expect(result).toEqual(expectedResult);
 	});
+
+	test("true on alt TLE format", () => {
+		const str = `0 SKYSAT C12
+1 43797U 18099AR  20029.52879878 +.00000391 +00000-0 +19261-4 0  9990
+2 43797 097.3805 103.0646 0003500 182.3187 177.8034 15.23559221063758`;
+		const result = isValidTLE(str);
+		const expectedResult = true;
+		expect(result).toEqual(expectedResult);
+	});
 });
 
 describe("computeChecksum", () => {

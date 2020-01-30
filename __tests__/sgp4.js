@@ -16,9 +16,9 @@ const NS_PER_SEC = 1e9;
 const NS_PER_MSEC = 1e6;
 const MS_PER_SEC = 1000;
 
-const nsToMS = (nsArray) => {
+const nsToMS = nsArray => {
 	const [seconds, nanoseconds] = nsArray;
-	return (seconds * MS_PER_SEC) + (nanoseconds / NS_PER_MSEC);
+	return seconds * MS_PER_SEC + nanoseconds / NS_PER_MSEC;
 };
 
 const getHRTimeDiffNS = diff => {
@@ -62,7 +62,12 @@ describe("getSatelliteInfo", () => {
 				lat: 34.243889,
 				lng: -116.911389
 			};
-			getSatelliteInfo(tleStr, timestamp, bigBearLatLng.lat, bigBearLatLng.lng);
+			getSatelliteInfo(
+				tleStr,
+				timestamp,
+				bigBearLatLng.lat,
+				bigBearLatLng.lng
+			);
 		};
 
 		test("1", () => {
@@ -100,18 +105,27 @@ describe("getOrbitTrack", () => {
 
 	test("memoizes", async () => {
 		const timeStart1 = nsToMS(process.hrtime());
-		const coords1 = await getOrbitTrack({ tle: tleArr, startTimeMS: 1501039265000 });
+		const coords1 = await getOrbitTrack({
+			tle: tleArr,
+			startTimeMS: 1501039265000
+		});
 		const firstRunTimeNS = nsToMS(process.hrtime()) - timeStart1;
 
 		const timeStart2 = nsToMS(process.hrtime());
-		const coords2 = await getOrbitTrack({ tle: tleArr, startTimeMS: 1501039265000 });
+		const coords2 = await getOrbitTrack({
+			tle: tleArr,
+			startTimeMS: 1501039265000
+		});
 		const secondRunTimeNS = nsToMS(process.hrtime()) - timeStart2;
 
 		expect(firstRunTimeNS).toBeGreaterThan(secondRunTimeNS);
 	});
 
 	test("1", async () => {
-		const coords = await getOrbitTrack({ tle: tleArr, startTimeMS: 1501039265000 });
+		const coords = await getOrbitTrack({
+			tle: tleArr,
+			startTimeMS: 1501039265000
+		});
 		expect(coords.length).toEqual(4595);
 	});
 });
@@ -123,18 +137,27 @@ describe("getOrbitTrackSync", () => {
 
 	test("memoizes", async () => {
 		const timeStart1 = nsToMS(process.hrtime());
-		const coords1 = getOrbitTrackSync({ tle: tleArr, startTimeMS: 1501049265000 });
+		const coords1 = getOrbitTrackSync({
+			tle: tleArr,
+			startTimeMS: 1501049265000
+		});
 		const firstRunTimeNS = nsToMS(process.hrtime()) - timeStart1;
 
 		const timeStart2 = nsToMS(process.hrtime());
-		const coords2 = getOrbitTrackSync({ tle: tleArr, startTimeMS: 1501049265000 });
+		const coords2 = getOrbitTrackSync({
+			tle: tleArr,
+			startTimeMS: 1501049265000
+		});
 		const secondRunTimeNS = nsToMS(process.hrtime()) - timeStart2;
 
 		expect(firstRunTimeNS).toBeGreaterThan(secondRunTimeNS);
 	});
 
 	test("1", () => {
-		const coords = getOrbitTrackSync({ tle: tleArr, startTimeMS: 1501039265000 });
+		const coords = getOrbitTrackSync({
+			tle: tleArr,
+			startTimeMS: 1501039265000
+		});
 		expect(coords.length).toEqual(4595);
 	});
 });
@@ -146,18 +169,27 @@ describe("getGroundTracks", () => {
 
 	test("memoizes", async () => {
 		const timeStart1 = nsToMS(process.hrtime());
-		const coords1 = await getGroundTracks({ tle: tleArr, startTimeMS: 1501039265000 });
+		const coords1 = await getGroundTracks({
+			tle: tleArr,
+			startTimeMS: 1501039265000
+		});
 		const firstRunTimeNS = nsToMS(process.hrtime()) - timeStart1;
 
 		const timeStart2 = nsToMS(process.hrtime());
-		const coords2 = await getGroundTracks({ tle: tleArr, startTimeMS: 1501039265000 });
+		const coords2 = await getGroundTracks({
+			tle: tleArr,
+			startTimeMS: 1501039265000
+		});
 		const secondRunTimeNS = nsToMS(process.hrtime()) - timeStart2;
 
 		expect(firstRunTimeNS).toBeGreaterThan(secondRunTimeNS);
 	});
 
 	test("1", async () => {
-		const coords = await getGroundTracks({ tle: tleArr, startTimeMS: 1501039265000 });
+		const coords = await getGroundTracks({
+			tle: tleArr,
+			startTimeMS: 1501039265000
+		});
 		expect(coords.length).toEqual(3);
 	});
 });
@@ -168,60 +200,73 @@ describe("getGroundTracksSync", () => {
 	});
 
 	test("1", () => {
-		const coords = getGroundTracksSync({ tle: tleArr, startTimeMS: 1501039265000 });
+		const coords = getGroundTracksSync({
+			tle: tleArr,
+			startTimeMS: 1501039265000
+		});
 		expect(coords.length).toEqual(3);
 	});
 });
 
-  describe('problematic TLES (geosync, decayed)', () => {
-    const tleStr = `ABS-3
+describe("problematic TLES (geosync, decayed)", () => {
+	const tleStr = `ABS-3
 1 24901U 97042A   17279.07057876  .00000084  00000-0  00000+0 0  9995
 2 24901   5.0867  62.6208 0007858 138.4124 258.4388  0.99995119 73683`;
 
-    test('getLatLon', () => {
-      const timestamp = 1501039265000;
-      const result = getLatLngObj(tleStr, timestamp);
-      const expectedResult = {
-        lat: 4.353016018653351,
-        lng: 129.632535483672
-      };
-      expect(result).toEqual(expectedResult);
-    });
+	test("getLatLon", () => {
+		const timestamp = 1501039265000;
+		const result = getLatLngObj(tleStr, timestamp);
+		const expectedResult = {
+			lat: 4.353016018653351,
+			lng: 129.632535483672
+		};
+		expect(result).toEqual(expectedResult);
+	});
 
-    test('getLastAntemeridianCrossingTimeMS not found', () => {
-      const timestamp = 1501039265000;
-      const result = getLastAntemeridianCrossingTimeMS(tleStr, timestamp);
-      const expectedResult = -1;
-      expect(result).toEqual(expectedResult);
-    });
+	test("getLastAntemeridianCrossingTimeMS not found", () => {
+		const timestamp = 1501039265000;
+		const result = getLastAntemeridianCrossingTimeMS(tleStr, timestamp);
+		const expectedResult = -1;
+		expect(result).toEqual(expectedResult);
+	});
 
-    test('getOrbitTrack', async () => {
-      const timestamp = 1501039265000;
-      const result = await getOrbitTrack({ tle: tleStr, startTimeMS: timestamp });
-      expect(result.length).toEqual(6002);
-    });
+	test("getOrbitTrack", async () => {
+		const timestamp = 1501039265000;
+		const result = await getOrbitTrack({
+			tle: tleStr,
+			startTimeMS: timestamp
+		});
+		expect(result.length).toEqual(6002);
+	});
 
-    test('getGroundTracks', async () => {
-      const timestamp = 1501039265000;
-      const result = await getGroundTracks({ tle: tleStr, startTimeMS: timestamp });
-      expect(result.length).toEqual(1);
-      expect(result[0].length).toEqual(362);
-    });
+	test("getGroundTracks", async () => {
+		const timestamp = 1501039265000;
+		const result = await getGroundTracks({
+			tle: tleStr,
+			startTimeMS: timestamp
+		});
+		expect(result.length).toEqual(1);
+		expect(result[0].length).toEqual(362);
+	});
 
-    test('getOrbitTrack problematic 1', () => {
-      const problemTLE = ['FLOCK 1B-28',
-'1 40423U 98067FP  15219.24788283  .05567779  12028-4  14293-2 0  9997',
-'2 40423  51.6133 170.3484 0007348 241.2767 118.7501 16.27910103 34192'];
-      expect(() => getOrbitTrack(problemTLE, 1501039265000).to.throw());
-    });
+	test("getOrbitTrack problematic 1", () => {
+		const problemTLE = [
+			"FLOCK 1B-28",
+			"1 40423U 98067FP  15219.24788283  .05567779  12028-4  14293-2 0  9997",
+			"2 40423  51.6133 170.3484 0007348 241.2767 118.7501 16.27910103 34192"
+		];
+		expect(() => getOrbitTrack(problemTLE, 1501039265000).to.throw());
+	});
 
-    test('getOrbitTrack problematic 2', () => {
-      const problemTLE = ['MICROMAS',
-'1 40457U 98067GA  15213.38588329  .08885032  12472-4  72013-3 0  9998',
-'2 40457  51.6142 195.6182 0009646 310.7124  49.3640 16.38908268 33335'];
-      expect(() => getOrbitTrack(problemTLE, 1501039265000).to.throw());
-    });
-  });
+	test("getOrbitTrack problematic 2", () => {
+		const problemTLE = [
+			"MICROMAS",
+			"1 40457U 98067GA  15213.38588329  .08885032  12472-4  72013-3 0  9998",
+			"2 40457  51.6142 195.6182 0009646 310.7124  49.3640 16.38908268 33335"
+		];
+		expect(() => getOrbitTrack(problemTLE, 1501039265000).to.throw());
+	});
+});
 
 describe("getVisibleSatellites", () => {
 	beforeEach(() => {
@@ -304,5 +349,70 @@ describe("getVisibleSatellites", () => {
 			timestampMS: 1570911182419
 		});
 		expect(allVisible.length).toEqual(2);
+	});
+
+	test("ISS over turkey", () => {
+		const tles = [
+			[
+				"ISS (ZARYA)             ",
+				"1 25544U 98067A   20029.69572272  .00004768  00000-0  94250-4 0  9992",
+				"2 25544  51.6452 318.6562 0005196 207.4446 220.3378 15.49124691210396"
+			]
+		];
+
+		const allVisible = getVisibleSatellites({
+			observerLat: 37.61474,
+			observerLng: 34.533634,
+			observerHeight: 0,
+			tles,
+			elevationThreshold: 0,
+			timestampMS: 1580388303650
+		});
+
+		expect(allVisible.length).toEqual(1);
+	});
+
+	test("Skysat C12 over turkey", () => {
+		const tles = [
+			[
+				"SKYSAT-C12              ",
+				"1 43797U 18099AR  20028.80634152  .00000360  00000-0  17971-4 0  9996",
+				"2 43797  97.3806 102.3540 0003424 184.8709 175.2495 15.23558338 63645"
+			]
+		];
+
+		const allVisible = getVisibleSatellites({
+			observerLat: 37.61474,
+			observerLng: 34.533634,
+			observerHeight: 0,
+			tles,
+			elevationThreshold: 0,
+			timestampMS: 1580372100000
+		});
+
+		expect(allVisible.length).toEqual(1);
+	});
+
+	test("Skysat C12 over turkey 2", () => {
+		const tles = [
+			[
+				"0 SKYSAT C12",
+				"1 43797U 18099AR  20029.52879878 +.00000391 +00000-0 +19261-4 0  9990",
+				"2 43797 097.3805 103.0646 0003500 182.3187 177.8034 15.23559221063758"
+			]
+		];
+
+		const allVisible = getVisibleSatellites({
+			observerLat: 37.61474,
+			observerLng: 34.533634,
+			observerHeight: 0,
+			tles,
+			elevationThreshold: 0,
+			timestampMS: 1580372100000
+		});
+
+		console.log(allVisible)
+
+		expect(allVisible.length).toEqual(1);
 	});
 });
