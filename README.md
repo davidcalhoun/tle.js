@@ -30,6 +30,7 @@ More info on TLEs:
 * [TLE details from CASTOR](http://castor2.ca/03_Mechanics/03_TLE/)
 
 ## Changelog
+* `3.1.0` - add support for Node 12 with a special CommonJS build target (see below for usage)
 * `3.0.0` - breaking changes!  Code refactoring and rewrite
   * Code rewritten to properly take advantage of tree shaking (resulting in smaller code on your end!).
   * `getGroundTracks()` is now async by default and returns a Promise.  It also now accepts an object of options, and returns [lng, lat] pairs by default instead of [lat, lng] pairs.  To use the synchronous version of the code, use `getGroundTracksSync()` instead.
