@@ -16,6 +16,10 @@ export default {
     {
       file: `dist/${outputName}.esm.js`,
       format: "esm"
+    },
+    {
+      file: `dist/${outputName}.cjs`,
+      format: "cjs"
     }
   ],
   external: ["satellite.js"],
