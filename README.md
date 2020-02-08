@@ -47,6 +47,14 @@ More info on TLEs:
   * Added better code documentation.
 * `2.1.3` - initial add of async ground track functions, `getVisibleSatellites()`
 
+## Support for Node 12.x.x
+If you're using an older version of Node, you will need to point to the special CommonJS build target.  Simply change the the `import` format in the following examples to this `require` format:
+
+```diff
+-import { getLatLngObj } from "tle.js";
++const { getLatLngObj }  = require("tle.js/dist/tlejs.cjs");
+```
+
 ## Shared code
 Let's start out with some code to define some variables which we'll use in many examples below.
 
