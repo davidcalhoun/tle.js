@@ -7,7 +7,7 @@
   "module": "dist/tlejs.esm.js",
   "type": "module",
   "engines": {
-    "node": ">=13"
+    "node": ">=12"
   },
   "scripts": {
     "build": "rm -rf dist && rollup --config",
