@@ -44,6 +44,10 @@ describe("getters", () => {
 	const tleStr3 = `1 42684U 17021A   17221.56595738 -.00000599  00000-0 -29896-5 0  9990
 2 42684  42.7845  37.8962 0002841 275.1472 140.9012 15.57909698 17345`;
 
+	const tleStr4 = `0 ISS (ZARYA)
+1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
+2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
+
 	describe("line 1", () => {
 		test("getLineNumber1", () => {
 			const result = getLineNumber1(tleStr);
@@ -162,6 +166,10 @@ describe("getters", () => {
 		describe("getSatelliteName", () => {
 			test("ISS", () => {
 				expect(getSatelliteName(tleStr)).toEqual("ISS (ZARYA)");
+			});
+
+			test("0 prefix", () => {
+				expect(getSatelliteName(tleStr4)).toEqual("ISS (ZARYA)");
 			});
 
 			test("TIANZHOU", () => {

@@ -82,8 +82,13 @@ export function parseTLE(sourceTLE) {
 
 	// 3-line variant: remove name from array for consistency.
 	if (tleArray.length === 3) {
-		const name = tleArray[0].trim();
+		let name = tleArray[0].trim();
 		tleArray = tleArray.slice(1);
+
+		// Strip off line number, if present.
+		if (name.startsWith('0 ')) {
+			name = name.substr(2);
+		}
 
 		// Preserve original name string for use in the getSatelliteName() getter.
 		output.name = name;
