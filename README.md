@@ -53,7 +53,7 @@ If you're using an older version of Node, you will need to point to the special 
 
 ```diff
 -import { getLatLngObj } from "tle.js";
-+const { getLatLngObj }  = require("tle.js/dist/tlejs.cjs");
++const { getLatLngObj } = require("tle.js/dist/tlejs.cjs");
 ```
 
 ## Shared code
