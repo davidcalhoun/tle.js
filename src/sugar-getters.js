@@ -1,10 +1,5 @@
-import {
-	_MS_IN_A_DAY,
-	_MS_IN_A_MINUTE,
-	_MS_IN_A_SECOND,
-	_TLE_DATA_TYPES
-} from "./constants";
-import { _dayOfYearToTimeStamp, _decimalAssumedEToFloat, _getFullYear } from "./utils";
+import { _MS_IN_A_DAY, _MS_IN_A_MINUTE, _MS_IN_A_SECOND } from "./constants";
+import { _dayOfYearToTimeStamp, _getFullYear } from "./utils";
 import {
 	getEpochDay,
 	getEpochYear,
