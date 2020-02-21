@@ -1,8 +1,4 @@
-import {
-	_MS_IN_A_DAY,
-	_TLE_DATA_TYPES,
-	_DATA_TYPES
-} from "./constants";
+import { _MS_IN_A_DAY, _TLE_DATA_TYPES, _DATA_TYPES } from "./constants";
 
 /**
  * General helper that provides more useful info than JavaScript's built-in "typeof" operator.
@@ -91,31 +87,6 @@ export const _dayOfYearToTimeStamp = (
 };
 
 /**
- * Converts a string divided by spacer characters to camelCase representation.
- *
- * Examples:
- * toCamelCase('foo-bar');
- * -> 'fooBar'
- * toCamelCase('foo bar', ' ');
- * -> 'fooBar'
- */
-export const _toCamelCase = (str, divider = "-") => {
-	const bits = str.split(divider);
-
-	const output = [];
-
-	output.push(bits[0]);
-
-	for (let i = 1, len = bits.length; i < len; i++) {
-		output.push(
-			bits[i].substr(0, 1).toUpperCase() + bits[i].substr(1, bits[i].length - 1)
-		);
-	}
-
-	return output.join("");
-};
-
-/**
  * Converts radians (0 to 2π) to degrees (0 to 360).
  */
 export const _radiansToDegrees = radians => radians * (180 / Math.PI);
@@ -158,7 +129,7 @@ export const _crossesAntemeridian = (longitude1, longitude2) => {
 export function _getFullYear(twoDigitYear) {
 	const twoDigitYearInt = parseInt(twoDigitYear, 10);
 
-	return (twoDigitYearInt < 100 && twoDigitYearInt > 56)
+	return twoDigitYearInt < 100 && twoDigitYearInt > 56
 		? twoDigitYearInt + 1900
 		: twoDigitYearInt + 2000;
 }
@@ -172,7 +143,7 @@ export function _getFullYear(twoDigitYear) {
  * @param {Object} definition From line-1-definitions or line-2-definitions.
  */
 export function getFromTLE(parsedTLE, lineNumber, definition) {
-	const { name, tle } = parsedTLE;
+	const { tle } = parsedTLE;
 
 	const line = lineNumber === 1 ? tle[0] : tle[1];
 	const { start, length, type } = definition;
@@ -212,4 +183,3 @@ export function getFromTLE(parsedTLE, lineNumber, definition) {
  * @param {Object} obj
  */
 export const _getObjLength = obj => Object.keys(obj).length;
-
