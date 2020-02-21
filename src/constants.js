@@ -7,7 +7,7 @@ export const _TLE_DATA_TYPES = {
   _INT: Symbol(),
   _FLOAT: Symbol(),
   _CHAR: Symbol(),
-  _DECIMAL_ASSUMED: Symbol(),  // 12345   -> 0.12345
+  _DECIMAL_ASSUMED: Symbol(), // 12345 -> 0.12345
   _DECIMAL_ASSUMED_E: Symbol() // 12345-2 -> 0.0012345
 };
 
@@ -20,7 +20,7 @@ export const _DATA_TYPES = {
 };
 
 export const _ACCEPTABLE_TLE_INPUT_TYPES = {
-  _STRING: "string",
-  _ARRAY: "array",
-  _OBJECT: "object"
+  _STRING: _DATA_TYPES._STRING,
+  _ARRAY: _DATA_TYPES._ARRAY,
+  _OBJECT: _DATA_TYPES._OBJECT
 };
