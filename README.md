@@ -30,6 +30,11 @@ More info on TLEs:
 * [TLE details from CASTOR](http://castor2.ca/03_Mechanics/03_TLE/)
 
 ## Changelog
+* `4.0.0`
+  * Major dependency updates (including upgrading to satellite.js v4).
+  * Better support for 3-line TLE variants with a '0 ' prefix on the first line, preceding the satellite name (impacts the return value when using `getSatelliteName()`).
+  * Fix means of returning a Promise in `getOrbitTrack()` and `getGroundTracks()`
+  * Various linting.
 * `3.1.0` - add support for Node 12 with a special CommonJS build target (see below for usage)
 * `3.0.0` - breaking changes!  Code refactoring and rewrite
   * Code rewritten to properly take advantage of tree shaking (resulting in smaller code on your end!).
