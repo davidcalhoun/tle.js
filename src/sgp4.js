@@ -48,54 +48,56 @@ const caches = [
 ];
 
 export function getCacheSizes() {
-	return caches.map(cache => getObjLength);
+	return caches.map(_getObjLength);
 }
 
 /**
  * Provides a way to clear up memory for long-running apps.
  */
 export function clearCache() {
-	caches.forEach(cache => (cache = {}));
+	caches.forEach(cache => {
+		caches[cache] = {};
+	});
 
 	cachedVisibleSatellites.slowMoving = [];
 }
 
 /**
-	 * Determines satellite position and look angles from an earth observer.
-	 *
-	 * Example:
-	 * const satInfo = getSatelliteInfo(
-	 *   tleStr,          // Satellite TLE string or array (2 or 3 line variants).
-	 *   1501039265000,   // Unix timestamp (ms)
-	 *   34.243889,       // Observer latitude (degrees)
-	 *   -116.911389,     // Observer longitude (degrees)
-	 *   0                // Observer elevation (km)
-	 * );
-	 *
-	 * ->
-	 * {
-	 *   // satellite compass heading from observer in degrees (0 = north, 180 = south)
-	 *   azimuth: 294.5780478624994,
-	 *
-	 *   // satellite elevation from observer in degrees (90 is directly overhead)
-	 *   elevation: 81.63903620330046,
-	 *
-	 *   // km distance from observer to spacecraft
-	 *   range: 406.60211015810074,
-	 *
-	 *   // spacecraft altitude in km
-	 *   height: 402.9082788620108,
+ * Determines satellite position and look angles from an earth observer.
+ *
+ * Example:
+ * const satInfo = getSatelliteInfo(
+ *   tleStr,          // Satellite TLE string or array (2 or 3 line variants).
+ *   1501039265000,   // Unix timestamp (ms)
+ *   34.243889,       // Observer latitude (degrees)
+ *   -116.911389,     // Observer longitude (degrees)
+ *   0                // Observer elevation (km)
+ * );
+ *
+ * ->
+ * {
+ *   // satellite compass heading from observer in degrees (0 = north, 180 = south)
+ *   azimuth: 294.5780478624994,
+ *
+ *   // satellite elevation from observer in degrees (90 is directly overhead)
+ *   elevation: 81.63903620330046,
+ *
+ *   // km distance from observer to spacecraft
+ *   range: 406.60211015810074,
+ *
+ *   // spacecraft altitude in km
+ *   height: 402.9082788620108,
 
-	 *   // spacecraft latitude in degrees
-	 *   lat: 34.45112876592785,
+ *   // spacecraft latitude in degrees
+ *   lat: 34.45112876592785,
 
-	 *   // spacecraft longitude in degrees
-	 *   lng: -117.46176597710809,
-	 *
-	 *   // spacecraft velocity in km/s
-	 *   velocity: 7.675627442183371
-	 * }
-	 */
+ *   // spacecraft longitude in degrees
+ *   lng: -117.46176597710809,
+ *
+ *   // spacecraft velocity in km/s
+ *   velocity: 7.675627442183371
+ * }
+ */
 export function getSatelliteInfo(
 	rawTLE,
 	rawTimestamp,
@@ -242,7 +244,7 @@ export function getLastAntemeridianCrossingTimeMS(tle, timeMS) {
 	const maxTries = 1000;
 	while (!isDone) {
 		curLngLat = getLngLat(tleArr, curTimeMS);
-		const [curLng, curLat] = curLngLat;
+		const [curLng] = curLngLat;
 
 		didCrossAntemeridian = _crossesAntemeridian(lastLngLat[0], curLng);
 		if (didCrossAntemeridian) {
@@ -327,7 +329,7 @@ export function getVisibleSatellites({
 	elevationThreshold = 0,
 	timestampMS = Date.now()
 }) {
-	return tles.reduce((visibleSats, tleArr, index) => {
+	return tles.reduce((visibleSats, tleArr) => {
 		// Don't waste time reprocessing geosync.
 		const cacheKey = tleArr[1];
 		const cachedVal = cachedVisibleSatellites.slowMoving[cacheKey];
@@ -392,7 +394,7 @@ export function sleep(ms) {
  * Consider pairing this with getLastAntemeridianCrossingTimeMS() to create a full orbit path (see usage
  * in getGroundTracks()).
  */
-export function getOrbitTrack({
+export async function getOrbitTrack({
 	tle,
 	startTimeMS = Date.now(),
 	stepMS = 1000,
@@ -401,55 +403,51 @@ export function getOrbitTrack({
 	maxTimeMS = 6000000,
 	isLngLatFormat = true
 }) {
-	return new Promise(async (resolve, reject) => {
-		const { tle: tleArr } = parseTLE(tle);
+	const { tle: tleArr } = parseTLE(tle);
 
-		const startS = (startTimeMS / 1000).toFixed();
-		const cacheKey = `${tleArr[0]}-${startS}-${stepMS}-${isLngLatFormat}`;
-		if (cachedOrbitTracks[cacheKey]) {
-			resolve(cachedOrbitTracks[cacheKey]);
-			return;
+	const startS = (startTimeMS / 1000).toFixed();
+	const cacheKey = `${tleArr[0]}-${startS}-${stepMS}-${isLngLatFormat}`;
+	if (cachedOrbitTracks[cacheKey]) {
+		return cachedOrbitTracks[cacheKey];
+	}
+
+	const generator = getNextPosition(
+		tleArr,
+		startTimeMS,
+		stepMS,
+		isLngLatFormat
+	);
+
+	let step = 0;
+	let isDone = false;
+	let coords = [];
+	let lastLng;
+	while (!isDone) {
+		const { curTimeMS, lngLat } = generator.next().value;
+		const [curLng, curLat] = lngLat;
+
+		const doesCrossAntemeridian = _crossesAntemeridian(lastLng, curLng);
+		const doesExceedTime = maxTimeMS && curTimeMS - startTimeMS > maxTimeMS;
+		isDone = doesCrossAntemeridian || doesExceedTime;
+
+		if (isLngLatFormat) {
+			coords.push(lngLat);
+		} else {
+			coords.push([curLat, curLng]);
 		}
 
-		const generator = getNextPosition(
-			tleArr,
-			startTimeMS,
-			stepMS,
-			isLngLatFormat
-		);
-
-		let step = 0;
-		let isDone = false;
-		let coords = [];
-		let lastLng;
-		while (!isDone) {
-			const { curTimeMS, lngLat } = generator.next().value;
-			const [curLng, curLat] = lngLat;
-
-			const doesCrossAntemeridian = _crossesAntemeridian(lastLng, curLng);
-			const doesExceedTime =
-				maxTimeMS && curTimeMS - startTimeMS > maxTimeMS;
-			isDone = doesCrossAntemeridian || doesExceedTime;
-
-			if (isLngLatFormat) {
-				coords.push(lngLat);
-			} else {
-				coords.push([curLat, curLng]);
-			}
-
-			if (sleepMS && step % jobChunkSize === 0) {
-				// Chunk is processed, so cool off a bit.
-				await sleep(sleepMS);
-			}
-
-			lastLng = curLng;
-			step++;
+		if (sleepMS && step % jobChunkSize === 0) {
+			// Chunk is processed, so cool off a bit.
+			await sleep(sleepMS);
 		}
 
-		cachedOrbitTracks[cacheKey] = coords;
+		lastLng = curLng;
+		step++;
+	}
 
-		resolve(coords);
-	});
+	cachedOrbitTracks[cacheKey] = coords;
+
+	return coords;
 }
 
 /**
@@ -505,7 +503,7 @@ export function getOrbitTrackSync({
  * @param {Number} startTimeMS Unix timestamp in milliseconds.
  * @param {Number} stepMS Time in milliseconds between points on the ground track.
  * @param {Boolean} isLngLatFormat Formats coords in [lng, lat] order when true, [lat, lng] when false.
- * 
+ *
  *
  * Example:
  * const threeOrbitsArr = await getGroundTracks({ tle: tleStr });
@@ -536,71 +534,63 @@ export function getGroundTracks({
 	stepMS = 1000,
 	isLngLatFormat = true
 }) {
-	return new Promise(async (resolve, reject) => {
-		const parsedTLE = parseTLE(tle);
-		const { tle: tleArr } = parsedTLE;
+	const parsedTLE = parseTLE(tle);
+	const orbitTimeMS = getAverageOrbitTimeMS(parsedTLE);
+	const curOrbitStartMS = getLastAntemeridianCrossingTimeMS(
+		parsedTLE,
+		startTimeMS
+	);
 
-		const orbitTimeMS = getAverageOrbitTimeMS(parsedTLE);
-		const curOrbitStartMS = getLastAntemeridianCrossingTimeMS(
-			parsedTLE,
-			startTimeMS
-		);
+	const foundCrossing = curOrbitStartMS !== -1;
+	if (!foundCrossing) {
+		// Geosync or unusual orbit, so just return a Promise for a partial orbit track.
 
-		const foundCrossing = curOrbitStartMS !== -1;
-		if (!foundCrossing) {
-			// Geosync or unusual orbit, so just return a partial orbit track.
-
-			const partialGroundTrack = await getOrbitTrack({
+		return Promise.all([
+			getOrbitTrack({
 				tle: parsedTLE,
 				startTimeMS,
 				stepMS: _MS_IN_A_MINUTE,
 				maxTimeMS: _MS_IN_A_DAY / 4,
 				isLngLatFormat
-			});
-
-			resolve([partialGroundTrack]);
-
-			return;
-		}
-
-		const lastOrbitStartMS = getLastAntemeridianCrossingTimeMS(
-			parsedTLE,
-
-			// TODO: fix this magic math
-			curOrbitStartMS - 10000
-		);
-		const nextOrbitStartMS = getLastAntemeridianCrossingTimeMS(
-			parsedTLE,
-
-			// TODO: fix this magic math
-			curOrbitStartMS + orbitTimeMS + 1000 * 60 * 30
-		);
-
-		const groundTrackPromises = [
-			getOrbitTrack({
-				tle: parsedTLE,
-				startTimeMS: lastOrbitStartMS,
-				stepMS,
-				isLngLatFormat
-			}),
-			getOrbitTrack({
-				tle: parsedTLE,
-				startTimeMS: curOrbitStartMS,
-				stepMS,
-				isLngLatFormat
-			}),
-			getOrbitTrack({
-				tle: parsedTLE,
-				startTimeMS: nextOrbitStartMS,
-				stepMS,
-				isLngLatFormat
 			})
-		];
+		]);
+	}
 
-		const threeOrbitTracks = await Promise.all(groundTrackPromises);
+	const lastOrbitStartMS = getLastAntemeridianCrossingTimeMS(
+		parsedTLE,
 
-		resolve(threeOrbitTracks);
-	});
+		// TODO: fix this magic math
+		curOrbitStartMS - 10000
+	);
+	const nextOrbitStartMS = getLastAntemeridianCrossingTimeMS(
+		parsedTLE,
+
+		// TODO: fix this magic math
+		curOrbitStartMS + orbitTimeMS + 1000 * 60 * 30
+	);
+
+	const groundTrackPromises = [
+		getOrbitTrack({
+			tle: parsedTLE,
+			startTimeMS: lastOrbitStartMS,
+			stepMS,
+			isLngLatFormat
+		}),
+		getOrbitTrack({
+			tle: parsedTLE,
+			startTimeMS: curOrbitStartMS,
+			stepMS,
+			isLngLatFormat
+		}),
+		getOrbitTrack({
+			tle: parsedTLE,
+			startTimeMS: nextOrbitStartMS,
+			stepMS,
+			isLngLatFormat
+		})
+	];
+
+	return Promise.all(groundTrackPromises);
 }
 
 /**
@@ -650,7 +640,7 @@ export function getGroundTracksSync({
 
 		const partialGroundTrack = getOrbitTrackSync({
 			tle: parsedTLE,
-			startTimeMS: timeMS,
+			startTimeMS: optionalTimeMS,
 			stepMS: _MS_IN_A_MINUTE,
 			maxTimeMS: _MS_IN_A_DAY / 4
 		});
