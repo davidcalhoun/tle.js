@@ -35,15 +35,11 @@ const _SAT_REC_ERRORS = {
 let cachedSatelliteInfo = {};
 let cachedAntemeridianCrossings = {};
 let cachedOrbitTracks = {};
-let cachedVisibleSatellites = {
-	slowMoving: {}
-};
 let cachedGroundTrack = {};
 const caches = [
 	cachedSatelliteInfo,
 	cachedAntemeridianCrossings,
 	cachedOrbitTracks,
-	cachedVisibleSatellites,
 	cachedGroundTrack
 ];
 
@@ -58,8 +54,6 @@ export function clearCache() {
 	caches.forEach(cache => {
 		caches[cache] = {};
 	});
-
-	cachedVisibleSatellites.slowMoving = [];
 }
 
 /**
@@ -330,17 +324,6 @@ export function getVisibleSatellites({
 	timestampMS = Date.now()
 }) {
 	return tles.reduce((visibleSats, tleArr) => {
-		// Don't waste time reprocessing geosync.
-		const cacheKey = tleArr[1];
-		const cachedVal = cachedVisibleSatellites.slowMoving[cacheKey];
-		if (cachedVal) {
-			const { info } = cachedVal;
-			const { elevation: cachedElevation } = info;
-			return cachedElevation >= elevationThreshold
-				? visibleSats.concat(cachedVal)
-				: visibleSats;
-		}
-
 		let info;
 		try {
 			info = getSatelliteInfo(
@@ -358,11 +341,6 @@ export function getVisibleSatellites({
 		}
 
 		const { elevation, velocity, range } = info;
-
-		const isSlowMoving = velocity / range < 0.001;
-		if (isSlowMoving) {
-			cachedVisibleSatellites.slowMoving[cacheKey] = { tleArr, info };
-		}
 
 		return elevation >= elevationThreshold
 			? visibleSats.concat({ tleArr, info })
