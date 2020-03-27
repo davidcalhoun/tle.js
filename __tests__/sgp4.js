@@ -121,7 +121,7 @@ describe("getOrbitTrack", () => {
 			tle: tleArr,
 			startTimeMS: 1501039265000
 		});
-		expect(coords.length).toEqual(4595);
+		expect(coords.length).toEqual(4594);
 	});
 });
 
@@ -153,7 +153,7 @@ describe("getOrbitTrackSync", () => {
 			tle: tleArr,
 			startTimeMS: 1501039265000
 		});
-		expect(coords.length).toEqual(4595);
+		expect(coords.length).toEqual(4594);
 	});
 });
 
@@ -185,7 +185,8 @@ describe("getGroundTracks", () => {
 			tle: tleArr,
 			startTimeMS: 1501039265000
 		});
-		expect(coords.length).toEqual(3);
+
+		expect(coords).toMatchSnapshot();
 	});
 });
 
@@ -199,7 +200,7 @@ describe("getGroundTracksSync", () => {
 			tle: tleArr,
 			startTimeMS: 1501039265000
 		});
-		expect(coords.length).toEqual(3);
+		expect(coords).toMatchSnapshot();
 	});
 });
 
@@ -231,7 +232,7 @@ describe("problematic TLES (geosync, decayed)", () => {
 			tle: tleStr,
 			startTimeMS: timestamp
 		});
-		expect(result.length).toEqual(6002);
+		expect(result.length).toEqual(6001);
 	});
 
 	test("getGroundTracks", async () => {
@@ -241,7 +242,7 @@ describe("problematic TLES (geosync, decayed)", () => {
 			startTimeMS: timestamp
 		});
 		expect(result.length).toEqual(1);
-		expect(result[0].length).toEqual(362);
+		expect(result[0].length).toEqual(361);
 	});
 
 	test("getOrbitTrack problematic 1", () => {

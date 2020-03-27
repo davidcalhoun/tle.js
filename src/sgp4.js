@@ -408,6 +408,8 @@ export async function getOrbitTrack({
 		const doesExceedTime = maxTimeMS && curTimeMS - startTimeMS > maxTimeMS;
 		isDone = doesCrossAntemeridian || doesExceedTime;
 
+		if (isDone) break;
+
 		if (isLngLatFormat) {
 			coords.push(lngLat);
 		} else {
@@ -457,6 +459,8 @@ export function getOrbitTrackSync({
 		const doesCrossAntemeridian = _crossesAntemeridian(lastLng, curLng);
 		const doesExceedTime = maxTimeMS && curTimeMS - startTimeMS > maxTimeMS;
 		isDone = doesCrossAntemeridian || doesExceedTime;
+
+		if (isDone) break;
 
 		if (isLngLatFormat) {
 			coords.push(curLngLat);
