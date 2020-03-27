@@ -276,7 +276,7 @@ getSatelliteName(tle);
 -> 'ISS (ZARYA)'
 ```
 
-### `getSatelliteNumber(tle)`
+### `getCatalogNumber(tle)`
 Returns the [NORAD satellite catalog number](https://en.wikipedia.org/wiki/Satellite_Catalog_Number).
 Used since Sputnik was launched in 1957 (Sputnik's rocket was 00001, while Sputnik itself was
 00002).
@@ -284,8 +284,8 @@ Used since Sputnik was launched in 1957 (Sputnik's rocket was 00001, while Sputn
 * Range: 0 to 99999
 
 ```js
-import { getSatelliteNumber } from "tle.js";
-getSatelliteNumber(tle);
+import { getCatalogNumber } from "tle.js";
+getCatalogNumber(tle);
 -> 25544
 ```
 
