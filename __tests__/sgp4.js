@@ -186,7 +186,9 @@ describe("getGroundTracks", () => {
 			startTimeMS: 1501039265000
 		});
 
-		expect(coords).toMatchSnapshot();
+		expect(coords.length).toBe(3);
+		expect(coords[0][0][0]).toBeCloseTo(-179.95882804237493, 1);
+		expect(coords[0][coords[0].length - 1][0]).toBeCloseTo(179.96378140395484, 1);
 	});
 });
 
@@ -200,7 +202,9 @@ describe("getGroundTracksSync", () => {
 			tle: tleArr,
 			startTimeMS: 1501039265000
 		});
-		expect(coords).toMatchSnapshot();
+		expect(coords.length).toBe(3);
+		expect(coords[0][0][0]).toBeCloseTo(-179.97086762188496, 1);
+		expect(coords[0][coords[0].length - 1][0]).toBeCloseTo(179.96378140395484, 1);
 	});
 });
 
