@@ -49,15 +49,15 @@
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.0",
     "babel-eslint": "^10.1.0",
-    "babel-jest": "^25.2.1",
+    "babel-jest": "^25.2.4",
     "eslint": "^6.8.0",
-    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.19.0",
-    "jest": "^25.2.2",
+    "jest": "^25.2.4",
     "prettier": "^2.0.2",
     "ramda": "^0.27.0",
-    "rollup": "^2.2.0",
+    "rollup": "^2.3.2",
     "rollup-plugin-babel": "^4.4.0"
   }
 }
