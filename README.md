@@ -31,6 +31,7 @@ More info on TLEs:
 
 ## Changelog
 * `4.0.0`
+  * **Note: this version requires Node 10 and up.**
   * Major dependency updates (including upgrading to satellite.js v4).
   * Better support for 3-line TLE variants with a '0 ' prefix on the first line, preceding the satellite name (impacts the return value when using `getSatelliteName()`).
   * Fix means of returning a Promise in `getOrbitTrack()` and `getGroundTracks()`
@@ -53,12 +54,19 @@ More info on TLEs:
   * Added better code documentation.
 * `2.1.3` - initial add of async ground track functions, `getVisibleSatellites()`
 
-## Support for Node 12.x.x
-If you're using an older version of Node, you will need to point to the special CommonJS build target.  Simply change the the `import` format in the following examples to this `require` format:
+## Support for Node 10-12
+If you are using Node 10-12, you will need to point to the special CommonJS build target.  Simply change the `import` format in the following examples to this `require` format:
 
 ```diff
 -import { getLatLngObj } from "tle.js";
 +const { getLatLngObj } = require("tle.js/dist/tlejs.cjs");
+```
+
+## Support for Node 9 and older
+Please install `tle.js` version '3.x.x':
+
+```bash
+npm i tle.js@3
 ```
 
 ## Shared code
