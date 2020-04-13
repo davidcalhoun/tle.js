@@ -1,6 +1,6 @@
 {
   "name": "tle.js",
-  "version": "4.0.10",
+  "version": "4.0.11",
   "description": "Satellite TLE tools in JavaScript.",
   "main": "dist/tlejs.umd.js",
   "browser": "dist/tlejs.umd.js",
