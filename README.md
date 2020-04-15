@@ -1,6 +1,6 @@
 # tle.js
 [![Build Status](https://travis-ci.org/davidcalhoun/tle.js.svg?branch=master)](https://travis-ci.org/davidcalhoun/tle.js)
-[![Downloads][downloads-image]][npm-url]
+[![npm downloads](https://img.shields.io/npm/dm/tle.js.svg)](https://www.npmjs.com/package/tle.js)
 
 Satellite TLE tools in JavaScript
 
@@ -599,6 +599,3 @@ expectedChecksum === computedChecksum;
 -> true
 ```
 
-
-[downloads-image]: https://img.shields.io/npm/dm/tle.js.svg?style=flat-square
-[npm-url]: https://www.npmjs.com/package/tle.js
