@@ -604,7 +604,7 @@ export function getGroundTracks({
 export function getGroundTracksSync({
 	tle,
 	stepMS = 1000,
-	optionalTimeMS = Date.now(),
+	optionalTimeMS = Date.now(), // TODO: change to startTimeMS for consistency
 	isLngLatFormat = true
 }) {
 	const parsedTLE = parseTLE(tle);

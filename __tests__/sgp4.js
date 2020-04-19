@@ -187,8 +187,11 @@ describe("getGroundTracks", () => {
 		});
 
 		expect(coords.length).toBe(3);
-		expect(coords[0][0][0]).toBeCloseTo(-179.95882804237493, 1);
-		expect(coords[0][coords[0].length - 1][0]).toBeCloseTo(179.96378140395484, 1);
+		const firstLng = coords[0][0][0];
+		const lastLng = coords[0][coords[0].length - 1][0];
+
+		expect(firstLng).toBe(-179.95882804237493);
+		expect(lastLng).toBe(179.96378140395484);
 	});
 });
 
@@ -200,11 +203,14 @@ describe("getGroundTracksSync", () => {
 	test("1", () => {
 		const coords = getGroundTracksSync({
 			tle: tleArr,
-			startTimeMS: 1501039265000
+			optionalTimeMS: 1501039265000
 		});
 		expect(coords.length).toBe(3);
-		expect(coords[0][0][0]).toBeCloseTo(-179.97086762188496, 1);
-		expect(coords[0][coords[0].length - 1][0]).toBeCloseTo(179.96378140395484, 1);
+
+		const firstLng = coords[0][0][0];
+		const lastLng = coords[0][coords[0].length - 1][0];
+		expect(firstLng).toBe(-179.95882804237493);
+		expect(lastLng).toBe(179.96378140395484);
 	});
 });
 
