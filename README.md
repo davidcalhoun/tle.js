@@ -15,12 +15,12 @@ to determine spacecraft positioning information, taking into account gravity per
 moon, etc).
 
 Most users will probably want to simply get the latitude/longitude of a satellite (see
-[getLatLon](#getlatlngobjtle-optionaltimestampms)) or get the look angles from a ground position, which can be used to track
+[getLatLngObj](#getlatlngobjtle-optionaltimestampms)) or get the look angles from a ground position, which can be used to track
 where in the sky a satellite is visible (see [getSatelliteInfo](#getsatelliteinfotle-optionaltimestamp-observerlat-observerlng-observerelevation)).  Users may
 also want to plot orbit lines (see [getGroundTracks](#getgroundtracksoptions)).
 
 Users may also be interested in grabbing specific values from a TLE.  In this case, you
-can use one of the [TLE getters](#basic-tle-getters).
+can use one of the [TLE getters](#basic-tle-getters), for instance [getCOSPAR](#getcospartle).
 
 Note that TLEs should be updated at least daily to avoid drift in calculations.  You can get them online at
 [Celestrak](http://celestrak.com/NORAD/elements/), where they are updated every few hours.
@@ -436,7 +436,7 @@ getBstarDrag(tle);
 Note: the original value in TLE is '36771-4' (= `0.36771 x 10`<sup>`-4`</sup> = `0.000036771`).
 
 ### `getOrbitModel(tle)`
-Private value - used by Air Force Space Command to reference the orbit model used to generate the
+Private value - used by the [United States Space Force](https://en.wikipedia.org/wiki/United_States_Space_Force) to reference the orbit model used to generate the
 TLE.  Will always be seen as zero externally (e.g. by "us", unless you are "them" - in which case,
 hello!).
 
