@@ -49,4 +49,4 @@ export {
 	getAverageOrbitTimeMins,
 	getAverageOrbitTimeS
 } from "./sugar-getters";
-export { parseTLE, isValidTLE, computeChecksum } from "./parsing";
+export { parseTLE, isValidTLE, computeChecksum, clearTLEParseCache } from "./parsing";

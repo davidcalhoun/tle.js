@@ -1,4 +1,4 @@
-import { parseTLE, isValidTLE, computeChecksum } from "../src";
+import { parseTLE, isValidTLE, computeChecksum, clearTLEParseCache } from "../src";
 
 const tleStr = `ISS (ZARYA)                     
 1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
@@ -7,6 +7,8 @@ const tleStr = `ISS (ZARYA)
 const tleArr = tleStr.split("\n");
 
 describe("parseTLE", () => {
+	beforeEach(clearTLEParseCache);
+
 	describe("invalid types", () => {
 		test("errors on invalid type number", () => {
 			expect(() => {

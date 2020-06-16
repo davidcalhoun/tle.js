@@ -29,7 +29,7 @@ import {
 	getSatelliteName,
 	getSecondTimeDerivative,
 	getTleSetNumber,
-	getCOSPAR
+	getCOSPAR,
 } from "../src";
 
 describe("getters", () => {
@@ -47,6 +47,18 @@ describe("getters", () => {
 	const tleStr4 = `0 ISS (ZARYA)
 1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
 2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
+
+	const issDebris1 = [
+		"ISS DEB",
+		"1 44303U 98067QA  20168.11979959  .00002872  00000-0  50277-4 0  9995",
+		"2 44303  51.6421 345.5785 0004933 328.2807  31.7886 15.54325834 59558",
+	];
+
+	const issDebris2 = [
+		"ISS DEB",
+		"1 44304U 98067QB  20168.07956297  .00014700  00000-0  17368-3 0  9997",
+		"2 44304  51.6395 337.0565 0003893 303.8223  56.2400 15.61553656 59676",
+	];
 
 	describe("line 1", () => {
 		test("getLineNumber1", () => {
@@ -207,6 +219,18 @@ describe("getters", () => {
 
 		test("getAverageOrbitTimeMS", () => {
 			expect(getAverageOrbitTimeMS(tleStr)).toEqual(5559037);
+		});
+	});
+
+	describe('issues', () => {
+		describe('issue 14: bad cache key (dupe sat names)', () => {
+			test("getCatalogNumber", () => {
+				expect(getCatalogNumber(issDebris1)).toEqual(44303);
+			});
+
+			test("getCatalogNumber", () => {
+				expect(getCatalogNumber(issDebris2)).toEqual(44304);
+			});
 		});
 	});
 });

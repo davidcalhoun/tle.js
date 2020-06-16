@@ -17,8 +17,22 @@ export function isTLEObj(obj) {
 	);
 }
 
+const getTLECacheKey = (type, sourceTLE) => {
+	if (type === _DATA_TYPES._ARRAY) {
+		// Use TLE line 1 in 2 and 3-line TLE variants.
+		return (sourceTLE.length === 3)
+			? sourceTLE[1]
+			: sourceTLE[0]
+	}
+
+	// Use the entire string as a key.
+	return sourceTLE;
+}
+
 // For TLE parsing memoization.
-const tleCache = {};
+let tleCache = {};
+
+export const clearTLEParseCache = () => tleCache = {};
 
 /**
  * Converts string and array TLE formats into a "parsed" TLE in a consistent object format.
@@ -56,14 +70,13 @@ export function parseTLE(sourceTLE) {
 
 	const isUnexpectedObject = !alreadyParsed && type === _DATA_TYPES._OBJECT;
 	if (isUnexpectedObject) {
-		// TLE is in an unexpected object format.
 		throw new Error(_ERRORS._NOT_PARSED_OBJECT);
 	}
 
 	// Note: only strings and arrays will make it past this point.
 
 	// Check if the TLE exists in the cache.
-	const cacheKey = type === _DATA_TYPES._ARRAY ? sourceTLE[0] : sourceTLE;
+	const cacheKey = getTLECacheKey(type, sourceTLE);
 	if (tleCache[cacheKey]) {
 		return tleCache[cacheKey];
 	}
