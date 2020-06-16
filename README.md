@@ -30,6 +30,7 @@ More info on TLEs:
 * [TLE details from CASTOR](http://castor2.ca/03_Mechanics/03_TLE/)
 
 ## Changelog
+* `4.1.0`: Fixed internal bug with caching TLE parsing keys.  Added `clearTLEParseCache()` to `parsing.js`.  Mostly for tests, but is also be useful for long-running apps that need to free up some memory.
 * `4.0.0`
   * **Note: this version requires Node 10 and up.**
   * Major dependency updates (including upgrading to satellite.js v4).
