@@ -226,9 +226,6 @@ describe("getters", () => {
 		describe('issue 14: bad cache key (dupe sat names)', () => {
 			test("getCatalogNumber", () => {
 				expect(getCatalogNumber(issDebris1)).toEqual(44303);
-			});
-
-			test("getCatalogNumber", () => {
 				expect(getCatalogNumber(issDebris2)).toEqual(44304);
 			});
 		});
