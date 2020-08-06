@@ -47,17 +47,17 @@
     "satellite.js": "^4.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.5",
-    "@babel/preset-env": "^7.10.4",
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
     "babel-eslint": "^10.1.0",
-    "babel-jest": "^26.1.0",
-    "eslint": "^7.5.0",
+    "babel-jest": "^26.2.2",
+    "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jsx-a11y": "^6.3.1",
-    "eslint-plugin-react": "^7.20.3",
-    "jest": "^26.1.0",
+    "eslint-plugin-react": "^7.20.5",
+    "jest": "^26.2.2",
     "prettier": "^2.0.5",
-    "ramda": "^0.27.0",
+    "ramda": "^0.27.1",
     "rollup": "^2.23.0",
     "rollup-plugin-babel": "^4.4.0"
   }
