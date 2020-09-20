@@ -15,7 +15,7 @@ declare module 'tle.js' {
     export type Timestamp = number;
 
     /**
-     * TLE input, to be parsed by parseTLE().
+     * TLE in unknown format, to be normalized by parseTLE().
      */
     export type TLE = string | string[] | ParsedTLE;
 
@@ -25,7 +25,7 @@ declare module 'tle.js' {
     export type ThreeGroundTracks = [LngLat[], LngLat[], LngLat[]];
 
     /**
-     * Input object for ground tracks functions.
+     * Input for getGroundTracks() and getGroundTracksSync().
      */
     export interface GroundTracksInput {
         /** Satellite TLE. */
@@ -48,7 +48,9 @@ declare module 'tle.js' {
     }
 
     /**
-     * Longitude, latitude pair.
+     * Longitude, latitude pair in Array format.  Note that this format is reversed from the more familiar
+     * lat/lng format in order to be easily used for GeoJSON, which formats points as [lng, lat].
+     * @example [-117.918976, 33.812511]
      */
     export interface LngLat {
         [0]: LongitudeDegrees;
@@ -57,6 +59,7 @@ declare module 'tle.js' {
 
     /**
      * Latitude, longitude pair in Object format.
+     * @example { lat: 33.812511, lng: -117.918976 }
      */
     export interface LatLngObject {
         /** Latitude. */
@@ -72,12 +75,11 @@ declare module 'tle.js' {
         /** Satellite name (only extracted from 3-line TLE inputs). */
         name?: string,
         /** Two-line TLE. */
-        tle: string[]
+        tle: [string, string]
     }
 
     /**
-     * Determines the ground track for one orbit, starting at the position of the satellite at startTimeMS and
-     * stopping at the antemeridian.
+     * Input for getOrbitTrackSync().  Note that getOrbitTrack() uses OrbitTrackAsyncInput instead.
      */
     export interface OrbitTrackInput {
         /**
@@ -107,6 +109,9 @@ declare module 'tle.js' {
         isLngLatFormat?: boolean
     }
 
+    /**
+     * Input for getOrbitTrack().
+     */
     export interface OrbitTrackAsyncInput extends OrbitTrackInput {
         /**
          * (Experimental) Time to "cool off" between processing chunks.
@@ -121,7 +126,7 @@ declare module 'tle.js' {
     }
 
     /**
-     * Output type for getSatBearing().
+     * Output for getSatBearing().
      */
     export interface SatBearingOutput {
         degrees: number,
@@ -129,7 +134,7 @@ declare module 'tle.js' {
     }
 
     /**
-     * Output type for getSatelliteInfo().
+     * Output for getSatelliteInfo().
      */
     export interface SatelliteInfoOutput {
         /** (degrees) Satellite compass heading from observer (0 = north, 180 = south). */
@@ -149,7 +154,7 @@ declare module 'tle.js' {
     }
 
     /**
-     * Input format for getVisibleSatellites().
+     * Input for getVisibleSatellites().
      */
     export interface VisibleSatellitesInput {
         /**
@@ -188,28 +193,31 @@ declare module 'tle.js' {
     export function clearCache(): undefined;
 
     /**
-     * Returns the current size of SGP caches.
+     * Returns the current sizes of SGP caches.
      */
-    export function getCacheSizes(): Array<number>;
+    export function getCacheSizes(): number[];
 
     /**
-     * (Async) Calculates three orbit tracks.
+     * (Async) Calculates three orbit tracks for a TLE (previous, current, and next orbits).
      */
     export function getGroundTracks(input: GroundTracksInput): Promise<ThreeGroundTracks>;
 
     /**
-     * (Sync) Calculates three orbit tracks.
+     * (Sync) Calculates three orbit tracks for a TLE  (previous, current, and next orbits).
      */
     export function getGroundTracksSync(input: GroundTracksInput): ThreeGroundTracks;
 
     /**
-     * Determines the last time the satellite crossed the antemeridian.
+     * Determines the last time the satellite crossed the antemeridian.  Returns -1 if not found
+     * (e.g. for geosynchronous satellites).
+     * 
      * @param parsedTLE TLE parsed by parseTLE().
      * @param startTime Relative time to determine last crossing.
      */
-    export function getLastAntemeridianCrossingTimeMS(parsedTLE: ParsedTLE, startTime: Timestamp): Timestamp;
+    export function getLastAntemeridianCrossingTimeMS(parsedTLE: ParsedTLE, startTime: Timestamp): Timestamp | -1;
 
     /**
+     * Determines satellite position for the given time.
      * 
      * @param tle TLE input.
      * @param timestamp Timestamp to get position for.
@@ -218,6 +226,7 @@ declare module 'tle.js' {
 
     /**
      * Determines the satellite's position at the time of the TLE epoch (when the TLE was generated).
+     * 
      * @param tle TLE input.
      */
     export function getLngLatAtEpoch(tle: TLE): LngLat;
@@ -282,39 +291,72 @@ declare module 'tle.js' {
     /**
      * BSTAR drag term. This estimates the effects of atmospheric drag on the satellite's motion.
      * See https://en.wikipedia.org/wiki/BSTAR
+     * Output units: EarthRadii ^ -1
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getBstarDrag('1 25544U 98067A   17206.18396726 ...');
+     * 0.000036771
      */
     export function getBstarDrag(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the Space Catalog Number (aka NORAD Catalog Number).
      * See https://en.wikipedia.org/wiki/Satellite_Catalog_Number
+     * Output range: 0 to 99999
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getCatalogNumber('1 25544U 98067A   17206.18396726 ...');
+     * 25544
      */
     export function getCatalogNumber(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the Space Catalog Number (aka NORAD Catalog Number) from the first line of the TLE.
      * See https://en.wikipedia.org/wiki/Satellite_Catalog_Number
+     * Output range: 0 to 99999
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getCatalogNumber1('1 25544U 98067A   17206.18396726 ...');
+     * 25544
      */
     export function getCatalogNumber1(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * TLE line 1 checksum (modulo 10), for verifying the integrity of this line of the TLE. Note that
      * letters, blanks, periods, and plus signs are counted as 0, while minus signs are counted as 1.
+     * Output range: 0 to 9
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getChecksum1('1 25544U 98067A   17206.18396726 ...');
+     * 3
      */
     export function getChecksum1(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the satellite classification.  For example, an unclassified satellite will return `U`.
+     * Outputs:
+     * 'U' = unclassified
+     * 'C' = classified
+     * 'S' = secret
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getClassification('1 25544U 98067A   17206.18396726 ...');
+     * 'U'
      */
     export function getClassification(tle: TLE, isTLEParsed?: boolean): string;
 
@@ -322,16 +364,28 @@ declare module 'tle.js' {
      * Returns the TLE epoch day of the year (day of year with fractional portion of the day) when the
      * TLE was generated.  For example, a TLE generated on January 1 will return something like
      * `1.18396726`.
+     * Output range: 1 to 365.99999999
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getEpochDay('1 25544U 98067A   17206.18396726 ...');
+     * 206.18396726
      */
     export function getEpochDay(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the TLE epoch year (last two digits) when the TLE was generated.  For example, a TLE
      * generated in 2022 will return `22`.
+     * Output range: 00 to 99.
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getEpochDay('1 25544U 98067A   17206.18396726 ...');
+     * 17
      */
     export function getEpochYear(tle: TLE, isTLEParsed?: boolean): number;
 
@@ -340,17 +394,29 @@ declare module 'tle.js' {
      * (orbits/day2). Defines how mean motion changes from day to day, so TLE propagators can still be
      * used to make reasonable guesses when distant from the original TLE epoch.
      * See https://en.wikipedia.org/wiki/Mean_Motion
+     * Output units: Orbits / day ^ 2
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getFirstTimeDerivative('1 25544U 98067A   17206.18396726 ...');
+     * 0.00001961
      */
     export function getFirstTimeDerivative(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the launch number of the year, which makes up part of the COSPAR id
-     * (international designator).  For example, the 50th launch of the year will return "50".
+     * (international designator).  For example, the 50th launch of the year will return 50.
      * See https://en.wikipedia.org/wiki/International_Designator
+     * Output range: 1 to 999
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getIntDesignatorLaunchNumber('1 25544U 98067A   17206.18396726 ...');
+     * 67
      */
     export function getIntDesignatorLaunchNumber(tle: TLE, isTLEParsed?: boolean): number;
 
@@ -358,8 +424,14 @@ declare module 'tle.js' {
      * Returns the piece of the launch, which makes up part of the COSPAR id (international designator).
      * For example, the first piece of the launch will return "A".
      * See https://en.wikipedia.org/wiki/International_Designator
+     * Output range: A to ZZZ
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getIntDesignatorPieceOfLaunch('1 25544U 98067A   17206.18396726 ...');
+     * 'A'
      */
     export function getIntDesignatorPieceOfLaunch(tle: TLE, isTLEParsed?: boolean): string;
 
@@ -367,15 +439,26 @@ declare module 'tle.js' {
      * Returns the launch year (last two digits), which makes up part of the COSPAR id
      * (international designator).  For example, a satellite launched in 1999 will return "99".
      * See https://en.wikipedia.org/wiki/International_Designator
+     * Output range: 00 to 99
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getIntDesignatorYear('1 25544U 98067A   17206.18396726 ...');
+     * 98
      */
     export function getIntDesignatorYear(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the line number from line 1.  Should always return "1" for valid TLEs.
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getLineNumber1('1 25544U 98067A   17206.18396726 ...');
+     * 1
      */
     export function getLineNumber1(tle: TLE, isTLEParsed?: boolean): number;
 
@@ -384,8 +467,14 @@ declare module 'tle.js' {
      * TLE (e.g. SGP, SGP4).  Distributed TLES will always return 0 for this value.  Note that all
      * distributed TLEs are generated with SGP4/SDP4.
      * See https://celestrak.com/columns/v04n03/
+     * Output range: 0 to 9
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getOrbitModel('1 25544U 98067A   17206.18396726 ...');
+     * 0
      */
     export function getOrbitModel(tle: TLE, isTLEParsed?: boolean): number;
 
@@ -394,32 +483,56 @@ declare module 'tle.js' {
      * (orbits/day3). Similar to the first time derivative, it measures rate of change in the Mean
      * Motion Dot so software can make reasonable guesses when distant from the original TLE epoch.
      * See https://en.wikipedia.org/wiki/Mean_Motion and http://castor2.ca/03_Mechanics/03_TLE/Mean_Mot_Dot.html
+     * Output units: Orbits / day ^ 3
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getSecondTimeDerivative('1 25544U 98067A   17206.18396726 ...');
+     * 0
      */
     export function getSecondTimeDerivative(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * TLE element set number, incremented for each new TLE generated since launch. 999 seems to mean
      * the TLE has maxed out.
+     * Output range: technically 1 to 9999, though in practice the maximum number seems to be 999.
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getTleSetNumber('1 25544U 98067A   17206.18396726 ...');
+     * 999
      */
     export function getTleSetNumber(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the Space Catalog Number (aka NORAD Catalog Number) from the second line of the TLE.
      * See https://en.wikipedia.org/wiki/Satellite_Catalog_Number
+     * Output range: 0 to 99999
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getCatalogNumber2('1 25544U 98067A   17206.18396726 ...');
+     * 25544
      */
     export function getCatalogNumber2(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * TLE line 2 checksum (modulo 10), for verifying the integrity of this line of the TLE. Note that
      * letters, blanks, periods, and plus signs are counted as 0, while minus signs are counted as 1.
+     * Output range: 0 to 9
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getChecksum2('1 25544U 98067A   17206.18396726 ...');
+     * 0
      */
     export function getChecksum2(tle: TLE, isTLEParsed?: boolean): number;
 
@@ -427,8 +540,14 @@ declare module 'tle.js' {
      * Returns the orbital eccentricity. All artificial Earth satellites have an eccentricity between 0
      * (perfect circle) and 1 (parabolic orbit).
      * See https://en.wikipedia.org/wiki/Orbital_eccentricity
+     * Output range: 0 to 1
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getEccentricity('1 25544U 98067A   17206.18396726 ...');
+     * 0.0006317
      */
     export function getEccentricity(tle: TLE, isTLEParsed?: boolean): number;
 
@@ -436,15 +555,27 @@ declare module 'tle.js' {
      * Returns the inclination relative to the Earth's equatorial plane in degrees. 0 to 90 degrees is a
      * prograde orbit and 90 to 180 degrees is a retrograde orbit.
      * See https://en.wikipedia.org/wiki/Orbital_inclination
+     * Output units: degrees
+     * Output range: 0 to 180
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getInclination('1 25544U 98067A   17206.18396726 ...');
+     * 51.6400
      */
     export function getInclination(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the line number from line 2.  Should always return "2" for valid TLEs.
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getLineNumber2('1 25544U 98067A   17206.18396726 ...');
+     * 2
      */
     export function getLineNumber2(tle: TLE, isTLEParsed?: boolean): number;
 
@@ -452,32 +583,60 @@ declare module 'tle.js' {
      * Returns the Mean Anomaly. Indicates where the satellite was located within its orbit at the time
      * of the TLE epoch.
      * See https://en.wikipedia.org/wiki/Mean_Anomaly
+     * Output units: degrees
+     * Range: 0 to 359.9999
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getMeanAnomaly('1 25544U 98067A   17206.18396726 ...');
+     * 25.2906
      */
     export function getMeanAnomaly(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the revolutions around the Earth per day (mean motion).
      * See https://en.wikipedia.org/wiki/Mean_Motion
+     * Units: revolutions per day
+     * Range: 0 to 17 (theoretically)
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getMeanMotion('1 25544U 98067A   17206.18396726 ...');
+     * 15.54225995
      */
     export function getMeanMotion(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the argument of perigee.
      * See https://en.wikipedia.org/wiki/Argument_of_perigee
+     * Ouput units: degrees
+     * Output range: 0 to 359.9999
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getPerigee('1 25544U 98067A   17206.18396726 ...');
+     * 69.9862
      */
     export function getPerigee(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Returns the total satellite revolutions when this TLE was generated. This number seems to roll
      * over (e.g. 99999 -> 0).
+     * Units: total revolutions
+     * Range: 0 to 99999
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getRevNumberAtEpoch('1 25544U 98067A   17206.18396726 ...');
+     * 6766
      */
     export function getRevNumberAtEpoch(tle: TLE, isTLEParsed?: boolean): number;
 
@@ -485,16 +644,28 @@ declare module 'tle.js' {
      * Returns the right ascension of the ascending node in degrees. Essentially, this is the angle of
      * the satellite as it crosses northward (ascending) across the Earth's equator (equatorial plane).
      * See https://en.wikipedia.org/wiki/Right_ascension_of_the_ascending_node
+     * Output units: degrees
+     * Output range: 0 to 359.9999
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getRightAscension('1 25544U 98067A   17206.18396726 ...');
+     * 208.9163
      */
     export function getRightAscension(tle: TLE, isTLEParsed?: boolean): number;
 
     /**
      * Determines COSPAR ID (International Designator).
      * See https://en.wikipedia.org/wiki/International_Designator
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getCOSPAR('1 25544U 98067A   17206.18396726 ...');
+     * "1998-067A"
      */
     export function getCOSPAR(tle: TLE, isTLEParsed: boolean): string;
 
@@ -504,9 +675,10 @@ declare module 'tle.js' {
      *
      * @param tle Input TLE.
      * @param fallbackToCOSPAR Returns COSPAR id when satellite name isn't found. @default false
+     * 
      * @example
      * getSatelliteName('1 25544U 98067A   17206.51418 ...');
-     * -> 'ISS (ZARYA)'
+     * "ISS (ZARYA)"
      */
     export function getSatelliteName(tle: TLE, fallbackToCOSPAR?: boolean): string;
 
@@ -514,29 +686,45 @@ declare module 'tle.js' {
      * Determines the timestamp of a TLE epoch (the time a TLE was generated).
      *
      * @param tle Input TLE.
+     * 
      * @example
      * getEpochTimestamp('1 25544U 98067A   17206.51418 ...');
-     * -> 1500956694771
+     * 1500956694771
      */
     export function getEpochTimestamp(): Timestamp;
 
     /**
      * Determines the average amount of milliseconds in one orbit.
+     * 
      * @param tle Input TLE.
+     * 
+     * @example
+     * getAverageOrbitTimeMS('1 25544U 98067A   17206.51418 ...');
+     * 5559037
      */
     export function getAverageOrbitTimeMS(tle: TLE): number;
 
     /**
      * Determines the average amount of minutes in one orbit.
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getAverageOrbitTimeMins('1 25544U 98067A   17206.51418 ...');
+     * 92.65061666666666
      */
     export function getAverageOrbitTimeMins(tle: TLE): number;
 
     /**
      * Determines the average amount of seconds in one orbit.
+     * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
+     * 
+     * @example
+     * getAverageOrbitTimeS('1 25544U 98067A   17206.51418 ...');
+     * 5559.037
      */
     export function getAverageOrbitTimeS(tle: TLE): number;
 
@@ -544,24 +732,30 @@ declare module 'tle.js' {
      * Converts string and array TLE formats into a parsed TLE in a consistent object format.
      * Accepts 2 and 3-line (with satellite name) TLE variants in string (\n-delimited) and array
      * variants.
+     * 
      * @param tle Input TLE.
      */
     export function parseTLE(tle: TLE): ParsedTLE;
 
     /**
      * Determines if a TLE is structurally valid.
+     * 
      * @param tle Input TLE.
      */
     export function isValidTLE(tle: TLE): boolean;
 
     /**
      * Determines the checksum for a single line of a TLE.
-     *
      * Checksum = modulo 10 of sum of all numbers (including line number) + 1 for each negative
      * sign (-).  Everything else is ignored.
-     * @param tleLine Single line of a TLE.
+     * 
+     * @param singleTLELine One line of a TLE.
+     * 
+     * @example
+     * computeChecksum('1 25544U 98067A   17206.51418 ...');
+     * 3
      */
-    export function computeChecksum(tleLine: string): number;
+    export function computeChecksum(singleTLELine: string): number;
 
     /**
      * Clears the TLE parse cache, which may be useful for long-running app.s
