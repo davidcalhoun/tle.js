@@ -43,12 +43,15 @@ const caches = [
 	cachedGroundTrack
 ];
 
+/**
+ * Returns the current size of SGP caches.
+ */
 export function getCacheSizes() {
 	return caches.map(_getObjLength);
 }
 
 /**
- * Provides a way to clear up memory for long-running apps.
+ * Clears SGP caches to free up memory for long-running apps.
  */
 export function clearCache() {
 	caches.forEach(cache => {
@@ -91,6 +94,7 @@ export function clearCache() {
  *   // spacecraft velocity in km/s
  *   velocity: 7.675627442183371
  * }
+ * TODO: default to 0,0.
  */
 export function getSatelliteInfo(
 	rawTLE,
@@ -156,8 +160,8 @@ export function getSatelliteInfo(
 
 	const velocityKmS = Math.sqrt(
 		Math.pow(velocityEci.x, 2) +
-			Math.pow(velocityEci.y, 2) +
-			Math.pow(velocityEci.z, 2)
+		Math.pow(velocityEci.y, 2) +
+		Math.pow(velocityEci.z, 2)
 	);
 
 	// Azimuth: is simply the compass heading from the observer's position.
@@ -484,7 +488,7 @@ export function getOrbitTrackSync({
  * @param {Array|String} options.tle
  * @param {Number} startTimeMS Unix timestamp in milliseconds.
  * @param {Number} stepMS Time in milliseconds between points on the ground track.
- * @param {Boolean} isLngLatFormat Formats coords in [lng, lat] order when true, [lat, lng] when false.
+ * @param {Boolean} isLngLatFormat Whether coords are in [lng, lat] format.
  *
  *
  * Example:
@@ -658,15 +662,13 @@ export function getGroundTracksSync({
 }
 
 /**
- * Determes the compass bearing from the perspective of the satellite.  Useful for 3D / pitched
+ * Determines the compass bearing from the perspective of the satellite.  Useful for 3D / pitched
  * map perspectives.
  *
  * TODO: a bit buggy at extreme parts of orbits, where latitude hardly changes.
  */
-export function getSatBearing(tle, customTimeMS) {
+export function getSatBearing(tle, timeMS = Date.now()) {
 	const parsedTLE = this.parseTLE(tle);
-
-	const timeMS = customTimeMS || Date.now();
 
 	const latLon1 = this.getLatLonArr(parsedTLE.arr, timeMS);
 	const latLon2 = this.getLatLonArr(parsedTLE.arr, timeMS + 10000);
