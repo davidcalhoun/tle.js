@@ -1,15 +1,33 @@
 declare module 'tle.js' {
     /**
-     * Clears SGP caches to free up memory for long-running apps.
+     * Latitude in degrees.
      */
-    export function clearCache(): undefined;
+    export type LatitudeDegrees = number;
 
     /**
-     * Returns the current size of SGP caches.
+     * Longitude in degrees.
      */
-    export function getCacheSizes(): Array<number>;
+    export type LongitudeDegrees = number;
 
-    export interface getGroundTracksInput {
+    /**
+     * Unix timestamp in milliseconds.
+     */
+    export type Timestamp = number;
+
+    /**
+     * TLE input, to be parsed by parseTLE().
+     */
+    export type TLE = string | string[] | ParsedTLE;
+
+    /**
+     * Three ground track arrays (last, current, and next orbit).
+     */
+    export type ThreeGroundTracks = [LngLat[], LngLat[], LngLat[]];
+
+    /**
+     * Input object for ground tracks functions.
+     */
+    export interface GroundTracksInput {
         /** Satellite TLE. */
         tle: TLE,
         /**
@@ -29,31 +47,23 @@ declare module 'tle.js' {
         isLngLatFormat?: boolean
     }
 
-    export type LatitudeDegrees = number;
-
-    export type LongitudeDegrees = number;
-
     /**
      * Longitude, latitude pair.
      */
     export interface LngLat {
-        [index: number]: LatitudeDegrees | LongitudeDegrees;
+        [0]: LongitudeDegrees;
+        [1]: LatitudeDegrees
     }
 
     /**
-     * Longitude, latitude pair in Object format.
+     * Latitude, longitude pair in Object format.
      */
-    export interface LngLatObject {
+    export interface LatLngObject {
         /** Latitude. */
         lat: LatitudeDegrees,
         /** Longitude. */
         lng: LongitudeDegrees
     }
-
-    /**
-     * Unix timestamp in milliseconds.
-     */
-    export type Timestamp = number;
 
     /**
      * Output of parseTLE().  TLE normalized into a predictable format for fast lookups.
@@ -66,50 +76,10 @@ declare module 'tle.js' {
     }
 
     /**
-     * TLE input, to be parsed by parseTLE().
-     */
-    export type TLE = string | string[] | ParsedTLE;
-
-    /**
-     * Three ground track arrays (last, current, and next orbit).
-     */
-    export type ThreeGroundTracks = [LngLat[], LngLat[], LngLat[]];
-
-    /**
-     * (Async) Calculates three orbit tracks.
-     */
-    export function getGroundTracks(input: getGroundTracksInput): Promise<ThreeGroundTracks>;
-
-    /**
-     * (Sync) Calculates three orbit tracks.
-     */
-    export function getGroundTracksSync(input: getGroundTracksInput): ThreeGroundTracks;
-
-    /**
-     * Determines the last time the satellite crossed the antemeridian.
-     * @param parsedTLE TLE parsed by parseTLE().
-     * @param startTime Relative time to determine last crossing.
-     */
-    export function getLastAntemeridianCrossingTimeMS(parsedTLE: ParsedTLE, startTime: Timestamp): Timestamp;
-
-    /**
-     * 
-     * @param tle TLE input.
-     * @param timestamp Timestamp to get position for.
-     */
-    export function getLatLngObj(tle: TLE, timestamp?: Timestamp): LngLatObject;
-
-    /**
-     * Determines the satellite's position at the time of the TLE epoch (when the TLE was generated).
-     * @param tle TLE input.
-     */
-    export function getLngLatAtEpoch(tle: TLE): LngLat;
-
-    /**
      * Determines the ground track for one orbit, starting at the position of the satellite at startTimeMS and
      * stopping at the antemeridian.
      */
-    export interface getOrbitTrackInput {
+    export interface OrbitTrackInput {
         /**
          * TLE input.
          */
@@ -137,7 +107,7 @@ declare module 'tle.js' {
         isLngLatFormat?: boolean
     }
 
-    export interface getOrbitTrackAsyncInput extends getOrbitTrackInput {
+    export interface OrbitTrackAsyncInput extends OrbitTrackInput {
         /**
          * (Experimental) Time to "cool off" between processing chunks.
          * @default 0
@@ -151,38 +121,17 @@ declare module 'tle.js' {
     }
 
     /**
-     * (Async) Generates an array of lng/lat pairs representing a ground track (orbit track), starting
-     * from startTimeMS and continuing until just before crossing the antemeridian, which is considered the end
-     * of the orbit for convenience.
-     *
-     * Consider pairing this with getLastAntemeridianCrossingTimeMS() to create a full orbit path (see usage
-     * in getGroundTracks()).
+     * Output type for getSatBearing().
      */
-    export function getOrbitTrack(input: getOrbitTrackAsyncInput): Promise<LngLat[]>;
-
-    /**
-     * (Sync) Generates an array of lng/lat pairs representing a ground track (orbit track), starting
-     * from startTimeMS and continuing until just before crossing the antemeridian, which is considered the end
-     * of the orbit for convenience.
-     *
-     * Consider pairing this with getLastAntemeridianCrossingTimeMS() to create a full orbit path (see usage
-     * in getGroundTracksSync()).
-     */
-    export function getOrbitTrackSync(input: getOrbitTrackInput): LngLat[];
-
-
-    export interface getSatBearingOutput {
+    export interface SatBearingOutput {
         degrees: number,
         compass: string
     }
 
     /**
-     * (Experimental) Determines the compass bearing from the perspective of the satellite.
-     * Useful for 3D / pitched map perspectives.
+     * Output type for getSatelliteInfo().
      */
-    export function getSatBearing(tle: TLE, timeMS?: Timestamp): getSatBearingOutput;
-
-    export interface getSatelliteInfoOutput {
+    export interface SatelliteInfoOutput {
         /** (degrees) Satellite compass heading from observer (0 = north, 180 = south). */
         azimuth: number,
         /** (degrees) Satellite elevation from observer (90 is directly overhead). */
@@ -200,32 +149,9 @@ declare module 'tle.js' {
     }
 
     /**
-     * Determines satellite position and look angles from an earth observer.
-     * Note that observer input arguments are only needed if you are interested in observer-relative
-     * outputs (azimuth, elevation, and range).
+     * Input format for getVisibleSatellites().
      */
-    export function getSatelliteInfo(
-        /** TLE input. */
-        tle: TLE,
-        /** Timestamp to get satellite position for. */
-        timestamp: Timestamp,
-        /**
-         * (degrees) Ground observer latitude.  Only needed for azimuth, elevation, and range.
-         * @default 36.9613422
-         */
-        observerLat?: LatitudeDegrees,
-        /**
-         * (degrees) Ground observer longitude.  Only needed for azimuth, elevation, and range.
-         * @default -122.0308
-         */
-        observerLng?: LongitudeDegrees,
-        /**
-         * (km) Ground observer elevation.  Only needed for azimuth, elevation, and range.
-         * @default 0.37
-         */
-        observerHeight?: number): getSatelliteInfoOutput;
-
-    export interface getVisibleSatellitesInput {
+    export interface VisibleSatellitesInput {
         /**
          * (degrees) Ground observer latitude.
          */
@@ -257,9 +183,101 @@ declare module 'tle.js' {
     }
 
     /**
+     * Clears SGP caches to free up memory for long-running apps.
+     */
+    export function clearCache(): undefined;
+
+    /**
+     * Returns the current size of SGP caches.
+     */
+    export function getCacheSizes(): Array<number>;
+
+    /**
+     * (Async) Calculates three orbit tracks.
+     */
+    export function getGroundTracks(input: GroundTracksInput): Promise<ThreeGroundTracks>;
+
+    /**
+     * (Sync) Calculates three orbit tracks.
+     */
+    export function getGroundTracksSync(input: GroundTracksInput): ThreeGroundTracks;
+
+    /**
+     * Determines the last time the satellite crossed the antemeridian.
+     * @param parsedTLE TLE parsed by parseTLE().
+     * @param startTime Relative time to determine last crossing.
+     */
+    export function getLastAntemeridianCrossingTimeMS(parsedTLE: ParsedTLE, startTime: Timestamp): Timestamp;
+
+    /**
+     * 
+     * @param tle TLE input.
+     * @param timestamp Timestamp to get position for.
+     */
+    export function getLatLngObj(tle: TLE, timestamp?: Timestamp): LatLngObject;
+
+    /**
+     * Determines the satellite's position at the time of the TLE epoch (when the TLE was generated).
+     * @param tle TLE input.
+     */
+    export function getLngLatAtEpoch(tle: TLE): LngLat;
+
+    /**
+     * (Async) Generates an array of lng/lat pairs representing a ground track (orbit track), starting
+     * from startTimeMS and continuing until just before crossing the antemeridian, which is considered the end
+     * of the orbit for convenience.
+     *
+     * Consider pairing this with getLastAntemeridianCrossingTimeMS() to create a full orbit path (see usage
+     * in getGroundTracks()).
+     */
+    export function getOrbitTrack(input: OrbitTrackAsyncInput): Promise<LngLat[]>;
+
+    /**
+     * (Sync) Generates an array of lng/lat pairs representing a ground track (orbit track), starting
+     * from startTimeMS and continuing until just before crossing the antemeridian, which is considered the end
+     * of the orbit for convenience.
+     *
+     * Consider pairing this with getLastAntemeridianCrossingTimeMS() to create a full orbit path (see usage
+     * in getGroundTracksSync()).
+     */
+    export function getOrbitTrackSync(input: OrbitTrackInput): LngLat[];
+
+    /**
+     * (Experimental) Determines the compass bearing from the perspective of the satellite.
+     * Useful for 3D / pitched map perspectives.
+     */
+    export function getSatBearing(tle: TLE, timeMS?: Timestamp): SatBearingOutput;
+
+    /**
+     * Determines satellite position and look angles from an earth observer.
+     * Note that observer input arguments are only needed if you are interested in observer-relative
+     * outputs (azimuth, elevation, and range).
+     */
+    export function getSatelliteInfo(
+        /** TLE input. */
+        tle: TLE,
+        /** Timestamp to get satellite position for. */
+        timestamp: Timestamp,
+        /**
+         * (degrees) Ground observer latitude.  Only needed for azimuth, elevation, and range.
+         * @default 36.9613422
+         */
+        observerLat?: LatitudeDegrees,
+        /**
+         * (degrees) Ground observer longitude.  Only needed for azimuth, elevation, and range.
+         * @default -122.0308
+         */
+        observerLng?: LongitudeDegrees,
+        /**
+         * (km) Ground observer elevation.  Only needed for azimuth, elevation, and range.
+         * @default 0.37
+         */
+        observerHeight?: number): SatelliteInfoOutput;
+
+    /**
      * Determines which satellites are currently visible, assuming a completely flat horizon.
      */
-    export function getVisibleSatellites(input: getVisibleSatellitesInput): getSatelliteInfoOutput[];
+    export function getVisibleSatellites(input: VisibleSatellitesInput): SatelliteInfoOutput[];
 
     /**
      * BSTAR drag term. This estimates the effects of atmospheric drag on the satellite's motion.
@@ -521,12 +539,6 @@ declare module 'tle.js' {
      * @param isTLEParsed Bypasses TLE parsing when true.
      */
     export function getAverageOrbitTimeS(tle: TLE): number;
-
-
-
-
-
-
 
     /**
      * Converts string and array TLE formats into a parsed TLE in a consistent object format.
