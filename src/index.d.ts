@@ -549,7 +549,7 @@ declare module 'tle.js' {
      * sign (-).  Everything else is ignored.
      * @param tleLine Single line of a TLE.
      */
-    export function computeChecksum(tleLin: string): number;
+    export function computeChecksum(tleLine: string): number;
 
     /**
      * Clears the TLE parse cache, which may be useful for long-running app.s
