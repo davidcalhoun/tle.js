@@ -79,9 +79,9 @@ declare module 'tle.js' {
     }
 
     /**
-     * Input for getOrbitTrackSync().  Note that getOrbitTrack() uses OrbitTrackAsyncInput instead.
+     * Input for getOrbitTrackSync().  Note that getOrbitTrack() uses OrbitTrackInput instead.
      */
-    export interface OrbitTrackInput {
+    export interface OrbitTrackSyncInput {
         /**
          * TLE input.
          */
@@ -110,9 +110,9 @@ declare module 'tle.js' {
     }
 
     /**
-     * Input for getOrbitTrack().
+     * Input for getOrbitTrack().  Note that getOrbitTrackSync() uses OrbitTrackInputSync instead.
      */
-    export interface OrbitTrackAsyncInput extends OrbitTrackInput {
+    export interface OrbitTrackInput extends OrbitTrackSyncInput {
         /**
          * (Experimental) Time to "cool off" between processing chunks.
          * @default 0
