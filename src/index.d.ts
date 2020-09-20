@@ -137,7 +137,7 @@ declare module 'tle.js' {
         isLngLatFormat?: boolean
     }
 
-    export interface getOrbitTrackInputAsync extends getOrbitTrackInput {
+    export interface getOrbitTrackAsyncInput extends getOrbitTrackInput {
         /**
          * (Experimental) Time to "cool off" between processing chunks.
          * @default 0
@@ -158,7 +158,7 @@ declare module 'tle.js' {
      * Consider pairing this with getLastAntemeridianCrossingTimeMS() to create a full orbit path (see usage
      * in getGroundTracks()).
      */
-    export function getOrbitTrack(input: getOrbitTrackInputAsync): Promise<LngLat[]>;
+    export function getOrbitTrack(input: getOrbitTrackAsyncInput): Promise<LngLat[]>;
 
     /**
      * (Sync) Generates an array of lng/lat pairs representing a ground track (orbit track), starting
