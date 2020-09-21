@@ -29,10 +29,18 @@ declare module 'tle.js' {
      */
     export type Timestamp = number;
 
+    export type Minutes = number;
+
+    export type Seconds = number;
+
+    export type Milliseconds = number;
+
     /**
      * TLE in unknown format, to be normalized by parseTLE().
      */
-    export type TLE = string | string[] | ParsedTLE;
+    export type TLE = string | [string, TLELine, TLELine] | [TLELine, TLELine] | ParsedTLE;
+
+    export type TLELine = string;
 
     /**
      * Three ground track arrays (last, current, and next orbit).
@@ -64,12 +72,12 @@ declare module 'tle.js' {
          * Unix timestamp in milliseconds.
          * @default Current time.
          */
-        startTimeMS?: number,
+        startTimeMS?: Timestamp,
         /**
          * Time in milliseconds between points in the ground track.
          * @default 1000
          */
-        stepMS?: number,
+        stepMS?: Milliseconds,
         /**
          * Whether coords are in [lng, lat] format.
          * @default true
@@ -100,10 +108,13 @@ declare module 'tle.js' {
      * Output of parseTLE().  TLE normalized into a predictable format for fast lookups.
      */
     export interface ParsedTLE {
-        /** Satellite name (only extracted from 3-line TLE inputs). */
+        /**
+         * Satellite name (only extracted from 3-line TLE inputs).
+         * @default "Unknown"
+         */
         name?: string,
         /** Two-line TLE. */
-        tle: [string, string]
+        tle: [TLELine, TLELine]
     }
 
     /**
@@ -129,7 +140,7 @@ declare module 'tle.js' {
          * because they never cross the antemeridian.
          * @default 6000000
          */
-        maxTimeMS?: number,
+        maxTimeMS?: Milliseconds,
         /**
          * Whether to output in [lng, lat] format.
          * @default true
@@ -145,7 +156,7 @@ declare module 'tle.js' {
          * (Experimental) Time to "cool off" between processing chunks.
          * @default 0
          */
-        sleepMS?: number,
+        sleepMS?: Milliseconds,
         /**
          * (Experimental) Satellite positions to calculate in one "chunk" before cooling off.
          * @default 1000
@@ -373,21 +384,23 @@ declare module 'tle.js' {
      */
     export function getChecksum1(tle: TLE, isTLEParsed?: boolean): number;
 
+    export enum SatelliteClassification {
+        Unclassified = "U",
+        Classified = "C",
+        Secret = "S"
+    }
+
     /**
-     * Returns the satellite classification.  For example, an unclassified satellite will return `U`.
-     * Outputs:
-     * 'U' = unclassified
-     * 'C' = classified
-     * 'S' = secret
+     * Returns the satellite classification.
      * 
      * @param tle Input TLE.
      * @param isTLEParsed Bypasses TLE parsing when true.
      * 
      * @example
      * getClassification('1 25544U 98067A   17206.18396726 ...');
-     * 'U'
+     * 'U' // = unclassified
      */
-    export function getClassification(tle: TLE, isTLEParsed?: boolean): string;
+    export function getClassification(tle: TLE, isTLEParsed?: boolean): SatelliteClassification;
 
     /**
      * Returns the TLE epoch day of the year (day of year with fractional portion of the day) when the
@@ -692,10 +705,10 @@ declare module 'tle.js' {
 
     /**
      * Determines the name of a satellite, if present in the first line of a 3-line TLE.  If not found,
-     * returns "Unknown" by default, or the COSPAR id when fallbackToCOSPAR is true.
+     * returns "Unknown" by default (or the COSPAR ID when fallbackToCOSPAR is true).
      *
      * @param tle Input TLE.
-     * @param fallbackToCOSPAR Returns COSPAR id when satellite name isn't found.
+     * @param fallbackToCOSPAR If satellite name isn't found, returns COSPAR ID instead of "Unknown".
      * 
      * @example
      * getSatelliteName('1 25544U 98067A   17206.51418 ...');
@@ -723,7 +736,7 @@ declare module 'tle.js' {
      * getAverageOrbitTimeMS('1 25544U 98067A   17206.51418 ...');
      * 5559037
      */
-    export function getAverageOrbitTimeMS(tle: TLE): number;
+    export function getAverageOrbitTimeMS(tle: TLE): Milliseconds;
 
     /**
      * Determines the average amount of minutes in one orbit.
@@ -735,7 +748,7 @@ declare module 'tle.js' {
      * getAverageOrbitTimeMins('1 25544U 98067A   17206.51418 ...');
      * 92.65061666666666
      */
-    export function getAverageOrbitTimeMins(tle: TLE): number;
+    export function getAverageOrbitTimeMins(tle: TLE): Minutes;
 
     /**
      * Determines the average amount of seconds in one orbit.
@@ -747,7 +760,7 @@ declare module 'tle.js' {
      * getAverageOrbitTimeS('1 25544U 98067A   17206.51418 ...');
      * 5559.037
      */
-    export function getAverageOrbitTimeS(tle: TLE): number;
+    export function getAverageOrbitTimeS(tle: TLE): Seconds;
 
     /**
      * Converts string and array TLE formats into a parsed TLE in a consistent object format.
