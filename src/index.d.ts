@@ -1,5 +1,3 @@
-import { Kilometer } from "satellite.js";
-
 declare module 'tle.js' {
     /**
      * Generic degrees.  Generally 0 to 360 degrees unless otherwise noted.
