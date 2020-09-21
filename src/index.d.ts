@@ -60,6 +60,12 @@ declare module 'tle.js' {
      */
     export type SecondTimeDerivativeOutput = number;
 
+    export enum SatelliteClassification {
+        Unclassified = "U",
+        Classified = "C",
+        Secret = "S"
+    }
+
     /**
      * Input for getGroundTracks() and getGroundTracksSync().
      */
@@ -381,12 +387,6 @@ declare module 'tle.js' {
      * 3
      */
     export function getChecksum1(tle: TLE, isTLEParsed?: boolean): number;
-
-    export enum SatelliteClassification {
-        Unclassified = "U",
-        Classified = "C",
-        Secret = "S"
-    }
 
     /**
      * Returns the satellite classification.
