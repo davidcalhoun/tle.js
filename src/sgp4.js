@@ -95,6 +95,7 @@ export function clearCache() {
  *   velocity: 7.675627442183371
  * }
  * TODO: default to 0,0.
+ * TODO: return error instead of throwing?
  */
 export function getSatelliteInfo(
 	rawTLE,
