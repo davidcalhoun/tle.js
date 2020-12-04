@@ -5,6 +5,7 @@
   "main": "dist/tlejs.umd.js",
   "browser": "dist/tlejs.umd.js",
   "module": "dist/tlejs.esm.js",
+  "types": "dist/tlejs.d.ts",
   "type": "module",
   "engines": {
     "node": ">=12"
