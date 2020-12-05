@@ -82,16 +82,7 @@ const tle = `ISS (ZARYA)
 2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
 ```
 
-In addition to this three-line TLE string, you may also pass in a two-line TLE string, as well
-as an array of two or three line TLEs.
-
-```js
-// Two-line array example.
-const tleArr = [
-  '1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993',
-  '2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660'
-];
-```
+Two-line variants and an array of strings are also accepted.
 
 ## `getLatLngObj(tle, optionalTimestampMS)`
 Computes the latitude/longitude of a spacecraft.  Defaults to the current local time if `optionalTimestampMS` is not passed in.
