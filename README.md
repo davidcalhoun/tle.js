@@ -413,7 +413,7 @@ so software can make reasonable guesses when distant from the original TLE epoch
 
 Usually zero, unless the satellite is manuevering or in a decaying orbit.
 
-* Units: Orbits / day ^ 3.
+* Units: Orbits / day<sup>3</sup>.
 
 ```js
 import { getSecondTimeDerivative } from "tle.js";
