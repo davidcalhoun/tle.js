@@ -270,11 +270,9 @@ For further reading, see [Kelso's article](https://celestrak.com/columns/v04n03/
 
 ### Shared TLE for below examples.
 ```js
-const tle = [
-  'ISS (ZARYA)',
-  '1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993',
-  '2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660'
-];
+const tle = `ISS (ZARYA)
+1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
+2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
 ```
 
 ### `getSatelliteName(tle)`
@@ -413,7 +411,7 @@ so software can make reasonable guesses when distant from the original TLE epoch
 
 Usually zero, unless the satellite is manuevering or in a decaying orbit.
 
-* Units: Orbits / day<sup>3</sup>.
+* Units: Orbits / day<sup>3</sup>
 
 ```js
 import { getSecondTimeDerivative } from "tle.js";
