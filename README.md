@@ -120,7 +120,7 @@ const threeOrbitsArr = await getGroundTracks({
   // Resolution of plotted points.  Defaults to 1000 (plotting a point once for every second).
   stepMS: 1000,
 
-  // Returns points in [lng, lat] order when true, and [lng, lat] order when false.
+  // Returns points in [lng, lat] order when true, and [lat, lng] order when false.
   isLngLatFormat: true
 });
 
