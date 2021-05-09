@@ -233,7 +233,7 @@ export function getLastAntemeridianCrossingTimeMS(tle, timeMS) {
 
 	const time = timeMS || Date.now();
 
-	let step = 1000 * 60 * 10;
+	let step = 1000 * 60 * 3;
 	let curLngLat = [];
 	let lastLngLat = [];
 	let curTimeMS = time;
@@ -247,10 +247,13 @@ export function getLastAntemeridianCrossingTimeMS(tle, timeMS) {
 
 		didCrossAntemeridian = _crossesAntemeridian(lastLngLat[0], curLng);
 		if (didCrossAntemeridian) {
-			// Back up a bit, then keep halving the step increment till we get close enough.
+			// Back up to before we crossed the line.
 			curTimeMS += step;
-			step = step > 20000 ? 20000 : step / 2;
+
+			// Keep narrowing by halving increments.
+			step = step / 2;
 		} else {
+			// Didn't cross yet, so keep incrementing.
 			curTimeMS -= step;
 			lastLngLat = curLngLat;
 		}
@@ -543,17 +546,19 @@ export function getGroundTracks({
 		]);
 	}
 
+	/**
+	 * Buffer time that will be sure to place us well within the previous or next orbit.
+	 */
+	const bufferMS = orbitTimeMS / 5;
+
 	const lastOrbitStartMS = getLastAntemeridianCrossingTimeMS(
 		parsedTLE,
-
-		// TODO: fix this magic math
-		curOrbitStartMS - 10000
+		curOrbitStartMS - bufferMS
 	);
+
 	const nextOrbitStartMS = getLastAntemeridianCrossingTimeMS(
 		parsedTLE,
-
-		// TODO: fix this magic math
-		curOrbitStartMS + orbitTimeMS + 1000 * 60 * 30
+		curOrbitStartMS + orbitTimeMS + bufferMS
 	);
 
 	const groundTrackPromises = [
@@ -637,11 +642,11 @@ export function getGroundTracksSync({
 
 	const lastOrbitStartMS = getLastAntemeridianCrossingTimeMS(
 		parsedTLE,
-		curOrbitStartMS - 10000
+		curOrbitStartMS - (orbitTimeMS / 5)
 	);
 	const nextOrbitStartMS = getLastAntemeridianCrossingTimeMS(
 		parsedTLE,
-		curOrbitStartMS + orbitTimeMS + 1000 * 60 * 30
+		curOrbitStartMS + orbitTimeMS + (orbitTimeMS / 5)
 	);
 
 	const orbitStartTimes = [

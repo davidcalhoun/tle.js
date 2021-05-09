@@ -29,6 +29,10 @@ const tleStr = `ISS (ZARYA)
 1 25544U 98067A   17206.51418347  .00001345  00000-0  27503-4 0  9993
 2 25544  51.6396 207.2711 0006223  72.3525  71.7719 15.54224686 67715`;
 
+const proxima2 = `PROXIMA II              
+1 43696U 18088G   21129.25183023  .00001100  00000-0  45012-4 0  9990
+2 43696  85.0353 221.2351 0019671 158.2001 202.0083 15.22857070138409`;
+
 const tleArr = tleStr.split("\n");
 
 describe("getSatelliteInfo", () => {
@@ -190,8 +194,22 @@ describe("getGroundTracks", () => {
 		const firstLng = coords[0][0][0];
 		const lastLng = coords[0][coords[0].length - 1][0];
 
-		expect(firstLng).toBe(-179.95882804237493);
-		expect(lastLng).toBe(179.96378140395484);
+		expect(firstLng).toBe(-179.9996305056871);
+		expect(lastLng).toBe(179.9939688862288);
+	});
+
+	test("2", async () => {
+		const timestamp = 1620583838732;
+		const result = await getGroundTracks({
+			tle: proxima2,
+			startTimeMS: timestamp
+		});
+		expect(result[0][0][0]).toBeCloseTo(-179.65354);
+		expect(result[0][0][1]).toBeCloseTo(84.57353);
+		expect(result[1][0][0]).toBeCloseTo(-179.68200);
+		expect(result[1][0][1]).toBeCloseTo(85.06215);
+		expect(result[2][0][0]).toBeCloseTo(-179.89417);
+		expect(result[2][0][1]).toBeCloseTo(84.63849);
 	});
 });
 
@@ -209,8 +227,22 @@ describe("getGroundTracksSync", () => {
 
 		const firstLng = coords[0][0][0];
 		const lastLng = coords[0][coords[0].length - 1][0];
-		expect(firstLng).toBe(-179.95882804237493);
-		expect(lastLng).toBe(179.96378140395484);
+		expect(firstLng).toBe(-179.9996305056871);
+		expect(lastLng).toBe(179.9939688862288);
+	});
+
+	test("2", async () => {
+		const timestamp = 1620583838732;
+		const result = await getGroundTracksSync({
+			tle: proxima2,
+			optionalTimeMS: timestamp
+		});
+		expect(result[0][0][0]).toBeCloseTo(-179.65354);
+		expect(result[0][0][1]).toBeCloseTo(84.57353);
+		expect(result[1][0][0]).toBeCloseTo(-179.68200);
+		expect(result[1][0][1]).toBeCloseTo(85.06215);
+		expect(result[2][0][0]).toBeCloseTo(-179.89417);
+		expect(result[2][0][1]).toBeCloseTo(84.63849);
 	});
 });
 
@@ -234,6 +266,20 @@ describe("problematic TLES (geosync, decayed)", () => {
 		const result = getLastAntemeridianCrossingTimeMS(tleStr, timestamp);
 		const expectedResult = -1;
 		expect(result).toEqual(expectedResult);
+	});
+
+	test("getLastAntemeridianCrossingTimeMS 2", () => {
+		const timestamp = 1620579956208;
+		const result = getLastAntemeridianCrossingTimeMS(proxima2, timestamp);
+		const expectedResult = -1;
+		expect((timestamp - result) / 1000 / 60).toBeCloseTo(72.50);
+	});
+
+	test("getLastAntemeridianCrossingTimeMS 3", () => {
+		const timestamp = 1620581856788;
+		const result = getLastAntemeridianCrossingTimeMS(proxima2, timestamp);
+		const expectedResult = -1;
+		expect((timestamp - result) / 1000 / 60).toBeCloseTo(8.976);
 	});
 
 	test("getOrbitTrack", async () => {
