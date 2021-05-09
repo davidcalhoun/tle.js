@@ -640,13 +640,18 @@ export function getGroundTracksSync({
 		return partialGroundTrack;
 	}
 
+	/**
+	 * Buffer time that will be sure to place us well within the previous or next orbit.
+	 */
+	const bufferMS = orbitTimeMS / 5;
+
 	const lastOrbitStartMS = getLastAntemeridianCrossingTimeMS(
 		parsedTLE,
-		curOrbitStartMS - (orbitTimeMS / 5)
+		curOrbitStartMS - bufferMS
 	);
 	const nextOrbitStartMS = getLastAntemeridianCrossingTimeMS(
 		parsedTLE,
-		curOrbitStartMS + orbitTimeMS + (orbitTimeMS / 5)
+		curOrbitStartMS + orbitTimeMS + bufferMS
 	);
 
 	const orbitStartTimes = [
