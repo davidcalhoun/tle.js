@@ -109,6 +109,12 @@ export function parseTLE(sourceTLE) {
 
 	output.tle = tleArray.map(line => line.trim());
 
+	// Check TLE validity.
+	const isValid = isValidTLE(output.tle);
+	if (!isValid) {
+		output.error = "TLE parse error: bad TLE";
+	}
+
 	// Update cache.
 	tleCache[cacheKey] = output;
 
@@ -174,14 +180,14 @@ export function isValidTLE(rawTLE) {
 		return false;
 	}
 
-	// Line number checks.
+	// Fast line number checks.
 	const line1NumberIsValid = lineNumberIsValid(tleObj, 1);
 	const line2NumberIsValid = lineNumberIsValid(tleObj, 2);
 	if (!line1NumberIsValid || !line2NumberIsValid) {
 		return false;
 	}
 
-	// Checksums
+	// Checksum checks.
 	const line1ChecksumIsValid = checksumIsValid(tleObj, 1);
 	const line2ChecksumIsValid = checksumIsValid(tleObj, 2);
 	if (!line1ChecksumIsValid || !line2ChecksumIsValid) {

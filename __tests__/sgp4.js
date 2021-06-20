@@ -1,5 +1,6 @@
 import {
 	clearCache,
+	clearTLEParseCache,
 	getGroundTracks,
 	getGroundTracksSync,
 	getLatLngObj,
@@ -86,6 +87,17 @@ describe("getSatelliteInfo", () => {
 			expect(firstRunTimeNS).toBeGreaterThan(secondRunTimeNS * 2);
 		});
 	});
+
+	test("broken TLE", () => {
+		// Incomplete TLE example, missing the second line.
+		const incompleteTLE = `INMARSAT 3-F5
+		1 25153U 98006B   21168.18180503 -.00000283  00000-0  00000+0 0  9996`;
+		const observerLat = -21.1709;
+		const observerLng = -47.8213;
+		const observerAlt = 0.543;
+
+		expect(() => getSatelliteInfo(incompleteTLE, null, observerLat, observerLng, observerAlt).to.throw());
+	});
 });
 
 describe("getLatLngObj", () => {
@@ -100,6 +112,7 @@ describe("getLatLngObj", () => {
 describe("getOrbitTrack", () => {
 	beforeEach(() => {
 		clearCache();
+		clearTLEParseCache();
 	});
 
 	test("memoizes", async () => {
@@ -132,6 +145,7 @@ describe("getOrbitTrack", () => {
 describe("getOrbitTrackSync", () => {
 	beforeEach(() => {
 		clearCache();
+		clearTLEParseCache();
 	});
 
 	test("memoizes", async () => {
@@ -164,6 +178,7 @@ describe("getOrbitTrackSync", () => {
 describe("getGroundTracks", () => {
 	beforeEach(() => {
 		clearCache();
+		clearTLEParseCache();
 	});
 
 	test("memoizes", async () => {
@@ -216,6 +231,7 @@ describe("getGroundTracks", () => {
 describe("getGroundTracksSync", () => {
 	beforeEach(() => {
 		clearCache();
+		clearTLEParseCache();
 	});
 
 	test("1", () => {
@@ -323,6 +339,7 @@ describe("problematic TLES (geosync, decayed)", () => {
 describe("getVisibleSatellites", () => {
 	beforeEach(() => {
 		clearCache();
+		clearTLEParseCache();
 	});
 
 	let tleText;

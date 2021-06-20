@@ -106,7 +106,11 @@ export function getSatelliteInfo(
 ) {
 	const timestamp = rawTimestamp || Date.now();
 
-	const { tle } = parseTLE(rawTLE);
+	const { tle, error: parseError } = parseTLE(rawTLE);
+
+	if (parseError) {
+		throw new Error(parseError);
+	}
 
 	const defaultObserverPosition = {
 		lat: 36.9613422,
