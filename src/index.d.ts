@@ -723,7 +723,7 @@ declare module 'tle.js' {
      * getEpochTimestamp('1 25544U 98067A   17206.51418 ...');
      * 1500956694771
      */
-    export function getEpochTimestamp(): Timestamp;
+    export function getEpochTimestamp(tle: TLE): Timestamp;
 
     /**
      * Determines the average amount of milliseconds in one orbit.
