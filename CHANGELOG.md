@@ -1,0 +1,26 @@
+-   `4.5.0`: Node.js: add conditional exports to package.json. This should help clear up issues around resolving ES Modules.
+-   `4.2.0`: Added TypeScript support.
+-   `4.1.0`: Fixed internal bug with caching TLE parsing keys. Added `clearTLEParseCache()` to `parsing.js`. Mostly for tests, but is also be useful for long-running apps that need to free up some memory.
+-   `4.0.0`
+    -   **Note: this version requires Node 10 and up.**
+    -   Major dependency updates (including upgrading to satellite.js v4).
+    -   Better support for 3-line TLE variants with a '0 ' prefix on the first line, preceding the satellite name (impacts the return value when using `getSatelliteName()`).
+    -   Fix means of returning a Promise in `getOrbitTrack()` and `getGroundTracks()`
+    -   Various linting.
+-   `3.1.0` - add support for Node 12 with a special CommonJS build target (see below for usage)
+-   `3.0.0` - breaking changes! Code refactoring and rewrite
+    -   Code rewritten to properly take advantage of tree shaking (resulting in smaller code on your end!).
+    -   `getGroundTracks()` is now async by default and returns a Promise. It also now accepts an object of options, and returns [lng, lat] pairs by default instead of [lat, lng] pairs. To use the synchronous version of the code, use `getGroundTracksSync()` instead.
+    -   In general, functions now default to [lng, lat] output
+    -   Renamed `getGroundTrack()` to `getGroundTracks()`
+    -   Renamed `getSatelliteNumber()` to `getCatalogNumber()`
+    -   Renamed `getOrbitTimeMS()` to `getAverageOrbitTimeMS()`
+    -   Renamed `getTLEEpochTimestamp()` to `getEpochTimestamp()`
+    -   Renamed `getLatLon()` to `getLatLngObj()`
+    -   Changed `getLatLonAtEpoch()` to `getLngLatAtEpoch()`
+    -   Added `getCOSPAR()` getter, which is useful for identifying satellites from 2-line elements lacking a name.
+    -   Added `clearCache()` to clear out memoized data from SGP4 helpers. This should help clear out memory for long-running apps.
+    -   Switched from Mocha to Jest for testing, added a few new tests.
+    -   Added Rollup for exporting ESM and UMD outputs.
+    -   Added better code documentation.
+-   `2.1.3` - initial add of async ground track functions, `getVisibleSatellites()`
