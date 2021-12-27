@@ -10,7 +10,7 @@
     "import": "./dist/tlejs.esm.js",
     "require": "./dist/tlejs.umd.js"
   },
-  "types": "dist/tlejs.d.ts",
+  "types": "./dist/tlejs.d.ts",
   "engines": {
     "node": ">=12"
   },
