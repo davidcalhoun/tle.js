@@ -60,9 +60,9 @@ More info on TLEs:
     -   Added better code documentation.
 -   `2.1.3` - initial add of async ground track functions, `getVisibleSatellites()`
 
-## Support for Node 10-12
+## Support for CommonJS (e.g.Node <=12)
 
-If you are using Node 10-12, you will need to point to the special CommonJS build target. Simply change the `import` format in the following examples to this `require` format:
+If you are using an older version of Node or a package that doesn't yet have ES Module support (and are getting the error `ERR_REQUIRE_ESM`), you will need to point to the special CommonJS build target. Simply change the `import` format in the following examples to this `require` format:
 
 ```diff
 -import { getLatLngObj } from "tle.js";
