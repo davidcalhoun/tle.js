@@ -8,7 +8,7 @@
   "module": "./dist/tlejs.esm.js",
   "exports": {
     "import": "./dist/tlejs.esm.js",
-    "require": "./dist/tlejs.umd.js"
+    "require": "./dist/tlejs.cjs"
   },
   "types": "./dist/tlejs.d.ts",
   "engines": {
