@@ -150,7 +150,7 @@ export function computeChecksum(tleLineStr) {
 		}
 
 		return parsedSum;
-	});
+	}, 0);
 
 	return checksum % 10;
 }
