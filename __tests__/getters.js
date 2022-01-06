@@ -209,6 +209,13 @@ describe("getters", () => {
 			expect(getEpochTimestamp(tleStr)).toEqual(1500956694771);
 		});
 
+		test("getEpochTimestamp 2 with untrimmed spaces", () => {
+			const tle = `ISS (ZARYA)
+		                 1 25544U 98067A   22005.58472471  .00003968  00000+0  77828-4 0  9998  
+		                 2 25544  51.6440  61.8159 0005338   6.5542 157.7978 15.49868185319960  `;
+			expect(getEpochTimestamp(tle)).toEqual(1641391320214);
+		});
+
 		test("getAverageOrbitTimeMins", () => {
 			expect(getAverageOrbitTimeMins(tleStr)).toEqual(92.65061666666666);
 		});
