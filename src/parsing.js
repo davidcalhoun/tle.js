@@ -57,7 +57,7 @@ const acceptedTLETypes = [
 	_DATA_TYPES._STRING,
 	_DATA_TYPES._OBJECT
 ];
-export function parseTLE(sourceTLE) {
+export function parseTLE(sourceTLE, fastParse = false) {
 	const type = getType(sourceTLE);
 	const output = {};
 	let tleArray = [];
@@ -110,9 +110,11 @@ export function parseTLE(sourceTLE) {
 	output.tle = tleArray.map(line => line.trim());
 
 	// Check TLE validity.
-	const isValid = isValidTLE(output.tle);
-	if (!isValid) {
-		output.error = "TLE parse error: bad TLE";
+	if (!fastParse) {
+		const isValid = isValidTLE(output.tle);
+		if (!isValid) {
+			output.error = "TLE parse error: bad TLE";
+		}
 	}
 
 	// Update cache.
