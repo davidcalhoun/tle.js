@@ -57,7 +57,7 @@ const acceptedTLETypes = [
 	_DATA_TYPES._STRING,
 	_DATA_TYPES._OBJECT
 ];
-export function parseTLE(sourceTLE, fastParse = false) {
+export function parseTLE(sourceTLE, fastParse = true) {
 	const type = getType(sourceTLE);
 	const output = {};
 	let tleArray = [];

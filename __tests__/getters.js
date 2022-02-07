@@ -71,30 +71,30 @@ describe("getters", () => {
 			expect(getCatalogNumber1(tleStr)).toEqual(25544);
 		});
 
-		test("getCatalogNumber1 with fast parse", () => {
-			const foo1Tle = `NAVSTAR 36 (USA 100)
-			1 23027U 94016A   19285.20755132 -.00000086  00000-0  00000+0 0  9998
-			2 23027  54.9322   0.6920 0146060  38.6267  29.7804  2.00563499187506`
+		// test("getCatalogNumber1 with fast parse", () => {
+		// 	const foo1Tle = `NAVSTAR 36 (USA 100)
+		// 	1 23027U 94016A   19285.20755132 -.00000086  00000-0  00000+0 0  9998
+		// 	2 23027  54.9322   0.6920 0146060  38.6267  29.7804  2.00563499187506`
 
-			const foo2Tle = `CALSPHERE 2
-			1 00902U 64063E   19284.79850769  .00000028  00000-0  27716-4 0  9992
-			2 00902  90.1650  26.9325 0020194 109.7527  15.5497 13.52676491526332`
+		// 	const foo2Tle = `CALSPHERE 2
+		// 	1 00902U 64063E   19284.79850769  .00000028  00000-0  27716-4 0  9992
+		// 	2 00902  90.1650  26.9325 0020194 109.7527  15.5497 13.52676491526332`
 
-			let slowParse;
-			let fastParse;
-			let slowTimeMS = Date.now();
+		// 	let slowParse;
+		// 	let fastParse;
+		// 	let slowTimeMS = Date.now();
 
-			slowParse = getCatalogNumber1(foo1Tle, false);
-			slowTimeMS = Date.now() - slowTimeMS;
+		// 	slowParse = getCatalogNumber1(foo1Tle, false);
+		// 	slowTimeMS = Date.now() - slowTimeMS;
 
-			let fastTimeMS = Date.now();
-			fastParse = getCatalogNumber1(foo2Tle, false, true);
-			fastTimeMS = Date.now() - fastTimeMS;
+		// 	let fastTimeMS = Date.now();
+		// 	fastParse = getCatalogNumber1(foo2Tle, false, true);
+		// 	fastTimeMS = Date.now() - fastTimeMS;
 
-			expect(slowParse).toEqual(23027);
-			expect(fastParse).toEqual(902);
-			expect(slowTimeMS > fastTimeMS).toBe(true);
-		});
+		// 	expect(slowParse).toEqual(23027);
+		// 	expect(fastParse).toEqual(902);
+		// 	expect(slowTimeMS > fastTimeMS).toBe(true);
+		// });
 
 		test("getClassification", () => {
 			expect(getClassification(tleStr)).toEqual("U");

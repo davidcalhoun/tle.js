@@ -24,8 +24,8 @@ import { getFromTLE } from "./utils";
  * @param {Object} definition From `line-1-definitions.js`
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
-export function getFromLine1(tle, definition, isTLEParsed = false, fastParse = false) {
-	const parsedTLE = isTLEParsed ? tle : parseTLE(tle, fastParse);
+export function getFromLine1(tle, definition, isTLEParsed = false) {
+	const parsedTLE = isTLEParsed ? tle : parseTLE(tle);
 
 	return getFromTLE(parsedTLE, 1, definition);
 }
@@ -47,8 +47,8 @@ export function getLineNumber1(tle, isTLEParsed) {
  * @param {String|Array} tle Two or three line TLE
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
-export function getCatalogNumber1(tle, isTLEParsed, fastParse) {
-	return getFromLine1(tle, catalogNumber1, isTLEParsed, fastParse);
+export function getCatalogNumber1(tle, isTLEParsed) {
+	return getFromLine1(tle, catalogNumber1, isTLEParsed);
 }
 
 /**
