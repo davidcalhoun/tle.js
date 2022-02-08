@@ -55,7 +55,7 @@ export const rightAscension = {
 };
 
 /**
- * Orbital eccentricity, decimal point assumed. All artifical Earth satellites have an
+ * Orbital eccentricity, decimal point assumed. All artificial Earth satellites have an
  * eccentricity between 0 (perfect circle) and 1 (parabolic orbit).
  *
  * Range: 0 to 1
