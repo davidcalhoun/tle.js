@@ -15,7 +15,7 @@
     "node": ">=12"
   },
   "scripts": {
-    "build": "rm -rf dist && rollup --config",
+    "build": "rimraf dist && rollup --config",
     "prepare": "npm run build",
     "test": "jest",
     "patch": "npm version patch && npm run npm-publish",
@@ -63,6 +63,7 @@
     "jest": "^27.4.5",
     "prettier": "^2.5.1",
     "ramda": "^0.28.0",
+    "rimraf": "^3.0.2",
     "rollup": "^2.62.0",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-dts": "^4.1.0",
