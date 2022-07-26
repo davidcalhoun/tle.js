@@ -15,6 +15,9 @@ export const lineNumber1 = {
 /**
  * NORAD satellite catalog number (e.g. Sputnik's rocket was number 00001).
  * See https://en.wikipedia.org/wiki/Satellite_Catalog_Number
+ * 
+ * NOTE: This will not handle Alpha-5 satellites.
+ * See https://www.space-track.org/documentation#tle-alpha5
  *
  * Range: 0 to 99999
  * Example: 25544
@@ -28,7 +31,7 @@ export const catalogNumber1 = {
 /**
  * Satellite classification.
  * 'U' = unclassified
- * 'C' = classified
+ * 'C' = confidential
  * 'S' = secret
  *
  * Example: 'U'
@@ -81,6 +84,8 @@ export const intDesignatorPieceOfLaunch = {
 
 /**
  * Year when the TLE was generated (TLE epoch), last two digits.
+ * 
+ * 57 to 99 = 1900s, 00-56 = 2000s
  *
  * Range: 00 to 99
  * Example: 17
@@ -147,7 +152,7 @@ export const bstarDrag = {
 };
 
 /**
- * Private value - used by Air Force Space Command to reference the orbit model used to
+ * Private value - used by United States Space Force to reference the orbit model used to
  * generate the TLE.  Will always be seen as zero externally (e.g. by "us", unless you are
  * "them" - in which case, hello!).
  *
