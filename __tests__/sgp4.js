@@ -1,4 +1,5 @@
 import {
+	getCacheSizes,
 	clearCache,
 	clearTLEParseCache,
 	getGroundTracks,
@@ -106,6 +107,25 @@ describe("getLatLngObj", () => {
 		const result = getLatLngObj(tleStr, timestamp);
 		expect(result.lat).toBeCloseTo(34.439283990227125, 4);
 		expect(result.lng).toBeCloseTo(-117.4756112236452, 4);
+	});
+});
+
+describe('clearCache', () => {
+	test('clears the cache', () => {
+		const timestamp = 1501039268000;
+		const bigBearLatLng = {
+			lat: 34.243889,
+			lng: -116.911389
+		};
+		getSatelliteInfo(
+			tleStr,
+			timestamp,
+			bigBearLatLng.lat,
+			bigBearLatLng.lng
+		);
+		expect(getCacheSizes()).toEqual([3,0,0,0]);
+		clearCache();
+		expect(getCacheSizes()).toEqual([0,0,0,0]);
 	});
 });
 
