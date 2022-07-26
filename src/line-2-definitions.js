@@ -108,7 +108,7 @@ export const meanMotion = {
 };
 
 /**
- * Total satellite revolutions when this TLE was generated. This number seems to roll over
+ * Total satellite revolutions when this TLE was generated. This number rolls over
  * (e.g. 99999 -> 0).
  *
  * Range: 0 to 99999
