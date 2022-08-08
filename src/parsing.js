@@ -10,7 +10,6 @@ const _ERRORS = {
 export function isTLEObj(obj) {
 	return (
 		typeof obj === _DATA_TYPES._OBJECT &&
-		obj.name &&
 		obj.tle &&
 		getType(obj.tle) === _DATA_TYPES._ARRAY &&
 		obj.tle.length === 2
