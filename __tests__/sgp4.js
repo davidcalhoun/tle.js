@@ -324,7 +324,8 @@ describe("problematic TLES (geosync, decayed)", () => {
 			tle: tleStr,
 			startTimeMS: timestamp
 		});
-		expect(result.length).toEqual(6001);
+		// Time until it reaches the antemeridian
+		expect(result.length).toEqual(172809);
 	});
 
 	test("getGroundTracks", async () => {
