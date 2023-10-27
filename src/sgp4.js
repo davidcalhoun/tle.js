@@ -390,10 +390,12 @@ export async function getOrbitTrack({
 	stepMS = 1000,
 	sleepMS = 0,
 	jobChunkSize = 1000,
-	maxTimeMS = 6000000,
+	maxTimeMS,
 	isLngLatFormat = true
 }) {
 	const { tle: tleArr } = parseTLE(tle);
+
+	maxTimeMS ??= getAverageOrbitTimeMS(tleArr) * 1.5;
 
 	const startS = (startTimeMS / 1000).toFixed();
 	const cacheKey = `${tleArr[0]}-${startS}-${stepMS}-${isLngLatFormat}`;
