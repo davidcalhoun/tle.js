@@ -54,8 +54,8 @@ export function getCacheSizes() {
  * Clears SGP caches to free up memory for long-running apps.
  */
 export function clearCache() {
-	caches.forEach((_cache, idx) => {
-		caches[idx] = {};
+	caches.forEach((_cache) => {
+		Object.keys(_cache).forEach(key => delete _cache[key]);
 	});
 }
 
