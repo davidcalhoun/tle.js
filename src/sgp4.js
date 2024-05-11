@@ -620,7 +620,7 @@ export function getGroundTracks({
 export function getGroundTracksSync({
 	tle,
 	stepMS = 1000,
-	optionalTimeMS = Date.now(), // TODO: change to startTimeMS for consistency
+	startTimeMS = Date.now(),
 	isLngLatFormat = true
 }) {
 	const parsedTLE = parseTLE(tle);
@@ -629,7 +629,7 @@ export function getGroundTracksSync({
 	const orbitTimeMS = getAverageOrbitTimeMS(tleArr);
 	const curOrbitStartMS = getLastAntemeridianCrossingTimeMS(
 		parsedTLE,
-		optionalTimeMS
+		startTimeMS
 	);
 
 	const foundCrossing = curOrbitStartMS !== -1;
@@ -638,7 +638,7 @@ export function getGroundTracksSync({
 
 		const partialGroundTrack = getOrbitTrackSync({
 			tle: parsedTLE,
-			startTimeMS: optionalTimeMS,
+			startTimeMS: startTimeMS,
 			stepMS: _MS_IN_A_MINUTE,
 			maxTimeMS: _MS_IN_A_DAY / 4
 		});
