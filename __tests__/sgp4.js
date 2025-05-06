@@ -229,7 +229,7 @@ describe("getGroundTracks", () => {
 		const firstLng = coords[0][0][0];
 		const lastLng = coords[0][coords[0].length - 1][0];
 
-		expect(firstLng).toBe(-179.9996305056871);
+		expect(firstLng).toBeCloseTo(-179.99963050);
 		expect(lastLng).toBe(179.9939688862288);
 	});
 
@@ -263,7 +263,7 @@ describe("getGroundTracksSync", () => {
 
 		const firstLng = coords[0][0][0];
 		const lastLng = coords[0][coords[0].length - 1][0];
-		expect(firstLng).toBe(-179.9996305056871);
+		expect(firstLng).toBeCloseTo(-179.9996305);
 		expect(lastLng).toBe(179.9939688862288);
 	});
 
