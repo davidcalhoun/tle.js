@@ -257,7 +257,7 @@ describe("getGroundTracksSync", () => {
 	test("1", () => {
 		const coords = getGroundTracksSync({
 			tle: tleArr,
-			optionalTimeMS: 1501039265000
+			startTimeMS: 1501039265000
 		});
 		expect(coords.length).toBe(3);
 
@@ -271,7 +271,7 @@ describe("getGroundTracksSync", () => {
 		const timestamp = 1620583838732;
 		const result = await getGroundTracksSync({
 			tle: proxima2,
-			optionalTimeMS: timestamp
+			startTimeMS: timestamp
 		});
 		expect(result[0][0][0]).toBeCloseTo(-179.65354);
 		expect(result[0][0][1]).toBeCloseTo(84.57353);
