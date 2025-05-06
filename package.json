@@ -1,72 +1,63 @@
 {
-  "name": "tle.js",
-  "version": "4.9.0",
-  "description": "Satellite TLE tools in JavaScript.",
-  "type": "module",
-  "main": "./dist/tlejs.umd.js",
-  "browser": "./dist/tlejs.umd.js",
-  "module": "./dist/tlejs.esm.js",
-  "exports": {
-    "import": "./dist/tlejs.esm.js",
-    "require": "./dist/tlejs.cjs"
-  },
-  "types": "./dist/tlejs.d.ts",
-  "engines": {
-    "node": ">=12"
-  },
-  "scripts": {
-    "build": "rimraf dist && rollup --config",
-    "prepare": "npm run build",
-    "test": "jest",
-    "patch": "npm version patch && npm run npm-publish",
-    "minor": "npm version minor && npm run npm-publish",
-    "major": "npm version major && npm run npm-publish",
-    "npm-publish": "npm publish && git push && git push --tags",
-    "bump": "npm outdated & npm update && npm audit fix && npm test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/davidcalhoun/tle.js.git"
-  },
-  "keywords": [
-    "satellite",
-    "satellites",
-    "tle",
-    "two-line element set",
-    "space",
-    "tle",
-    "geodesy",
-    "geodetics",
-    "satellite.js"
-  ],
-  "author": "David Calhoun",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/davidcalhoun/tle.js/issues"
-  },
-  "homepage": "https://github.com/davidcalhoun/tle.js",
-  "transform": {
-    "^.+\\.[t|j]sx?$": "babel-jest"
-  },
-  "dependencies": {
-    "satellite.js": "^4.1.3"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.16.5",
-    "@babel/preset-env": "^7.16.5",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^29.0.2",
-    "eslint": "^8.5.0",
-    "eslint-plugin-import": "^2.25.3",
-    "eslint-plugin-jsx-a11y": "^6.5.1",
-    "eslint-plugin-react": "^7.28.0",
-    "jest": "^29.0.2",
-    "prettier": "^2.5.1",
-    "ramda": "^0.28.0",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.62.0",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-dts": "^4.1.0",
-    "typescript": "^4.5.4"
-  }
+    "name": "tle.js",
+    "version": "4.9.0",
+    "description": "Satellite TLE tools in JavaScript.",
+    "main": "src/index.js",
+    "type": "module",
+    "types": "src/index.d.ts",
+    "engines": {
+        "node": ">=20"
+    },
+    "scripts": {
+        "bump": "npm outdated & npm update && npm audit fix && npm test",
+        "lint": "eslint .",
+        "major": "npm version major && npm run npm-publish",
+        "minor": "npm version minor && npm run npm-publish",
+        "npm-publish": "npm publish && git push && git push --tags",
+        "patch": "npm version patch && npm run npm-publish",
+        "test": "jest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/davidcalhoun/tle.js.git"
+    },
+    "keywords": [
+        "satellite",
+        "satellites",
+        "tle",
+        "two-line element set",
+        "space",
+        "tle",
+        "geodesy",
+        "geodetics",
+        "satellite.js"
+    ],
+    "author": "David Calhoun",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/davidcalhoun/tle.js/issues"
+    },
+    "homepage": "https://github.com/davidcalhoun/tle.js",
+    "transform": {
+        "^.+\\.[t|j]sx?$": "babel-jest"
+    },
+    "dependencies": {
+        "satellite.js": "^6.0.0"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.27.1",
+        "@babel/preset-env": "^7.27.1",
+        "babel-eslint": "^10.1.0",
+        "babel-jest": "^29.7.0",
+        "eslint": "^9.26.0",
+        "eslint-plugin-import": "^2.31.0",
+        "eslint-plugin-jsx-a11y": "^6.10.2",
+        "eslint-plugin-react": "^7.37.5",
+        "globals": "^16.0.0",
+        "jest": "^29.7.0",
+        "prettier": "^3.5.3",
+        "ramda": "^0.30.1",
+        "rimraf": "^6.0.1",
+        "typescript": "^5.8.3"
+    }
 }

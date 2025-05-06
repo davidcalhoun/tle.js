@@ -29,25 +29,8 @@ Note that TLEs should be updated at least daily to avoid drift in calculations. 
 
 More info on TLEs:
 
--   [Two-line element set (Wikipedia)](https://en.wikipedia.org/wiki/Two-line_element_set)
--   [TLE details from CASTOR](http://castor2.ca/03_Mechanics/03_TLE/)
-
-## Support for CommonJS (e.g. Node <=12)
-
-If you are using an older version of Node or a package that doesn't yet have ES Module support (and are getting the error `ERR_REQUIRE_ESM`), you will need to point to the special CommonJS build target. Simply change the `import` format in the following examples to this `require` format:
-
-```diff
--import { getLatLngObj } from "tle.js";
-+const { getLatLngObj } = require("tle.js/dist/tlejs.cjs");
-```
-
-## Support for Node 9 and older
-
-Please install `tle.js` version '3.x.x':
-
-```bash
-npm i tle.js@3
-```
+- [Two-line element set (Wikipedia)](https://en.wikipedia.org/wiki/Two-line_element_set)
+- [TLE details from CASTOR](http://castor2.ca/03_Mechanics/03_TLE/)
 
 ## Shared code
 
@@ -267,7 +250,7 @@ Returns the [NORAD satellite catalog number](https://en.wikipedia.org/wiki/Satel
 Used since Sputnik was launched in 1957 (Sputnik's rocket was 00001, while Sputnik itself was
 00002).
 
--   Range: 0 to 99999
+- Range: 0 to 99999
 
 ```js
 import { getCatalogNumber } from "tle.js";
@@ -289,9 +272,9 @@ getCOSPAR(tle);
 
 Returns the satellite classification.
 
--   'U' = unclassified
--   'C' = classified
--   'S' = secret
+- 'U' = unclassified
+- 'C' = classified
+- 'S' = secret
 
 ```js
 import { getClassification } from "tle.js";
@@ -306,7 +289,7 @@ Launch year (last two digits) ([international designator](https://en.wikipedia.o
 Note that a value between 57 and 99 means the launch year was in the 1900s, while a value between
 00 and 56 means the launch year was in the 2000s.
 
--   Range: 00 to 99
+- Range: 00 to 99
 
 ```js
 import { getIntDesignatorYear } from "tle.js";
@@ -319,7 +302,7 @@ getIntDesignatorYear(tle);
 Launch number of the year
 ([international designator](https://en.wikipedia.org/wiki/International_Designator)), which makes up part of the COSPAR id.
 
--   Range: 1 to 999
+- Range: 1 to 999
 
 ```js
 import { getIntDesignatorLaunchNumber } from "tle.js";
@@ -332,7 +315,7 @@ getIntDesignatorLaunchNumber(tle);
 Piece of the launch
 ([international designator](https://en.wikipedia.org/wiki/International_Designator)), which makes up part of the COSPAR id.
 
--   Range: A to ZZZ
+- Range: A to ZZZ
 
 ```js
 import { getIntDesignatorPieceOfLaunch } from "tle.js";
@@ -344,7 +327,7 @@ getIntDesignatorPieceOfLaunch(tle);
 
 TLE epoch year (last two digits) when the TLE was generated.
 
--   Range: 00 to 99
+- Range: 00 to 99
 
 ```js
 import { getEpochYear } from "tle.js";
@@ -357,7 +340,7 @@ getEpochYear(tle);
 TLE epoch day of the year (day of year with fractional portion of the day) when the TLE was
 generated.
 
--   Range: 1 to 365.99999999
+- Range: 1 to 365.99999999
 
 ```js
 import { getEpochDay } from "tle.js";
@@ -382,7 +365,7 @@ two, measured in orbits per day per day (orbits/day<sup>2</sup>). Defines how me
 from day to day, so TLE propagators can still be used to make reasonable guesses when distant
 from the original TLE epoch.
 
--   Units: Orbits / day<sup>2</sup>
+- Units: Orbits / day<sup>2</sup>
 
 ```js
 import { getFirstTimeDerivative } from "tle.js";
@@ -399,7 +382,7 @@ so software can make reasonable guesses when distant from the original TLE epoch
 
 Usually zero, unless the satellite is manuevering or in a decaying orbit.
 
--   Units: Orbits / day<sup>3</sup>
+- Units: Orbits / day<sup>3</sup>
 
 ```js
 import { getSecondTimeDerivative } from "tle.js";
@@ -414,7 +397,7 @@ Note: the original value in TLE is `00000-0` (= `0.0 x 10`<sup>`0`</sup> = `0`).
 [BSTAR](https://en.wikipedia.org/wiki/BSTAR) drag term. This estimates the effects of atmospheric
 drag on the satellite's motion.
 
--   Units: EarthRadii<sup>-1</sup>
+- Units: EarthRadii<sup>-1</sup>
 
 ```js
 import { getBstarDrag } from "tle.js";
@@ -441,7 +424,7 @@ getOrbitModel(tle);
 TLE element set number, incremented for each new TLE generated since launch. 999 seems to mean the
 TLE has maxed out.
 
--   Range: Technically 1 to 9999, though in practice the maximum number seems to be 999.
+- Range: Technically 1 to 9999, though in practice the maximum number seems to be 999.
 
 ```js
 import { getTleSetNumber } from "tle.js";
@@ -453,7 +436,7 @@ getTleSetNumber(tle);
 
 TLE line 1 checksum (modulo 10), for verifying the integrity of this line of the TLE. Note that letters, blanks, periods, and plus signs are counted as 0, while minus signs are counted as 1.
 
--   Range: 0 to 9
+- Range: 0 to 9
 
 ```js
 import { getChecksum1 } from "tle.js";
@@ -479,8 +462,8 @@ expectedChecksum === computedChecksum;
 equatorial plane in degrees. 0 to 90 degrees is a prograde orbit and 90 to 180 degrees is a
 retrograde orbit.
 
--   Units: degrees
--   Range: 0 to 180
+- Units: degrees
+- Range: 0 to 180
 
 ```js
 import { getInclination } from "tle.js";
@@ -494,8 +477,8 @@ getInclination(tle);
 in degrees. Essentially, this is the angle of the satellite as it crosses northward (ascending)
 across the Earth's equator (equatorial plane).
 
--   Units: degrees
--   Range: 0 to 359.9999
+- Units: degrees
+- Range: 0 to 359.9999
 
 ```js
 import { getRightAscension } from "tle.js";
@@ -509,7 +492,7 @@ getRightAscension(tle);
 All artificial Earth satellites have an eccentricity between 0 (perfect circle) and 1 (parabolic
 orbit).
 
--   Range: 0 to 1
+- Range: 0 to 1
 
 ```js
 import { getEccentricity } from "tle.js";
@@ -524,8 +507,8 @@ Note that the value in the original TLE is `0006317`, with the preceding decimal
 
 [Argument of perigee](https://en.wikipedia.org/wiki/Argument_of_perigee).
 
--   Units: degrees
--   Range: 0 to 359.9999
+- Units: degrees
+- Range: 0 to 359.9999
 
 ```js
 import { getPerigee } from "tle.js";
@@ -538,8 +521,8 @@ getPerigee(tle);
 [Mean Anomaly](https://en.wikipedia.org/wiki/Mean_Anomaly). Indicates where the satellite was
 located within its orbit at the time of the TLE epoch.
 
--   Units: degrees
--   Range: 0 to 359.9999
+- Units: degrees
+- Range: 0 to 359.9999
 
 ```js
 import { getMeanAnomaly } from "tle.js";
@@ -551,8 +534,8 @@ getMeanAnomaly(tle);
 
 Revolutions around the Earth per day ([mean motion](https://en.wikipedia.org/wiki/Mean_Motion)).
 
--   Units: revs per day
--   Range: 0 to 17 (theoretically)
+- Units: revs per day
+- Range: 0 to 17 (theoretically)
 
 ```js
 import { getMeanMotion } from "tle.js";
@@ -565,8 +548,8 @@ getMeanMotion(tle);
 Total satellite revolutions when this TLE was generated. This number seems to roll over (e.g.
 99999 -> 0).
 
--   Units: revs
--   Range: 0 to 99999
+- Units: revs
+- Range: 0 to 99999
 
 ```js
 import { getRevNumberAtEpoch } from "tle.js";
@@ -578,7 +561,7 @@ getRevNumberAtEpoch(tle);
 
 TLE line 2 checksum (modulo 10) for verifying the integrity of this line of the TLE.
 
--   Range: 0 to 9
+- Range: 0 to 9
 
 ```js
 import { getChecksum2 } from "tle.js";
