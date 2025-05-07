@@ -1,5 +1,5 @@
-import { _DATA_TYPES } from './constants';
-import { getType } from './utils';
+import { _DATA_TYPES } from './constants.js';
+import { getType } from './utils.js';
 
 const _ERRORS = {
     _TYPE: (context = '', expected = [], got = '') =>

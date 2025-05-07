@@ -1,17 +1,17 @@
-import { parseTLE } from "./parsing";
+import { parseTLE } from './parsing.js';
 import {
-	catalogNumber2,
-	checksum2,
-	eccentricity,
-	inclination,
-	lineNumber2,
-	meanAnomaly,
-	meanMotion,
-	perigee,
-	revNumberAtEpoch,
-	rightAscension
-} from "./line-2-definitions";
-import { getFromTLE } from "./utils";
+    catalogNumber2,
+    checksum2,
+    eccentricity,
+    inclination,
+    lineNumber2,
+    meanAnomaly,
+    meanMotion,
+    perigee,
+    revNumberAtEpoch,
+    rightAscension,
+} from './line-2-definitions.js';
+import { getFromTLE } from './utils.js';
 
 /**
  * General helper to get a piece of data from the second line of a TLE.
@@ -21,9 +21,9 @@ import { getFromTLE } from "./utils";
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getFromLine2(tle, definition, isTLEParsed = false) {
-	const parsedTLE = isTLEParsed ? tle : parseTLE(tle);
+    const parsedTLE = isTLEParsed ? tle : parseTLE(tle);
 
-	return getFromTLE(parsedTLE, 2, definition);
+    return getFromTLE(parsedTLE, 2, definition);
 }
 
 /**
@@ -33,7 +33,7 @@ export function getFromLine2(tle, definition, isTLEParsed = false) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getLineNumber2(tle, isTLEParsed) {
-	return getFromLine2(tle, lineNumber2, isTLEParsed);
+    return getFromLine2(tle, lineNumber2, isTLEParsed);
 }
 
 /**
@@ -43,7 +43,7 @@ export function getLineNumber2(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getCatalogNumber2(tle, isTLEParsed) {
-	return getFromLine2(tle, catalogNumber2, isTLEParsed);
+    return getFromLine2(tle, catalogNumber2, isTLEParsed);
 }
 
 /**
@@ -55,7 +55,7 @@ export function getCatalogNumber2(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getInclination(tle, isTLEParsed) {
-	return getFromLine2(tle, inclination, isTLEParsed);
+    return getFromLine2(tle, inclination, isTLEParsed);
 }
 
 /**
@@ -67,7 +67,7 @@ export function getInclination(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getRightAscension(tle, isTLEParsed) {
-	return getFromLine2(tle, rightAscension, isTLEParsed);
+    return getFromLine2(tle, rightAscension, isTLEParsed);
 }
 
 /**
@@ -79,7 +79,7 @@ export function getRightAscension(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getEccentricity(tle, isTLEParsed) {
-	return getFromLine2(tle, eccentricity, isTLEParsed);
+    return getFromLine2(tle, eccentricity, isTLEParsed);
 }
 
 /**
@@ -90,7 +90,7 @@ export function getEccentricity(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getPerigee(tle, isTLEParsed) {
-	return getFromLine2(tle, perigee, isTLEParsed);
+    return getFromLine2(tle, perigee, isTLEParsed);
 }
 
 /**
@@ -102,7 +102,7 @@ export function getPerigee(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getMeanAnomaly(tle, isTLEParsed) {
-	return getFromLine2(tle, meanAnomaly, isTLEParsed);
+    return getFromLine2(tle, meanAnomaly, isTLEParsed);
 }
 
 /**
@@ -113,7 +113,7 @@ export function getMeanAnomaly(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getMeanMotion(tle, isTLEParsed) {
-	return getFromLine2(tle, meanMotion, isTLEParsed);
+    return getFromLine2(tle, meanMotion, isTLEParsed);
 }
 
 /**
@@ -124,7 +124,7 @@ export function getMeanMotion(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getRevNumberAtEpoch(tle, isTLEParsed) {
-	return getFromLine2(tle, revNumberAtEpoch, isTLEParsed);
+    return getFromLine2(tle, revNumberAtEpoch, isTLEParsed);
 }
 
 /**
@@ -135,5 +135,5 @@ export function getRevNumberAtEpoch(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getChecksum2(tle, isTLEParsed) {
-	return getFromLine2(tle, checksum2, isTLEParsed);
+    return getFromLine2(tle, checksum2, isTLEParsed);
 }

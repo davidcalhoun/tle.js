@@ -1,4 +1,4 @@
-import { _TLE_DATA_TYPES } from "./constants";
+import { _TLE_DATA_TYPES } from './constants.js';
 
 /**
  * Two-Line Element Set (TLE) format definitions, Line 1
@@ -7,15 +7,15 @@ import { _TLE_DATA_TYPES } from "./constants";
 
 /* TLE line number. Will always return 1 for valid TLEs. */
 export const lineNumber1 = {
-	start: 0,
-	length: 1,
-	type: _TLE_DATA_TYPES._INT
+    start: 0,
+    length: 1,
+    type: _TLE_DATA_TYPES._INT,
 };
 
 /**
  * NORAD satellite catalog number (e.g. Sputnik's rocket was number 00001).
  * See https://en.wikipedia.org/wiki/Satellite_Catalog_Number
- * 
+ *
  * NOTE: This will not handle Alpha-5 satellites.
  * See https://www.space-track.org/documentation#tle-alpha5
  *
@@ -23,9 +23,9 @@ export const lineNumber1 = {
  * Example: 25544
  */
 export const catalogNumber1 = {
-	start: 2,
-	length: 5,
-	type: _TLE_DATA_TYPES._INT
+    start: 2,
+    length: 5,
+    type: _TLE_DATA_TYPES._INT,
 };
 
 /**
@@ -37,9 +37,9 @@ export const catalogNumber1 = {
  * Example: 'U'
  */
 export const classification = {
-	start: 7,
-	length: 1,
-	type: _TLE_DATA_TYPES._CHAR
+    start: 7,
+    length: 1,
+    type: _TLE_DATA_TYPES._CHAR,
 };
 
 /**
@@ -51,9 +51,9 @@ export const classification = {
  * Example: 98
  */
 export const intDesignatorYear = {
-	start: 9,
-	length: 2,
-	type: _TLE_DATA_TYPES._INT
+    start: 9,
+    length: 2,
+    type: _TLE_DATA_TYPES._INT,
 };
 
 /**
@@ -64,9 +64,9 @@ export const intDesignatorYear = {
  * Example: 67
  */
 export const intDesignatorLaunchNumber = {
-	start: 11,
-	length: 3,
-	type: _TLE_DATA_TYPES._INT
+    start: 11,
+    length: 3,
+    type: _TLE_DATA_TYPES._INT,
 };
 
 /**
@@ -77,23 +77,23 @@ export const intDesignatorLaunchNumber = {
  * Example: 'A'
  */
 export const intDesignatorPieceOfLaunch = {
-	start: 14,
-	length: 3,
-	type: _TLE_DATA_TYPES._CHAR
+    start: 14,
+    length: 3,
+    type: _TLE_DATA_TYPES._CHAR,
 };
 
 /**
  * Year when the TLE was generated (TLE epoch), last two digits.
- * 
+ *
  * 57 to 99 = 1900s, 00-56 = 2000s
  *
  * Range: 00 to 99
  * Example: 17
  */
 export const epochYear = {
-	start: 18,
-	length: 2,
-	type: _TLE_DATA_TYPES._INT
+    start: 18,
+    length: 2,
+    type: _TLE_DATA_TYPES._INT,
 };
 
 /**
@@ -103,9 +103,9 @@ export const epochYear = {
  * Example: 206.18396726
  */
 export const epochDay = {
-	start: 20,
-	length: 12,
-	type: _TLE_DATA_TYPES._FLOAT
+    start: 20,
+    length: 12,
+    type: _TLE_DATA_TYPES._FLOAT,
 };
 
 /**
@@ -117,9 +117,9 @@ export const epochDay = {
  * Example: 0.00001961
  */
 export const firstTimeDerivative = {
-	start: 33,
-	length: 11,
-	type: _TLE_DATA_TYPES._FLOAT
+    start: 33,
+    length: 11,
+    type: _TLE_DATA_TYPES._FLOAT,
 };
 
 /**
@@ -133,9 +133,9 @@ export const firstTimeDerivative = {
  * Example: 0 ('00000-0' in the original TLE [= 0.00000 * 10 ^ 0])
  */
 export const secondTimeDerivative = {
-	start: 44,
-	length: 8,
-	type: _TLE_DATA_TYPES._DECIMAL_ASSUMED_E
+    start: 44,
+    length: 8,
+    type: _TLE_DATA_TYPES._DECIMAL_ASSUMED_E,
 };
 
 /**
@@ -146,9 +146,9 @@ export const secondTimeDerivative = {
  * Example: 0.000036771 ('36771-4' in the original TLE [= 0.36771 * 10 ^ -4])
  */
 export const bstarDrag = {
-	start: 53,
-	length: 8,
-	type: _TLE_DATA_TYPES._DECIMAL_ASSUMED_E
+    start: 53,
+    length: 8,
+    type: _TLE_DATA_TYPES._DECIMAL_ASSUMED_E,
 };
 
 /**
@@ -159,9 +159,9 @@ export const bstarDrag = {
  * Example: 0
  */
 export const orbitModel = {
-	start: 62,
-	length: 1,
-	type: _TLE_DATA_TYPES._INT
+    start: 62,
+    length: 1,
+    type: _TLE_DATA_TYPES._INT,
 };
 
 /**
@@ -172,9 +172,9 @@ export const orbitModel = {
  * Example: 999
  */
 export const tleSetNumber = {
-	start: 64,
-	length: 4,
-	type: _TLE_DATA_TYPES._INT
+    start: 64,
+    length: 4,
+    type: _TLE_DATA_TYPES._INT,
 };
 
 /*
@@ -184,7 +184,7 @@ export const tleSetNumber = {
  * Example: 3
  */
 export const checksum1 = {
-	start: 68,
-	length: 1,
-	type: _TLE_DATA_TYPES._INT
+    start: 68,
+    length: 1,
+    type: _TLE_DATA_TYPES._INT,
 };
