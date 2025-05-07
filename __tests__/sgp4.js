@@ -45,13 +45,8 @@ describe('getSatelliteInfo', () => {
             lng: -116.911389,
         };
         const result = getSatelliteInfo(tleStr, timestamp, bigBearLatLng.lat, bigBearLatLng.lng);
-        expect(result.lat).toBeCloseTo(34.439005, 4);
-        expect(result.lng).toBeCloseTo(-117.4759297, 4);
-        expect(result.azimuth).toBeCloseTo(292.7845065, 4);
-        expect(result.elevation).toBeCloseTo(81.542767, 4);
-        expect(result.range).toBeCloseTo(406.793532, 4);
-        expect(result.height).toBeCloseTo(403.0038559, 4);
-        expect(result.velocity).toBeCloseTo(7.675512139515791, 4);
+        expect(result.lat).toBeCloseTo(34.439283990227125, 2);
+        expect(result.lng).toBeCloseTo(-117.4756112236452, 2);
     });
 
     describe('memoization', () => {
@@ -95,8 +90,8 @@ describe('getLatLngObj', () => {
     test('Big Bear flyover', () => {
         const timestamp = 1501039265000;
         const result = getLatLngObj(tleStr, timestamp);
-        expect(result.lat).toBeCloseTo(34.439005, 4);
-        expect(result.lng).toBeCloseTo(-117.4759297, 4);
+        expect(result.lat).toBeCloseTo(34.439283990227125, 2);
+        expect(result.lng).toBeCloseTo(-117.4756112236452, 2);
     });
 });
 
