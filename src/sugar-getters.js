@@ -1,27 +1,27 @@
-import { _MS_IN_A_DAY, _MS_IN_A_MINUTE, _MS_IN_A_SECOND } from "./constants";
-import { _dayOfYearToTimeStamp, _getFullYear } from "./utils";
+import { _MS_IN_A_DAY, _MS_IN_A_MINUTE, _MS_IN_A_SECOND } from './constants.js';
+import { _dayOfYearToTimeStamp, _getFullYear } from './utils.js';
 import {
-	getEpochDay,
-	getEpochYear,
-	getIntDesignatorLaunchNumber,
-	getIntDesignatorPieceOfLaunch,
-	getIntDesignatorYear
-} from "./line-1-getters";
-import { getMeanMotion } from "./line-2-getters";
-import { parseTLE } from "./parsing";
+    getEpochDay,
+    getEpochYear,
+    getIntDesignatorLaunchNumber,
+    getIntDesignatorPieceOfLaunch,
+    getIntDesignatorYear,
+} from './line-1-getters.js';
+import { getMeanMotion } from './line-2-getters.js';
+import { parseTLE } from './parsing.js';
 
 /**
  * Determines COSPAR ID.
  * See https://en.wikipedia.org/wiki/International_Designator
  */
 export function getCOSPAR(tle, tleIsParsed) {
-	const partialYear = getIntDesignatorYear(tle, tleIsParsed);
-	const fullYear = _getFullYear(partialYear);
-	const launchNum = getIntDesignatorLaunchNumber(tle, tleIsParsed);
-	const launchNumWithPadding = launchNum.toString().padStart(3, 0);
-	const launchPiece = getIntDesignatorPieceOfLaunch(tle, tleIsParsed);
+    const partialYear = getIntDesignatorYear(tle, tleIsParsed);
+    const fullYear = _getFullYear(partialYear);
+    const launchNum = getIntDesignatorLaunchNumber(tle, tleIsParsed);
+    const launchNumWithPadding = launchNum.toString().padStart(3, 0);
+    const launchPiece = getIntDesignatorPieceOfLaunch(tle, tleIsParsed);
 
-	return `${fullYear}-${launchNumWithPadding}${launchPiece}`;
+    return `${fullYear}-${launchNumWithPadding}${launchPiece}`;
 }
 
 /**
@@ -36,14 +36,14 @@ export function getCOSPAR(tle, tleIsParsed) {
  * @param {Boolean} fallbackToCOSPAR Returns COSPAR id when satellite name isn't found.
  */
 export function getSatelliteName(rawTLE, fallbackToCOSPAR = false) {
-	const parsedTLE = parseTLE(rawTLE);
-	const { name } = parsedTLE;
+    const parsedTLE = parseTLE(rawTLE);
+    const { name } = parsedTLE;
 
-	if (fallbackToCOSPAR) {
-		return name || getCOSPAR(parsedTLE, true);
-	} else {
-		return name || "Unknown";
-	}
+    if (fallbackToCOSPAR) {
+        return name || getCOSPAR(parsedTLE, true);
+    } else {
+        return name || 'Unknown';
+    }
 }
 
 /**
@@ -54,28 +54,28 @@ export function getSatelliteName(rawTLE, fallbackToCOSPAR = false) {
  * -> 1500956694771
  */
 export function getEpochTimestamp(rawTLE) {
-	const epochDay = getEpochDay(rawTLE);
-	const epochYear = getEpochYear(rawTLE);
-	return _dayOfYearToTimeStamp(epochDay, epochYear);
+    const epochDay = getEpochDay(rawTLE);
+    const epochYear = getEpochYear(rawTLE);
+    return _dayOfYearToTimeStamp(epochDay, epochYear);
 }
 
 /**
  * Determines the average amount of milliseconds in one orbit.
  */
 export function getAverageOrbitTimeMS(tle) {
-	return parseInt(_MS_IN_A_DAY / getMeanMotion(tle), 10);
+    return parseInt(_MS_IN_A_DAY / getMeanMotion(tle), 10);
 }
 
 /**
  * Determines the average amount of minutes in one orbit.
  */
 export function getAverageOrbitTimeMins(tle) {
-	return getAverageOrbitTimeMS(tle) / _MS_IN_A_MINUTE;
+    return getAverageOrbitTimeMS(tle) / _MS_IN_A_MINUTE;
 }
 
 /**
  * Determines the average amount of seconds in one orbit.
  */
 export function getAverageOrbitTimeS(tle) {
-	return getAverageOrbitTimeMS(tle) / _MS_IN_A_SECOND;
+    return getAverageOrbitTimeMS(tle) / _MS_IN_A_SECOND;
 }

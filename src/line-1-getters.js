@@ -1,21 +1,21 @@
-import { parseTLE } from "./parsing";
+import { parseTLE } from './parsing.js';
 import {
-	bstarDrag,
-	catalogNumber1,
-	checksum1,
-	classification,
-	epochDay,
-	epochYear,
-	firstTimeDerivative,
-	intDesignatorLaunchNumber,
-	intDesignatorPieceOfLaunch,
-	intDesignatorYear,
-	lineNumber1,
-	orbitModel,
-	secondTimeDerivative,
-	tleSetNumber
-} from "./line-1-definitions";
-import { getFromTLE } from "./utils";
+    bstarDrag,
+    catalogNumber1,
+    checksum1,
+    classification,
+    epochDay,
+    epochYear,
+    firstTimeDerivative,
+    intDesignatorLaunchNumber,
+    intDesignatorPieceOfLaunch,
+    intDesignatorYear,
+    lineNumber1,
+    orbitModel,
+    secondTimeDerivative,
+    tleSetNumber,
+} from './line-1-definitions.js';
+import { getFromTLE } from './utils.js';
 
 /**
  * General helper to get a piece of data from the first line of a TLE.
@@ -25,9 +25,9 @@ import { getFromTLE } from "./utils";
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getFromLine1(tle, definition, isTLEParsed = false) {
-	const parsedTLE = isTLEParsed ? tle : parseTLE(tle);
+    const parsedTLE = isTLEParsed ? tle : parseTLE(tle);
 
-	return getFromTLE(parsedTLE, 1, definition);
+    return getFromTLE(parsedTLE, 1, definition);
 }
 
 /**
@@ -37,7 +37,7 @@ export function getFromLine1(tle, definition, isTLEParsed = false) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getLineNumber1(tle, isTLEParsed) {
-	return getFromLine1(tle, lineNumber1, isTLEParsed);
+    return getFromLine1(tle, lineNumber1, isTLEParsed);
 }
 
 /**
@@ -48,7 +48,7 @@ export function getLineNumber1(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getCatalogNumber1(tle, isTLEParsed) {
-	return getFromLine1(tle, catalogNumber1, isTLEParsed);
+    return getFromLine1(tle, catalogNumber1, isTLEParsed);
 }
 
 /**
@@ -58,7 +58,7 @@ export function getCatalogNumber1(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getClassification(tle, isTLEParsed) {
-	return getFromLine1(tle, classification, isTLEParsed);
+    return getFromLine1(tle, classification, isTLEParsed);
 }
 
 /**
@@ -70,7 +70,7 @@ export function getClassification(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getIntDesignatorYear(tle, isTLEParsed) {
-	return getFromLine1(tle, intDesignatorYear, isTLEParsed);
+    return getFromLine1(tle, intDesignatorYear, isTLEParsed);
 }
 
 /**
@@ -82,7 +82,7 @@ export function getIntDesignatorYear(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getIntDesignatorLaunchNumber(tle, isTLEParsed) {
-	return getFromLine1(tle, intDesignatorLaunchNumber, isTLEParsed);
+    return getFromLine1(tle, intDesignatorLaunchNumber, isTLEParsed);
 }
 
 /**
@@ -94,7 +94,7 @@ export function getIntDesignatorLaunchNumber(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getIntDesignatorPieceOfLaunch(tle, isTLEParsed) {
-	return getFromLine1(tle, intDesignatorPieceOfLaunch, isTLEParsed);
+    return getFromLine1(tle, intDesignatorPieceOfLaunch, isTLEParsed);
 }
 
 /**
@@ -105,7 +105,7 @@ export function getIntDesignatorPieceOfLaunch(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getEpochYear(tle, isTLEParsed) {
-	return getFromLine1(tle, epochYear, isTLEParsed);
+    return getFromLine1(tle, epochYear, isTLEParsed);
 }
 
 /**
@@ -117,7 +117,7 @@ export function getEpochYear(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getEpochDay(tle, isTLEParsed) {
-	return getFromLine1(tle, epochDay, isTLEParsed);
+    return getFromLine1(tle, epochDay, isTLEParsed);
 }
 
 /**
@@ -130,7 +130,7 @@ export function getEpochDay(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getFirstTimeDerivative(tle, isTLEParsed) {
-	return getFromLine1(tle, firstTimeDerivative, isTLEParsed);
+    return getFromLine1(tle, firstTimeDerivative, isTLEParsed);
 }
 
 /**
@@ -143,7 +143,7 @@ export function getFirstTimeDerivative(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getSecondTimeDerivative(tle, isTLEParsed) {
-	return getFromLine1(tle, secondTimeDerivative, isTLEParsed);
+    return getFromLine1(tle, secondTimeDerivative, isTLEParsed);
 }
 
 /**
@@ -154,7 +154,7 @@ export function getSecondTimeDerivative(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getBstarDrag(tle, isTLEParsed) {
-	return getFromLine1(tle, bstarDrag, isTLEParsed);
+    return getFromLine1(tle, bstarDrag, isTLEParsed);
 }
 
 /**
@@ -167,7 +167,7 @@ export function getBstarDrag(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getOrbitModel(tle, isTLEParsed) {
-	return getFromLine1(tle, orbitModel, isTLEParsed);
+    return getFromLine1(tle, orbitModel, isTLEParsed);
 }
 
 /**
@@ -178,7 +178,7 @@ export function getOrbitModel(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getTleSetNumber(tle, isTLEParsed) {
-	return getFromLine1(tle, tleSetNumber, isTLEParsed);
+    return getFromLine1(tle, tleSetNumber, isTLEParsed);
 }
 
 /**
@@ -189,5 +189,5 @@ export function getTleSetNumber(tle, isTLEParsed) {
  * @param {Boolean} isTLEParsed Skips TLE parsing when true.
  */
 export function getChecksum1(tle, isTLEParsed) {
-	return getFromLine1(tle, checksum1, isTLEParsed);
+    return getFromLine1(tle, checksum1, isTLEParsed);
 }

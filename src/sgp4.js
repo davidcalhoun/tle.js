@@ -8,10 +8,10 @@ import {
     degreesLong,
     degreesLat,
 } from 'satellite.js';
-import { parseTLE } from './parsing';
-import { getAverageOrbitTimeMins, getAverageOrbitTimeMS, getEpochTimestamp } from './sugar-getters';
-import { _MS_IN_A_DAY, _MS_IN_A_MINUTE } from './constants';
-import { _degreesToRadians, _radiansToDegrees, _crossesAntemeridian, _getObjLength } from './utils';
+import { parseTLE } from './parsing.js';
+import { getAverageOrbitTimeMins, getAverageOrbitTimeMS, getEpochTimestamp } from './sugar-getters.js';
+import { _MS_IN_A_DAY, _MS_IN_A_MINUTE } from './constants.js';
+import { _degreesToRadians, _radiansToDegrees, _crossesAntemeridian, _getObjLength } from './utils.js';
 
 const _SAT_REC_ERRORS = {
     _DEFAULT: 'Problematic TLE with unknown error.',

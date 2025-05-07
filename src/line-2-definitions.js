@@ -1,4 +1,4 @@
-import { _TLE_DATA_TYPES } from "./constants";
+import { _TLE_DATA_TYPES } from './constants.js';
 
 /**
  * Two-Line Element Set (TLE) format definitions, Line 2
@@ -7,9 +7,9 @@ import { _TLE_DATA_TYPES } from "./constants";
 
 /* TLE line number. Will always return 2 for valid TLEs. */
 export const lineNumber2 = {
-	start: 0,
-	length: 1,
-	type: _TLE_DATA_TYPES._INT
+    start: 0,
+    length: 1,
+    type: _TLE_DATA_TYPES._INT,
 };
 
 /**
@@ -20,9 +20,9 @@ export const lineNumber2 = {
  * Example: 25544
  */
 export const catalogNumber2 = {
-	start: 2,
-	length: 5,
-	type: _TLE_DATA_TYPES._INT
+    start: 2,
+    length: 5,
+    type: _TLE_DATA_TYPES._INT,
 };
 
 /**
@@ -34,9 +34,9 @@ export const catalogNumber2 = {
  * Example: 51.6400
  */
 export const inclination = {
-	start: 8,
-	length: 8,
-	type: _TLE_DATA_TYPES._FLOAT
+    start: 8,
+    length: 8,
+    type: _TLE_DATA_TYPES._FLOAT,
 };
 
 /**
@@ -49,9 +49,9 @@ export const inclination = {
  * Example: 208.9163
  */
 export const rightAscension = {
-	start: 17,
-	length: 8,
-	type: _TLE_DATA_TYPES._FLOAT
+    start: 17,
+    length: 8,
+    type: _TLE_DATA_TYPES._FLOAT,
 };
 
 /**
@@ -62,9 +62,9 @@ export const rightAscension = {
  * Example: 0.0006317 (`0006317` in the original TLE)
  */
 export const eccentricity = {
-	start: 26,
-	length: 7,
-	type: _TLE_DATA_TYPES._DECIMAL_ASSUMED
+    start: 26,
+    length: 7,
+    type: _TLE_DATA_TYPES._DECIMAL_ASSUMED,
 };
 
 /**
@@ -74,9 +74,9 @@ export const eccentricity = {
  * Example: 69.9862
  */
 export const perigee = {
-	start: 34,
-	length: 8,
-	type: _TLE_DATA_TYPES._FLOAT
+    start: 34,
+    length: 8,
+    type: _TLE_DATA_TYPES._FLOAT,
 };
 
 /**
@@ -89,9 +89,9 @@ export const perigee = {
  * Example: 25.2906
  */
 export const meanAnomaly = {
-	start: 43,
-	length: 8,
-	type: _TLE_DATA_TYPES._FLOAT
+    start: 43,
+    length: 8,
+    type: _TLE_DATA_TYPES._FLOAT,
 };
 
 /**
@@ -102,9 +102,9 @@ export const meanAnomaly = {
  * Example: 15.54225995
  */
 export const meanMotion = {
-	start: 52,
-	length: 11,
-	type: _TLE_DATA_TYPES._FLOAT
+    start: 52,
+    length: 11,
+    type: _TLE_DATA_TYPES._FLOAT,
 };
 
 /**
@@ -115,9 +115,9 @@ export const meanMotion = {
  * Example: 6766
  */
 export const revNumberAtEpoch = {
-	start: 63,
-	length: 5,
-	type: _TLE_DATA_TYPES._INT
+    start: 63,
+    length: 5,
+    type: _TLE_DATA_TYPES._INT,
 };
 
 /*
@@ -127,7 +127,7 @@ export const revNumberAtEpoch = {
  * Example: 0
  */
 export const checksum2 = {
-	start: 68,
-	length: 1,
-	type: _TLE_DATA_TYPES._INT
+    start: 68,
+    length: 1,
+    type: _TLE_DATA_TYPES._INT,
 };
