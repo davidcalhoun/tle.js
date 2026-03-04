@@ -1,6 +1,6 @@
 {
     "name": "tle.js",
-    "version": "5.0.1",
+    "version": "5.0.2",
     "description": "Satellite TLE tools in JavaScript.",
     "main": "src/index.js",
     "type": "module",
