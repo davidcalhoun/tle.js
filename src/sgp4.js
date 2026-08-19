@@ -84,7 +84,7 @@ export function clearCache() {
  * TODO: return error instead of throwing?
  */
 export function getSatelliteInfo(rawTLE, rawTimestamp, observerLat, observerLng, observerHeight) {
-    const timestamp = rawTimestamp || Date.now();
+    const timestamp = rawTimestamp ?? Date.now();
 
     const { tle, error: parseError } = parseTLE(rawTLE);
 
@@ -98,9 +98,9 @@ export function getSatelliteInfo(rawTLE, rawTimestamp, observerLat, observerLng,
         height: 0.37,
     };
 
-    const obsLat = observerLat || defaultObserverPosition.lat;
-    const obsLng = observerLng || defaultObserverPosition.lng;
-    const obsHeight = observerHeight || defaultObserverPosition.height;
+    const obsLat = observerLat ?? defaultObserverPosition.lat;
+    const obsLng = observerLng ?? defaultObserverPosition.lng;
+    const obsHeight = observerHeight ?? defaultObserverPosition.height;
 
     // Memoization
     const cacheKey = `${tle[0]}-${timestamp}-${observerLat}-${observerLng}
