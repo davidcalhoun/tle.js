@@ -55,7 +55,7 @@ export function getSatelliteName(rawTLE, fallbackToCOSPAR = false) {
  */
 export function getEpochTimestamp(rawTLE) {
     const epochDay = getEpochDay(rawTLE);
-    const epochYear = getEpochYear(rawTLE);
+    const epochYear = _getFullYear(getEpochYear(rawTLE));
     return _dayOfYearToTimeStamp(epochDay, epochYear);
 }
 

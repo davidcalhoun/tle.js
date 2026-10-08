@@ -73,10 +73,44 @@ export const _decimalAssumedEToFloat = (str) => {
 };
 
 /**
+ * Alpha-5 letters in order: A = 10, B = 11, ... skipping I and O ... Z = 33.
+ * See https://www.space-track.org/documentation#tle-alpha5
+ */
+const _ALPHA5_LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+
+/**
+ * Converts a TLE catalog number field to an integer, decoding the Alpha-5 form used from
+ * 100000 upward.  Returns NaN for a letter the scheme never uses (I, O, lowercase).
+ *
+ * Example:
+ * _catalogNumberToInt('A0000');
+ * -> 100000
+ */
+export const _catalogNumberToInt = (str) => {
+    const field = str.trim();
+    const isAlpha5 = /^[A-Z][0-9]{4}$/.test(field);
+
+    if (!isAlpha5) {
+        return parseInt(field, 10);
+    }
+
+    const letterValue = _ALPHA5_LETTERS.indexOf(field[0]);
+    if (letterValue === -1) {
+        return NaN;
+    }
+
+    return (letterValue + 10) * 10000 + parseInt(field.substr(1), 10);
+};
+
+/**
  * Converts a fractional day of the year to a timestamp.  Used for parsing the TLE epoch.
+ * `year` is a full year (e.g. 2026); see _getFullYear() for the TLE's two-digit form.
  */
 export const _dayOfYearToTimeStamp = (dayOfYear, year = new Date().getFullYear()) => {
-    const yearStart = new Date(`1/1/${year} 0:0:0 Z`);
+    // Date.UTC() and the Date string parser both treat years 0-99 as 1900-1999 (or 1950-2049),
+    // so the year is set explicitly.
+    const yearStart = new Date(0);
+    yearStart.setUTCFullYear(year, 0, 1);
 
     const yearStartMS = yearStart.getTime();
 
@@ -161,6 +195,10 @@ export function getFromTLE(parsedTLE, lineNumber, definition) {
 
         case _TLE_DATA_TYPES._DECIMAL_ASSUMED_E:
             output = _decimalAssumedEToFloat(val);
+            break;
+
+        case _TLE_DATA_TYPES._CATALOG_NUMBER:
+            output = _catalogNumberToInt(val);
             break;
 
         case _TLE_DATA_TYPES._CHAR:

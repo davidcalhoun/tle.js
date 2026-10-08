@@ -248,9 +248,11 @@ getSatelliteName(tle);
 
 Returns the [NORAD satellite catalog number](https://en.wikipedia.org/wiki/Satellite_Catalog_Number).
 Used since Sputnik was launched in 1957 (Sputnik's rocket was 00001, while Sputnik itself was
-00002).
+00002). Numbers from 100000 upward appear in TLEs in the
+[Alpha-5](https://www.space-track.org/documentation#tle-alpha5) form (`A0000` = 100000,
+`Z9999` = 339999) and are decoded.
 
-- Range: 0 to 99999
+- Range: 0 to 339999
 
 ```js
 import { getCatalogNumber } from "tle.js";
