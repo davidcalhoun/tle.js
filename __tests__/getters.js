@@ -226,12 +226,55 @@ describe("getters", () => {
 			expect(getCatalogNumber(tleStr)).toEqual(25544);
 		});
 
+		describe("getCatalogNumber with Alpha-5 fields", () => {
+			// Catalog numbers from 100000 upward: the first character is a letter, A = 10 ... Z = 33,
+			// skipping I and O.  See https://www.space-track.org/documentation#tle-alpha5
+			const withCatalogField = (field) => tleStr.replace(/25544/g, field);
+
+			test("A0000 is 100000", () => {
+				expect(getCatalogNumber(withCatalogField("A0000"))).toEqual(100000);
+				expect(getCatalogNumber2(withCatalogField("A0000"))).toEqual(100000);
+			});
+
+			test("Z9999 is 339999", () => {
+				expect(getCatalogNumber(withCatalogField("Z9999"))).toEqual(339999);
+			});
+
+			test("I and O are skipped", () => {
+				expect(getCatalogNumber(withCatalogField("H9999"))).toEqual(179999);
+				expect(getCatalogNumber(withCatalogField("J0000"))).toEqual(180000);
+				expect(getCatalogNumber(withCatalogField("N9999"))).toEqual(229999);
+				expect(getCatalogNumber(withCatalogField("P0000"))).toEqual(230000);
+			});
+
+			test("letters the scheme never uses give NaN", () => {
+				expect(getCatalogNumber(withCatalogField("I0000"))).toEqual(NaN);
+				expect(getCatalogNumber(withCatalogField("O0000"))).toEqual(NaN);
+				expect(getCatalogNumber(withCatalogField("a0000"))).toEqual(NaN);
+			});
+
+			test("five-digit numbers are unchanged", () => {
+				expect(getCatalogNumber(withCatalogField("00005"))).toEqual(5);
+				expect(getCatalogNumber(withCatalogField("99999"))).toEqual(99999);
+			});
+		});
+
 		test("getCOSPAR", () => {
 			expect(getCOSPAR(tleStr)).toEqual("1998-067A");
 		});
 
 		test("getEpochTimestamp", () => {
 			expect(getEpochTimestamp(tleStr)).toEqual(1500956694771);
+		});
+
+		test("getEpochTimestamp two-digit year pivot: 57-99 are 1957-1999, 00-56 are 2000-2056", () => {
+			const withEpochYear = (yy) => tleStr.replace("17206.18396726", `${yy}206.18396726`);
+			expect(new Date(getEpochTimestamp(withEpochYear("57"))).getUTCFullYear()).toEqual(1957);
+			expect(new Date(getEpochTimestamp(withEpochYear("99"))).getUTCFullYear()).toEqual(1999);
+			expect(new Date(getEpochTimestamp(withEpochYear("00"))).getUTCFullYear()).toEqual(2000);
+			expect(new Date(getEpochTimestamp(withEpochYear("49"))).getUTCFullYear()).toEqual(2049);
+			expect(new Date(getEpochTimestamp(withEpochYear("50"))).getUTCFullYear()).toEqual(2050);
+			expect(new Date(getEpochTimestamp(withEpochYear("56"))).getUTCFullYear()).toEqual(2056);
 		});
 
 		test("getEpochTimestamp 2 with untrimmed spaces", () => {

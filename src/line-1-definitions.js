@@ -16,16 +16,17 @@ export const lineNumber1 = {
  * NORAD satellite catalog number (e.g. Sputnik's rocket was number 00001).
  * See https://en.wikipedia.org/wiki/Satellite_Catalog_Number
  *
- * NOTE: This will not handle Alpha-5 satellites.
- * See https://www.space-track.org/documentation#tle-alpha5
+ * Numbers from 100000 upward use the Alpha-5 scheme: the first character is a letter standing
+ * for the leading two digits (A = 10 ... Z = 33, skipping I and O), so A0000 is 100000 and
+ * Z9999 is 339999. See https://www.space-track.org/documentation#tle-alpha5
  *
- * Range: 0 to 99999
+ * Range: 0 to 339999
  * Example: 25544
  */
 export const catalogNumber1 = {
     start: 2,
     length: 5,
-    type: _TLE_DATA_TYPES._INT,
+    type: _TLE_DATA_TYPES._CATALOG_NUMBER,
 };
 
 /**
