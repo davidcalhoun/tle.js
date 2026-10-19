@@ -16,13 +16,13 @@ export const lineNumber2 = {
  * NORAD satellite catalog number (Sputnik's rocket was 00001).  Should match the satellite
  * number on line 1.
  *
- * Range: 0 to 99999
+ * Range: 0 to 339999 (Alpha-5 from 100000, see line 1)
  * Example: 25544
  */
 export const catalogNumber2 = {
     start: 2,
     length: 5,
-    type: _TLE_DATA_TYPES._INT,
+    type: _TLE_DATA_TYPES._CATALOG_NUMBER,
 };
 
 /**

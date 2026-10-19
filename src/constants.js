@@ -8,7 +8,8 @@ export const _TLE_DATA_TYPES = {
   _FLOAT: Symbol(),
   _CHAR: Symbol(),
   _DECIMAL_ASSUMED: Symbol(), // 12345 -> 0.12345
-  _DECIMAL_ASSUMED_E: Symbol() // 12345-2 -> 0.0012345
+  _DECIMAL_ASSUMED_E: Symbol(), // 12345-2 -> 0.0012345
+  _CATALOG_NUMBER: Symbol() // 25544 -> 25544, A0000 -> 100000 (Alpha-5)
 };
 
 export const _DATA_TYPES = {
