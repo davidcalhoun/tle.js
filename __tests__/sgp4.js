@@ -473,3 +473,17 @@ describe('getVisibleSatellites', () => {
         expect(allVisible.length).toEqual(1);
     });
 });
+
+describe('getSatelliteInfo observer defaults', () => {
+    test('respects an explicit observer at (0, 0, 0)', () => {
+        // A falsy check (`observerLat || default`) previously replaced an
+        // explicit 0 (equator / prime meridian / sea level) with the default
+        // observer, so an explicit origin observer must match a near-origin one.
+        const timestamp = 1501039265000;
+        const atOrigin = getSatelliteInfo(tleStr, timestamp, 0, 0, 0);
+        const nearOrigin = getSatelliteInfo(tleStr, timestamp, 1e-7, 1e-7, 1e-7);
+        expect(atOrigin.azimuth).toBeCloseTo(nearOrigin.azimuth, 4);
+        expect(atOrigin.elevation).toBeCloseTo(nearOrigin.elevation, 4);
+        expect(atOrigin.range).toBeCloseTo(nearOrigin.range, 2);
+    });
+});
